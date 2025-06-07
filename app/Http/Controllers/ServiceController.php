@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
+use Inertia\Inertia;
 
 class ServiceController extends Controller
 {
@@ -13,7 +14,8 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        //
+        $services = Service::all();
+        return Inertia::render('Services/Index', compact('services'));
     }
 
     /**
@@ -21,7 +23,7 @@ class ServiceController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Services/Create');
     }
 
     /**
@@ -29,15 +31,18 @@ class ServiceController extends Controller
      */
     public function store(StoreServiceRequest $request)
     {
-        //
+        Service::create($request->validated());
+
+        return redirect()->route('services.index');
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show(Service $service)
     {
-        //
+        return Inertia::render('Services/Show', compact('service'));
     }
 
     /**
@@ -45,7 +50,7 @@ class ServiceController extends Controller
      */
     public function edit(Service $service)
     {
-        //
+        return Inertia::render('Services/Edit', compact('service'));
     }
 
     /**
@@ -53,7 +58,8 @@ class ServiceController extends Controller
      */
     public function update(UpdateServiceRequest $request, Service $service)
     {
-        //
+        $service->update($request->validated());
+        return redirect()->route('services.index');
     }
 
     /**
@@ -61,6 +67,7 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        //
+        $service->delete();
+        return redirect()->route('services.index');
     }
 }

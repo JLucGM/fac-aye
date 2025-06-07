@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Consultation;
 use App\Http\Requests\StoreConsultationRequest;
 use App\Http\Requests\UpdateConsultationRequest;
+use App\Models\Patient;
+use App\Models\Service;
+use App\Models\User;
+use Inertia\Inertia;
 
 class ConsultationController extends Controller
 {
@@ -13,7 +17,8 @@ class ConsultationController extends Controller
      */
     public function index()
     {
-        //
+        $consultations = Consultation::with(['patient', 'user'])->get();
+        return Inertia::render('Consultations/Index', compact('consultations'));
     }
 
     /**
@@ -21,7 +26,10 @@ class ConsultationController extends Controller
      */
     public function create()
     {
-        //
+        $patients = Patient::all();
+        $users = User::all();
+        $services = Service::all(); // Assuming you have a Service model
+        return Inertia::render('Consultations/Create', compact('patients', 'users', 'services'));
     }
 
     /**
@@ -29,7 +37,9 @@ class ConsultationController extends Controller
      */
     public function store(StoreConsultationRequest $request)
     {
-        //
+        Consultation::create($request->validated());
+        
+        return redirect()->route('consultations.index');
     }
 
     /**
@@ -37,7 +47,7 @@ class ConsultationController extends Controller
      */
     public function show(Consultation $consultation)
     {
-        //
+        return Inertia::render('Consultations/Show', compact('consultation'));
     }
 
     /**
@@ -45,7 +55,11 @@ class ConsultationController extends Controller
      */
     public function edit(Consultation $consultation)
     {
-        //
+        $patients = Patient::all();
+        $users = User::all();
+        $services = Service::all();
+
+        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services'));
     }
 
     /**
@@ -53,7 +67,8 @@ class ConsultationController extends Controller
      */
     public function update(UpdateConsultationRequest $request, Consultation $consultation)
     {
-        //
+        $consultation->update($request->validated());
+        return redirect()->route('consultations.index');
     }
 
     /**
@@ -61,6 +76,7 @@ class ConsultationController extends Controller
      */
     public function destroy(Consultation $consultation)
     {
-        //
+        $consultation->delete();
+        return redirect()->route('consultations.index');
     }
 }

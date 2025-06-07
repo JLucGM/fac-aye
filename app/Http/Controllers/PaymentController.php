@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
+use App\Models\Consultation;
+use App\Models\Patient;
+use App\Models\PaymentMethod;
+use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
@@ -13,7 +17,8 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
+        $payments = Payment::all();
+        return Inertia::render('Payments/Index', compact('payments'));
     }
 
     /**
@@ -21,7 +26,11 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        //
+        $paymentMethods = PaymentMethod::all();
+        $patients = Patient::all();
+        $consultations = Consultation::all();
+
+        return Inertia::render('Payments/Create', compact('paymentMethods', 'patients', 'consultations'));
     }
 
     /**
@@ -29,7 +38,15 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
-        //
+        Payment::create($request->validated());
+        
+        // $payment = Payment::create($request->validated());
+        // if ($paymentSuccessful) {
+        //     $payment->update(['status' => 'completado', 'paid_at' => now()]);
+        // } else {
+        //     $payment->update(['status' => 'fallido']);
+        // }
+        return redirect()->route('payments.index');
     }
 
     /**
@@ -37,7 +54,7 @@ class PaymentController extends Controller
      */
     public function show(Payment $payment)
     {
-        //
+        return Inertia::render('Payments/Show', compact('payment'));
     }
 
     /**
@@ -45,7 +62,20 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment)
     {
-        //
+        $paymentMethods = PaymentMethod::all();
+        $patients = Patient::all();
+        $consultations = Consultation::all();
+        $payment->load('patient', 'consultation', 'paymentMethod');
+        // $payment->setRelation('patient', $patients->find($payment->patient_id));
+        // $payment->setRelation('consultation', $consultations->find($payment->consultation_id));
+        // $payment->setRelation('paymentMethod', $paymentMethods->find($payment->payment_method_id));
+        // $payment->status_label = match ($payment->status) {
+        //     'pendiente' => 'Pendiente',
+        //     'completado' => 'Completado',
+        //     'fallido' => 'Fallido',
+        //     default => 'Desconocido',
+        // };
+        return Inertia::render('Payments/Edit', compact('payment'));
     }
 
     /**
@@ -53,7 +83,9 @@ class PaymentController extends Controller
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        //
+        $payment->update($request->validated());
+
+        return redirect()->route('payments.index');
     }
 
     /**
@@ -61,6 +93,7 @@ class PaymentController extends Controller
      */
     public function destroy(Payment $payment)
     {
-        //
+        $payment->delete();
+        return redirect()->route('payments.index');
     }
 }

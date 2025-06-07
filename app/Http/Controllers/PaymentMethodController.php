@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PaymentMethod;
 use App\Http\Requests\StorePaymentMethodRequest;
 use App\Http\Requests\UpdatePaymentMethodRequest;
+use Inertia\Inertia;
 
 class PaymentMethodController extends Controller
 {
@@ -13,7 +14,8 @@ class PaymentMethodController extends Controller
      */
     public function index()
     {
-        //
+        $paymentMethods = PaymentMethod::all();
+        return Inertia::render('PaymentMethods/Index', compact('paymentMethods'));
     }
 
     /**
@@ -21,7 +23,7 @@ class PaymentMethodController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('PaymentMethods/Create');
     }
 
     /**
@@ -29,7 +31,8 @@ class PaymentMethodController extends Controller
      */
     public function store(StorePaymentMethodRequest $request)
     {
-        //
+        PaymentMethod::create($request->validated());
+        return redirect()->route('payment-methods.index');
     }
 
     /**
@@ -37,7 +40,7 @@ class PaymentMethodController extends Controller
      */
     public function show(PaymentMethod $paymentMethod)
     {
-        //
+        return Inertia::render('PaymentMethods/Show', compact('paymentMethod'));
     }
 
     /**
@@ -45,7 +48,7 @@ class PaymentMethodController extends Controller
      */
     public function edit(PaymentMethod $paymentMethod)
     {
-        //
+        return Inertia::render('PaymentMethods/Edit', compact('paymentMethod'));
     }
 
     /**
@@ -53,7 +56,8 @@ class PaymentMethodController extends Controller
      */
     public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod)
     {
-        //
+        $paymentMethod->update($request->validated());
+        return redirect()->route('payment-methods.index');
     }
 
     /**
@@ -61,6 +65,7 @@ class PaymentMethodController extends Controller
      */
     public function destroy(PaymentMethod $paymentMethod)
     {
-        //
+        $paymentMethod->delete();
+        return redirect()->route('payment-methods.index');
     }
 }

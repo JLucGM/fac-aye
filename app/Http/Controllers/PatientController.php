@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use Inertia\Inertia;
 
 class PatientController extends Controller
 {
@@ -13,7 +14,8 @@ class PatientController extends Controller
      */
     public function index()
     {
-        //
+        $patients = Patient::all();
+        return Inertia::render('Patients/Index', compact('patients'));
     }
 
     /**
@@ -21,7 +23,7 @@ class PatientController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Patients/Create');
     }
 
     /**
@@ -29,7 +31,8 @@ class PatientController extends Controller
      */
     public function store(StorePatientRequest $request)
     {
-        //
+        Patient::create($request->validated());
+        return redirect()->route('patients.index');
     }
 
     /**
@@ -37,7 +40,7 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        //
+        return Inertia::render('Patients/Show', compact('patient'));
     }
 
     /**
@@ -45,7 +48,7 @@ class PatientController extends Controller
      */
     public function edit(Patient $patient)
     {
-        //
+        return Inertia::render('Patients/Edit', compact('patient'));
     }
 
     /**
@@ -53,7 +56,8 @@ class PatientController extends Controller
      */
     public function update(UpdatePatientRequest $request, Patient $patient)
     {
-        //
+        $patient->update($request->validated());
+        return redirect()->route('patients.index');
     }
 
     /**
@@ -61,6 +65,7 @@ class PatientController extends Controller
      */
     public function destroy(Patient $patient)
     {
-        //
+        $patient->delete();
+        return redirect()->route('patients.index');
     }
 }

@@ -13,6 +13,31 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Servicios',
+        href: '/services',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Consultas',
+        href: '/consultations',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Pacientes',
+        href: '/patients',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Pagos',
+        href: '/payments',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Metodos de Pagos',
+        href: '/payment-methods',
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
