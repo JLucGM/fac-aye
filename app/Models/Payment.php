@@ -11,9 +11,9 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'patient_id',
         'consultation_id',
         'payment_method_id',
-        'patient_id',
         'amount',
         'status',
         'reference',
@@ -21,9 +21,14 @@ class Payment extends Model
         'paid_at',
     ];
 
+    protected $attributes = [
+        'status' => 'pendiente', // pendiente, completado, fallido
+    ];
+
     protected $casts = [
         'paid_at' => 'datetime',
     ];
+
     public function consultation()
     {
         return $this->belongsTo(Consultation::class);
@@ -39,15 +44,15 @@ class Payment extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function getStatusLabelAttribute()
-    {
-        return match ($this->status) {
-            'pendiente' => 'Pendiente',
-            'completado' => 'Completado',
-            'fallido' => 'Fallido',
-            default => 'Desconocido',
-        };
-    }
+    // public function getStatusLabelAttribute()
+    // {
+    //     return match ($this->status) {
+    //         'pendiente' => 'Pendiente',
+    //         'completado' => 'Completado',
+    //         'fallido' => 'Fallido',
+    //         default => 'Desconocido',
+    //     };
+    // }
 
     // public function getPaidAtFormattedAttribute()
     // {

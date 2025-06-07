@@ -11,26 +11,36 @@ class Consultation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id',
         'user_id',
+        'patient_id',
         'service_id',
+        'status',
         'scheduled_at',
         'completed_at',
-        'status',
+        'notes',
         'payment_status',
     ];
+
+    protected $attributes = [
+        'status' => 'pendiente', // pendiente, confirmed, completed, cancelled
+        'payment_status' => 'pendiente', // pendiente, paid, refunded
+    ];
+
     protected $casts = [
         'scheduled_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
     public function patient()
     {
         return $this->belongsTo(Patient::class);
     }
+
     public function service()
     {
         return $this->belongsTo(Service::class);
