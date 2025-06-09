@@ -11,7 +11,7 @@ class UpdateConsultationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,14 @@ class UpdateConsultationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'user_id' => 'required|exists:users,id',
+            'patient_id' => 'required|exists:patients,id',
+            'service_id' => 'required|exists:services,id',
+            'status' => 'required|in:scheduled,completed,cancelled',
+            'scheduled_at' => 'nullable|date',
+            // 'completed_at' => 'nullable|date_format:Y-m-d H:i:s',
+            'notes' => 'nullable|string|max:1000',
+            'payment_status' => 'required|in:pending,paid,refunded',
         ];
     }
 }

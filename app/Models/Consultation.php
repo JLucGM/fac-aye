@@ -41,8 +41,8 @@ class Consultation extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function service()
+    public function services()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsToMany(Service::class, 'consultation_service');
     }
 };

@@ -1,7 +1,10 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import ContentLayout from '@/layouts/content-layout';
+import PaymentMethodsForm from './PaymentMethodsForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,17 +17,50 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Create',
-        href: '/payment-methods/create',
+        href: '#',
     },
 ];
 
 export default function Create() {
+    const { data, setData, errors, post } = useForm({
+        name: '', // Asegúrate de que sea string
+        description: '', // Asegúrate de que sea string
+        active: false, // Asegúrate de que sea booleano
+    });
+
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        post(route('payment-methods.store'), {
+            onSuccess: () => {
+                console.log("Metodo de pago creado con éxito:", data);
+                // toast("Metodo de pago creado con éxito.");
+            },
+            onError: (err) => {
+                console.error("Error al crear el Metodo de pago:", err);
+                // toast("Error al crear el Metodo de pago.");
+            },
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                PaymentMethods create
-            </div>
+           
+           <ContentLayout>
+                <form className="flex flex-col gap-4" onSubmit={submit}>
+                    <PaymentMethodsForm
+                        data={data}
+                        setData={setData}
+                        errors={errors}
+                    />
+
+                    <Button
+                        variant={"default"}
+                    >
+                        Create Payment Method
+                    </Button>
+                </form>
+            </ContentLayout>
         </AppLayout>
     );
 }

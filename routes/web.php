@@ -18,12 +18,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    Route::resource('payments', PaymentController::class);
-    Route::resource('payment-methods', PaymentMethodController::class);
-    Route::resource('consultations', ConsultationController::class);
-    Route::resource('patients', PatientController::class);
-    Route::resource('users', RegisteredUserController::class);
-    Route::resource('services', ServiceController::class);
+    Route::resources([
+        'payments' => PaymentController::class,
+        'payment-methods' => PaymentMethodController::class,
+        'consultations' => ConsultationController::class,
+        'patients' => PatientController::class,
+        'users' => RegisteredUserController::class,
+        'services' => ServiceController::class,
+    ]);
+
+    // Route::get('services', [ServiceController::class, 'index'])->name('services.index');
+    // Route::get('services/create', [ServiceController::class, 'create'])->name('services.create');
+    // Route::post('services', [ServiceController::class, 'store'])->name('services.store');
+    // Route::get('services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+    // Route::put('services/{service}', [ServiceController::class, 'update'])->name('services.update');
+    // Route::delete('services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+
 });
 
 require __DIR__.'/settings.php';

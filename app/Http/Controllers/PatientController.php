@@ -31,6 +31,7 @@ class PatientController extends Controller
      */
     public function store(StorePatientRequest $request)
     {
+        // dd($request->validated());
         Patient::create($request->validated());
         return redirect()->route('patients.index');
     }

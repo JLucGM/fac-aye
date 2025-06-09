@@ -50,6 +50,7 @@ class ServiceController extends Controller
      */
     public function edit(Service $service)
     {
+        // dd($service);
         return Inertia::render('Services/Edit', compact('service'));
     }
 
@@ -58,6 +59,7 @@ class ServiceController extends Controller
      */
     public function update(UpdateServiceRequest $request, Service $service)
     {
+        // dd($request->validated());
         $service->update($request->validated());
         return redirect()->route('services.index');
     }

@@ -1,9 +1,11 @@
 import Heading from '@/components/heading';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
-import { type BreadcrumbItem } from '@/types';
+import { Service, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
+import { DataTable } from '../../components/data-table';
+import { columns } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -16,27 +18,33 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({services}: { services: any[] }) {
+export default function Index({ services }: { services: Service[] }) {
 
-    console.log('services', services);
+    // console.log('services', services);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Index" />
-            
+
 
             <ContentLayout>
                 <Heading
                     title="Services"
                     description="Manage your services"
                 >
-                    <Link className="btn btn-primary" href={route('services.create')}>
-                        Create Service
-                    </Link>
+                    <Button asChild>
+                        <Link className="btn btn-primary" href={route('services.create')}>
+                            Create Service
+                        </Link>
+                    </Button>
                 </Heading>
-                
-                
+
+                <DataTable
+                    columns={columns}
+                    data={services}
+                />
+
             </ContentLayout>
-           
+
         </AppLayout>
     );
 }

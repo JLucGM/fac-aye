@@ -1,4 +1,3 @@
-import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode } from 'react';
 
@@ -8,7 +7,7 @@ interface ContentLayoutProps {
 }
 
 export default ({ children, breadcrumbs, ...props }: ContentLayoutProps) => (
-    <div className="p-4">
+    <div className="w-xl md:w-2xl lg:w-3xl mx-auto p-4">
         {children}
     </div>
 );

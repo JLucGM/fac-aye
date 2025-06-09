@@ -1,7 +1,11 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import Heading from '@/components/heading';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import ContentLayout from '@/layouts/content-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { DataTable } from '../../components/data-table';
+import { columns } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -9,20 +13,39 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Payment Methods',
-        href: '/payment-methods',
+        title: 'paymentMethods',
+        href: '/paymentMethods',
     },
+    
 ];
 
-export default function Index({paymentMethods}: { paymentMethods: any[] }) {
+export default function Index({ paymentMethods }: { paymentMethods: any[] }) {
 
-    console.log('paymentMethods', paymentMethods);
+    // console.log('paymentMethods', paymentMethods);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                PaymentMethods index
-            </div>
+            <Head title="Index" />
+
+
+            <ContentLayout>
+                <Heading
+                    title="paymentMethods"
+                    description="Manage your paymentMethods"
+                >
+                    <Button asChild>
+                        <Link className="btn btn-primary" href={route('payment-methods.create')}>
+                            Create Payment Method
+                        </Link>
+                    </Button>
+                </Heading>
+
+                <DataTable
+                    columns={columns}
+                    data={paymentMethods}
+                />
+
+            </ContentLayout>
+
         </AppLayout>
     );
 }

@@ -11,7 +11,7 @@ class StoreConsultationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,13 @@ class StoreConsultationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'patient_id' => 'required|exists:patients,id',
+            'user_id' => 'required|exists:users,id',
+            'service_id' => 'required|exists:services,id',
+            'notes' => 'nullable|string|max:1000',
+            'status' => 'required|in:scheduled,completed,cancelled',
+            'payment_status' => 'required|in:pending,paid,refunded',
+            'scheduled_at' => 'nullable|date',
         ];
     }
 }

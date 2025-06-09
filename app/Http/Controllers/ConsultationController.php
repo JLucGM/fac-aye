@@ -36,11 +36,24 @@ class ConsultationController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreConsultationRequest $request)
-    {
-        Consultation::create($request->validated());
-        
-        return redirect()->route('consultations.index');
+{
+    // Crear la consulta sin el campo service_id
+    $validatedData = $request->validated();
+    unset($validatedData['service_id']); // Eliminar service_id del array de datos
+
+    // Crear la consulta
+    $consultation = Consultation::create($validatedData);
+
+    // Asociar los servicios seleccionados
+    if (is_array($request->service_id)) {
+        $consultation->services()->attach($request->service_id);
+    } else {
+        // Si solo hay un servicio, puedes usar attach directamente
+        $consultation->services()->attach($request->service_id);
     }
+    
+    return redirect()->route('consultations.index');
+}
 
     /**
      * Display the specified resource.
@@ -55,6 +68,7 @@ class ConsultationController extends Controller
      */
     public function edit(Consultation $consultation)
     {
+        $consultation->load('services','patient','user'); // Cargar los servicios relacionados
         $patients = Patient::all();
         $users = User::all();
         $services = Service::all();
@@ -66,10 +80,21 @@ class ConsultationController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateConsultationRequest $request, Consultation $consultation)
-    {
-        $consultation->update($request->validated());
-        return redirect()->route('consultations.index');
-    }
+{
+    // Extraer los datos validados, excluyendo service_id
+    $data = $request->validated();
+    unset($data['service_id']); // Eliminar service_id de los datos que se van a actualizar
+
+    // Actualizar la consulta con los datos validados
+    $consultation->update($data);
+
+    // Sincronizar los servicios
+    $consultation->services()->sync($request->input('service_id'));
+
+    // Redirigir a la lista de consultas con un mensaje de éxito
+    return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');
+}
+
 
     /**
      * Remove the specified resource from storage.
