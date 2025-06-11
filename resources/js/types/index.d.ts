@@ -28,7 +28,7 @@ export interface SharedData {
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
-    [key: string]: unknown;
+    // [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
 }
 
 export interface User {
@@ -40,16 +40,16 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    // [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
 }
 
 export interface Service {
-    id: number
-    slug?: string
-    name: string
-    status: string
-    price: number
-    description: string
+    id: number;
+    slug?: string;
+    name: string;
+    status: string;
+    price: number;
+    description: string;
 }
 
 export interface Consultation {
@@ -63,10 +63,11 @@ export interface Consultation {
     completed_at: string;
     notes: string;
     payment_status: string;
-    user?: User; // Agregar la propiedad user
+    user?: User;
     patient?: Patient;
     services?: Service[];
 }
+
 export interface Patient {
     id: number;
     slug?: string;
@@ -81,20 +82,19 @@ export interface Patient {
     updated_at: string;
 }
 
-
 export interface PaymentMethod {
-  id: number;
-  name: string;
-  slug?: string;
-  description?: string;
-  active: boolean;
+    id: number;
+    name: string;
+    slug?: string;
+    description?: string;
+    active: boolean;
 }
 
 export interface Payment {
-  id: number
-  slug?: string
-  name: string
-  status: string
-  email: string
-  amount: number
+    id: number;
+    slug?: string;
+    name: string;
+    status: string;
+    email: string;
+    amount: number;
 }

@@ -1,6 +1,7 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Patient } from "@/types";
 import Select from 'react-select';
 
 type ConsultationsFormProps = {
@@ -13,7 +14,7 @@ type ConsultationsFormProps = {
         notes: string;
         payment_status: string;
     };
-    patients: any[];
+    patients: Patient[];
     users: any[];
     services: any[];
     setData: (key: string, value: any) => void;

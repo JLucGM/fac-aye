@@ -1,16 +1,10 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Patient } from "@/types";
 
 type ServicesFormProps = {
-    data: {
-        name: string;
-        lastname: string;
-        email: string;
-        phone: string;
-        birthdate: string;
-        identification?: string; // Optional field for identification
-    };
+    data: Patient;
     setData: (key: string, value: any) => void;
     errors: {
         name?: string;
