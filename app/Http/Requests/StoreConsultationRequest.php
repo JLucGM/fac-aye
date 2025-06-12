@@ -24,11 +24,15 @@ class StoreConsultationRequest extends FormRequest
         return [
             'patient_id' => 'required|exists:patients,id',
             'user_id' => 'required|exists:users,id',
-            'service_id' => 'required|exists:services,id',
+            // 'service_id' => 'required|exists:services,id',
             'notes' => 'nullable|string|max:1000',
             'status' => 'required|in:scheduled,completed,cancelled',
             'payment_status' => 'required|in:pending,paid,refunded',
             'scheduled_at' => 'nullable|date',
+            // 'completed_at' => 'nullable|date|after_or_equal:scheduled_at',
+            'amount' => 'nullable|numeric|min:0',
+            'consultation_type' => 'required|in:domiciliary,office',
+            
         ];
     }
 }

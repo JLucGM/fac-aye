@@ -19,17 +19,17 @@ class StorePaymentRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'patient_id' => 'required|exists:patients,id',
-            'consultation_id' => 'nullable|exists:consultations,id',
+            'consultation_ids' => 'required|array',
+            'consultation_ids.*' => 'exists:consultations,id', // Asegúrate de que las consultas existan
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',
-            'status' => 'in:pendiente,completado,fallido',
+            'status' => 'required|string',
             'reference' => 'nullable|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            'paid_at' => 'nullable|date',
+            'notes' => 'nullable|string|max:255',
+            'paid_at' => 'nullable|date', // Si es necesario
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Consultation;
 use App\Models\Patient;
 use App\Models\PaymentMethod;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -28,7 +29,7 @@ class PaymentController extends Controller
     {
         $paymentMethods = PaymentMethod::all();
         $patients = Patient::all();
-        $consultations = Consultation::all();
+        $consultations = Consultation::with('patient', 'user')->get();
 
         return Inertia::render('Payments/Create', compact('paymentMethods', 'patients', 'consultations'));
     }
@@ -37,17 +38,34 @@ class PaymentController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StorePaymentRequest $request)
-    {
-        Payment::create($request->validated());
-        
-        // $payment = Payment::create($request->validated());
-        // if ($paymentSuccessful) {
-        //     $payment->update(['status' => 'completado', 'paid_at' => now()]);
-        // } else {
-        //     $payment->update(['status' => 'fallido']);
-        // }
-        return redirect()->route('payments.index');
-    }
+{
+    // Iniciar una transacción para asegurar la integridad de los datos
+    DB::transaction(function () use ($request) {
+        // Crear el pago
+        $payment = Payment::create([
+            'payment_method_id' => $request->payment_method_id,
+            'amount' => $request->amount,
+            'status' => $request->status,
+            'reference' => $request->reference,
+            'notes' => $request->notes,
+            'paid_at' => $request->paid_at,
+        ]);
+
+        // Sincronizar las consultas seleccionadas
+        $payment->consultations()->sync($request->consultation_ids);
+
+        // Actualizar el estado de las consultas
+        foreach ($request->consultation_ids as $consultationId) {
+            $consultation = Consultation::find($consultationId);
+            if ($consultation) {
+                $consultation->update(['payment_status' => 'paid']);
+            }
+        }
+    });
+
+    return redirect()->route('payments.index')->with('success', 'Pago creado con éxito.');
+}
+
 
     /**
      * Display the specified resource.

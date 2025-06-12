@@ -57,7 +57,7 @@ export const columns: ColumnDef<Consultation>[] = [
   },
   {
     accessorKey: "scheduled_at",
-    header: "Fecha y hora programada",
+    header: "Fecha programada",
     cell: ({ row }) => {
       const scheduledAt = new Date(row.original.scheduled_at); // Convertir a objeto Date
       return (

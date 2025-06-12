@@ -17,7 +17,13 @@ class PatientFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->name(),
+            'lastname' => $this->faker->lastname(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'slug' => $this->faker->slug(),
+            'identification' => $this->faker->unique()->numerify('##########'),
+            'phone' => $this->faker->phoneNumber(),
+            'birthdate' => $this->faker->date(),
         ];
     }
 }

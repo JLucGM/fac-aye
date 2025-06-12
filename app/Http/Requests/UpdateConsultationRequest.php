@@ -24,12 +24,14 @@ class UpdateConsultationRequest extends FormRequest
         return [
             'user_id' => 'required|exists:users,id',
             'patient_id' => 'required|exists:patients,id',
-            'service_id' => 'required|exists:services,id',
+            // 'service_id' => 'required|exists:services,id',
             'status' => 'required|in:scheduled,completed,cancelled',
             'scheduled_at' => 'nullable|date',
             // 'completed_at' => 'nullable|date_format:Y-m-d H:i:s',
             'notes' => 'nullable|string|max:1000',
             'payment_status' => 'required|in:pending,paid,refunded',
+            'amount' => 'nullable|numeric|min:0',
+            'consultation_type' => 'required|in:domiciliary,office',
         ];
     }
 }

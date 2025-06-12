@@ -19,6 +19,8 @@ class Consultation extends Model
         'completed_at',
         'notes',
         'payment_status',
+        'amount',
+        'consultation_type', // domiciliary, office
     ];
 
     protected $attributes = [
@@ -44,5 +46,10 @@ class Consultation extends Model
     public function services()
     {
         return $this->belongsToMany(Service::class, 'consultation_service');
+    }
+
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class);
     }
 };

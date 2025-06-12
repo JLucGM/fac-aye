@@ -13,7 +13,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'payments',
+        title: 'Payments',
         href: '/payments',
     },
     {
@@ -23,42 +23,36 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Create({ paymentMethods, patients, consultations }: { paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
-console.log("Payment Methods:", paymentMethods);
-console.log("Patients:", patients);
-console.log("Consultations:", consultations);
-
     const { data, setData, errors, post } = useForm({
-        patient_id: patients.length > 0 ? Number(patients[0].id) : 0, // Convertido a number
-        consultation_id: consultations.length > 0 ? Number(consultations[0].id) : 0, // Convertido a number
-        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : 0, // Convertido a number
+        consultation_ids: [],
+        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : 0,
         amount: 0,
-        status: 'pendiente',
+        status: 'earring',
         reference: '',
         notes: '',
         paid_at: new Date().toISOString().split('T')[0],
     });
 
-
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("Submitting payment data:", data);
         post(route('payments.store'), {
             onSuccess: () => {
-                console.log("Servicio creado con éxito:", data);
-                // toast("Servicio creado con éxito.");
+                console.log("Pago creado con éxito:", data);
+                toast("Pago creado con éxito.");
             },
             onError: (err) => {
-                console.error("Error al crear el servicio:", err);
-                // toast("Error al crear el servicio.");
+                console.error("Error al crear el pago:", err);
+                toast("Error al crear el pago.");
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create" />
+            <Head title="Create Payment" />
 
             <ContentLayout>
-
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <PaymentsForm
                         data={data}
@@ -69,10 +63,8 @@ console.log("Consultations:", consultations);
                         errors={errors}
                     />
 
-                    <Button
-                        variant={"default"}
-                    >
-                        Create Service
+                    <Button variant={"default"}>
+                        Create Payment
                     </Button>
                 </form>
             </ContentLayout>

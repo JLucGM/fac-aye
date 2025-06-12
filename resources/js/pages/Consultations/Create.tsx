@@ -1,6 +1,6 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { Consultation, Patient, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -23,26 +23,33 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Create({ patients, users, services }: {
-    patients: any[],
-    users: any[],
-    services: any[],
+    patients: Patient[],
+    users: User[],
+    services: Service[],
 }) {
-    const { data, setData, errors, post } = useForm({
+    // console.log("Create consultation page loaded with patients:", patients);
+    // console.log("Create consultation page loaded with users:", users);
+    // console.log("Create consultation page loaded with services:", services);
+
+    const { data, setData, errors, post } =  useForm<Consultation>({
         user_id: users[0].id,
         patient_id: patients[0].id,
         service_id: [],
         status: '',
         scheduled_at: '',
+        consultation_type: '', // Uncomment if you want to include consultation type
         // completed_at: '',
         notes: '',
         payment_status: '',
+        amount: 0,
     });
-    console.log("Create consultation page loaded with initial data:", data);
+    // console.log("Create consultation page loaded with initial data:", data);
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
+        // console.log("Submitting consultation with data:", data);
         e.preventDefault();
         post(route('consultations.store'), {
             onSuccess: () => {
-                console.log("Paciente creado con éxito:", data);
+                // console.log("Paciente creado con éxito:", data);
                 // toast("Paciente creado con éxito.");
             },
             onError: (err) => {

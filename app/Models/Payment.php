@@ -11,7 +11,7 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id',
+        // 'patient_id',
         'consultation_id',
         'payment_method_id',
         'amount',
@@ -29,9 +29,9 @@ class Payment extends Model
         'paid_at' => 'datetime',
     ];
 
-    public function consultation()
+    public function consultations()
     {
-        return $this->belongsTo(Consultation::class);
+        return $this->belongsToMany(Consultation::class);
     }
 
     public function paymentMethod()

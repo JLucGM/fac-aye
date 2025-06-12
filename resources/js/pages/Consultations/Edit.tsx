@@ -30,6 +30,8 @@ export default function Edit({ consultation, patient, patients, users, services 
         scheduled_at: consultation.scheduled_at ? new Date(consultation.scheduled_at).toISOString().slice(0, 16) : '',
         notes: consultation.notes || '',
         payment_status: consultation.payment_status || '',
+        consultation_type: consultation.consultation_type || '', // Agregado
+        amount: consultation.amount || 0, // Agregado
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {

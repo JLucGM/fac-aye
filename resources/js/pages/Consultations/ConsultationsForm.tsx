@@ -1,22 +1,15 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Patient } from "@/types";
+import { Consultation, Patient, Service, User } from "@/types";
 import Select from 'react-select';
+import { useEffect } from 'react';
 
 type ConsultationsFormProps = {
-    data: {
-        user_id: number;
-        patient_id: number;
-        service_id: number[];
-        status: string;
-        scheduled_at: string; // Asegúrate de que sea un string
-        notes: string;
-        payment_status: string;
-    };
+    data: Consultation;
     patients: Patient[];
-    users: any[];
-    services: any[];
+    users: User[];
+    services: Service[];
     setData: (key: string, value: any) => void;
     errors: {
         user_id?: string;
@@ -26,6 +19,8 @@ type ConsultationsFormProps = {
         scheduled_at?: string;
         notes?: string;
         payment_status?: string;
+        consultation_type?: string; // Agregado
+        amount?: string; // Agregado
     };
 };
 
@@ -45,11 +40,26 @@ export default function ConsultationsForm({ data, patients, users, services, set
         { value: 'refunded', label: 'Reembolsado' },
     ];
 
+    const consultationTypeOptions = [
+        { value: 'domiciliary', label: 'A Domiciliaria' },
+        { value: 'office', label: 'Consultorio' },
+    ];
+
     const handleScheduledAtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const date = new Date(e.target.value);
         const formattedDate = date.toISOString().slice(0, 19); // Formato Y-m-d H:i:s
         setData('scheduled_at', formattedDate);
     };
+
+    // Calcular el monto total basado en los servicios seleccionados
+    useEffect(() => {
+        const totalAmount = data.service_id.reduce((total, serviceId) => {
+            const service = services.find(s => s.id === serviceId);
+            return total + (service ? parseFloat(service.price) : 0); // Asegúrate de convertir el precio a número
+        }, 0);
+        setData('amount', totalAmount);
+    }, [data.service_id, services, setData]);
+
 
     return (
         <>
@@ -97,7 +107,21 @@ export default function ConsultationsForm({ data, patients, users, services, set
             </div>
 
             <div>
-                <Label htmlFor="scheduled_at" className="mb-2 block font-semibold text-gray-700">Scheduled At</Label>
+                <Label htmlFor="consultation_type" className="mb-2 block font-semibold text-gray-700">Tipo de Consulta</Label>
+                <Select
+                    id="consultation_type"
+                    options={consultationTypeOptions}
+                    value={consultationTypeOptions.find(option => option.value === data.consultation_type) || null}
+                    onChange={(selectedOption) => setData('consultation_type', selectedOption?.value ?? '')}
+                    isSearchable
+                    placeholder="Selecciona el tipo de consulta..."
+                    className="rounded-md"
+                />
+                <InputError message={errors.consultation_type} />
+            </div>
+
+            <div>
+                <Label htmlFor="scheduled_at" className="mb-2 block font-semibold text-gray-700">Fecha programada</Label>
                 <Input
                     id="scheduled_at"
                     type="datetime-local"
@@ -147,7 +171,28 @@ export default function ConsultationsForm({ data, patients, users, services, set
                 />
                 <InputError message={errors.notes} />
             </div>
+
+            <div>
+                <Label className="mb-2 block font-semibold text-gray-700">Total Amount</Label>
+                <Input
+                    type="text"
+                    value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`} // Verifica que amount sea un número
+                    readOnly
+                    className="rounded-md bg-gray-200"
+                />
+            </div>
+
+            {/* <div>
+                <Label htmlFor="amount" className="mb-2 block font-semibold text-gray-700">Amount</Label>
+                <Input
+                    id="amount"
+                    type="number"
+                    value={data.amount}
+                    onChange={(e) => setData('amount', parseFloat(e.target.value))}
+                    className="rounded-md"
+                />
+                <InputError message={errors.amount} />
+            </div> */}
         </>
     );
 }
-

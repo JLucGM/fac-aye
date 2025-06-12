@@ -35,6 +35,7 @@ export interface User {
     id: number;
     name: string;
     lastname: string;
+    identification: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
@@ -53,19 +54,24 @@ export interface Service {
 }
 
 export interface Consultation {
-    id: number;
+    id?: number; // Hacer opcional
     slug?: string;
     user_id: number;
     patient_id: number;
-    service_id: number;
+    service_id: number[]; // Cambiado a un array de números
     status: string;
     scheduled_at: string;
-    completed_at: string;
+    completed_at?: string; // Hacer opcional
     notes: string;
     payment_status: string;
     user?: User;
     patient?: Patient;
     services?: Service[];
+    consultation_type?: string; // Agregado para el tipo de consulta
+    amount?: number; // Agregado para el monto
+    created_at?: string; // Hacer opcional
+    updated_at?: string; // Hacer opcional
+    [key: string]: any; // Agregar firma de índice
 }
 
 export interface Patient {
@@ -97,4 +103,10 @@ export interface Payment {
     status: string;
     email: string;
     amount: number;
+    reference: string;
+    notes: string;
+    // patient_id: number;
+    consultation_id: number | null;
+    payment_method_id: number;
+    paid_at: string;
 }
