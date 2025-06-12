@@ -49,12 +49,12 @@ export const columns: ColumnDef<Payment>[] = [
             </DropdownMenuItem> 
             <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('services.edit', [row.original.slug ?? row.original.id])} >
-              Editar
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])} >
+              Mostrar
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('services.destroy', [row.original.slug ?? row.original.id])} method="delete">
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.destroy', [row.original.id])} method="delete">
                 Eliminar
               </Link>
             </DropdownMenuItem>

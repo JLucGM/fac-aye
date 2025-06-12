@@ -1,6 +1,6 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { Consultation, Patient, PaymentMethod, type BreadcrumbItem } from '@/types';
+import { Consultation, Patient, Payment, PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -22,16 +22,19 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+
 export default function Create({ paymentMethods, patients, consultations }: { paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
     const { data, setData, errors, post } = useForm({
-        consultation_ids: [],
-        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : 0,
-        amount: 0,
-        status: 'earring',
-        reference: '',
-        notes: '',
-        paid_at: new Date().toISOString().split('T')[0],
-    });
+    patient_id: null, // Agrega esta línea para inicializar patient_id
+    consultation_ids: [],
+    payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
+    amount: 0,
+    status: 'earring',
+    reference: '',
+    notes: '',
+    paid_at: new Date().toISOString().split('T')[0],
+});
+
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

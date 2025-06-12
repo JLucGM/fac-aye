@@ -34,56 +34,38 @@ export interface SharedData {
 export interface User {
     id: number;
     name: string;
-    lastname: string;
+    lastname?: string;
+    slug: string;
     identification: string;
     email: string;
-    avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    // [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
-}
-
-export interface Service {
-    id: number;
-    slug?: string;
-    name: string;
-    status: string;
-    price: number;
-    description: string;
-}
-
-export interface Consultation {
-    id?: number; // Hacer opcional
-    slug?: string;
-    user_id: number;
-    patient_id: number;
-    service_id: number[]; // Cambiado a un array de números
-    status: string;
-    scheduled_at: string;
-    completed_at?: string; // Hacer opcional
-    notes: string;
-    payment_status: string;
-    user?: User;
-    patient?: Patient;
-    services?: Service[];
-    consultation_type?: string; // Agregado para el tipo de consulta
-    amount?: number; // Agregado para el monto
-    created_at?: string; // Hacer opcional
-    updated_at?: string; // Hacer opcional
-    [key: string]: any; // Agregar firma de índice
+    email_verified_at?: string;  // ISO date string or null
+    password: string;
+    phone?: string;
+    active: boolean;
+    remember_token?: string;
+    created_at: string; // ISO date string
+    updated_at: string; // ISO date string
 }
 
 export interface Patient {
     id: number;
-    slug?: string;
     name: string;
-    lastname: string;
-    identification: string;
+    lastname?: string;
+    slug: string;
     email: string;
-    phone: string;
-    address: string;
-    birthdate: string;
+    identification: string;
+    phone?: string;
+    birthdate?: string; // ISO date string or null
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Service {
+    id: number;
+    name: string;
+    slug: string;
+    price: number; // decimal e.g. 10.50
+    description?: string;
     created_at: string;
     updated_at: string;
 }
@@ -91,22 +73,86 @@ export interface Patient {
 export interface PaymentMethod {
     id: number;
     name: string;
-    slug?: string;
+    slug: string;
     description?: string;
     active: boolean;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface Payment {
     id: number;
-    slug?: string;
-    name: string;
-    status: string;
-    email: string;
-    amount: number;
-    reference: string;
+    amount: number; // decimal amount
+    status: 'pendiente' | 'completado' | 'fallido'; // payment status
+    reference: string; // transaction id or reference
     notes: string;
-    // patient_id: number;
-    consultation_id: number | null;
-    payment_method_id: number;
-    paid_at: string;
+    paid_at: string; // ISO date string or null
+    payment_method_id: number; // FK to PaymentMethod
+    created_at: string;
+    updated_at: string;
+    consultations?: Consultation[];
+    // Optional: patient_id and consultation_id commented out in migration; add if needed
+    // patient_id?: number;
+    // consultation_id?: number;
 }
+
+
+export interface Consultation {
+    id: number;
+    user_id: number; // FK to User (doctor/professional)
+    status: 'pendiente' | 'confirmed' | 'completed' | 'cancelled';
+    scheduled_at: string; // ISO date string
+    consultation_type: 'domiciliary' | 'office';
+    amount: number;
+    notes?: string;
+    payment_status: 'pendiente' | 'paid' | 'refunded';
+    patient_id: number; // FK to Patient
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ConsultationService {
+    id: number;
+    consultation_id: number;
+    service_id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ConsultationPayment {
+    consultation_id: number;
+    payment_id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+/**
+ * Optional: Additional interfaces if you want to model system tables as well
+ */
+
+// Cache interface example
+export interface Cache {
+    key: string;
+    value: string;
+    expiration: number;
+}
+
+export interface CacheLock {
+    key: string;
+    owner: string;
+    expiration: number;
+}
+
+// Session interface example
+export interface Session {
+    id: string;
+    user_id?: number;
+    ip_address?: string;
+    user_agent?: string;
+    payload: string;
+    last_activity: number;
+}
+
+// Job related interfaces can be created similarly as needed.
+
+

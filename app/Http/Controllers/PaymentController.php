@@ -27,7 +27,7 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $paymentMethods = PaymentMethod::all();
+        $paymentMethods = PaymentMethod::where('active', 1)->get();
         $patients = Patient::all();
         $consultations = Consultation::with('patient', 'user')->get();
 
@@ -72,6 +72,7 @@ class PaymentController extends Controller
      */
     public function show(Payment $payment)
     {
+        $payment->load('patient', 'consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
         return Inertia::render('Payments/Show', compact('payment'));
     }
 
@@ -80,20 +81,12 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment)
     {
-        $paymentMethods = PaymentMethod::all();
+        $payment->load('patient', 'consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
+        $paymentMethods = PaymentMethod::where('active', 1)->get();
         $patients = Patient::all();
-        $consultations = Consultation::all();
-        $payment->load('patient', 'consultation', 'paymentMethod');
-        // $payment->setRelation('patient', $patients->find($payment->patient_id));
-        // $payment->setRelation('consultation', $consultations->find($payment->consultation_id));
-        // $payment->setRelation('paymentMethod', $paymentMethods->find($payment->payment_method_id));
-        // $payment->status_label = match ($payment->status) {
-        //     'pendiente' => 'Pendiente',
-        //     'completado' => 'Completado',
-        //     'fallido' => 'Fallido',
-        //     default => 'Desconocido',
-        // };
-        return Inertia::render('Payments/Edit', compact('payment'));
+        $consultations = Consultation::with('patient', 'user')->get();
+        
+        return Inertia::render('Payments/Edit', compact('payment', 'paymentMethods', 'patients', 'consultations'));
     }
 
     /**

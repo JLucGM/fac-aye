@@ -1,10 +1,9 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import ServicesForm from './PaymentsForm';
 import { Button } from '@/components/ui/button';
+import PaymentsForm from './PaymentsForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,53 +20,55 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Edit({ service }: { service: any }) {
-
+export default function Edit({ payment, paymentMethods, patients, consultations }: { payment: any, paymentMethods: any[], patients: any[], consultations: any[] }) {
     const { data, setData, errors, put, recentlySuccessful } = useForm({
-        patient_id: service.patient_id,
-        consultation_id: service.consultation_id,
-        payment_method_id: service.payment_method_id,
-        amount: service.amount,
-        status: service.status,
-        reference: service.reference,
-        notes: service.notes,
-        paid_at: service.paid_at,
-    });
+    patient_id: payment.patient_id || null, // Agrega esta línea para inicializar patient_id
+    consultation_ids: payment.consultation_ids || [], // Asegúrate de que sea un array
+    payment_method_id: payment.payment_method_id,
+    amount: payment.amount,
+    status: payment.status,
+    reference: payment.reference,
+    notes: payment.notes,
+    paid_at: payment.paid_at,
+});
+console.log(payment)
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-                console.log(data); // Verifica que los datos se están actualizando
+        console.log(data); // Verifica que los datos se están actualizando
 
-        put(route('services.update', service), {
+        put(route('payments.update', payment.id), { // Asegúrate de que la ruta sea correcta
             onSuccess: () => {
-                console.log("Servicio actualizado con éxito:", data);
-                // toast("Servicio actualizado con éxito.");
+                console.log("Pago actualizado con éxito:", data);
+                // Aquí puedes mostrar un mensaje de éxito
             },
             onError: (err) => {
-                console.error("Error al actualizar el servicio:", err);
-                // toast("Error al actualizar el servicio.");
+                console.error("Error al actualizar el pago:", err);
+                // Aquí puedes mostrar un mensaje de error
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit" />
+            <Head title="Edit Payment" />
 
             <ContentLayout>
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <ServicesForm
+                    <PaymentsForm
                         data={data}
+                        patients={patients}
+                        paymentMethods={paymentMethods}
+                        consultations={consultations}
                         setData={setData}
                         errors={errors}
                     />
 
                     <Button variant={"default"}>
-                        Update Service
+                        Update Payment
                     </Button>
                 </form>
             </ContentLayout>
         </AppLayout>
     );
 }
-

@@ -6,7 +6,16 @@ import { Consultation, Patient, Payment, PaymentMethod } from "@/types";
 import { useEffect, useState } from 'react';
 
 type PaymentsFormProps = {
-  data: Payment;
+  data: {
+    patient_id: number | null;
+    consultation_ids: number[];
+    payment_method_id: number | null;
+    amount: number;
+    status: string;
+    reference: string;
+    notes: string;
+    paid_at: string; // Formato ISO 8601
+  };
   patients: Patient[];
   paymentMethods: PaymentMethod[];
   consultations: Consultation[];
@@ -42,6 +51,7 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
     { value: 'cancelled', label: 'cancelado' },
   ];
 
+  // Al cambiar el paciente, filtra y carga consultas no pagadas
   const handlePatientChange = (selectedOption: { value: number; label: string } | null) => {
     setData('patient_id', selectedOption ? selectedOption.value : null);
     if (selectedOption) {
@@ -51,6 +61,8 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
           c.payment_status !== "paid"
       );
       setPendingConsultations(filtered);
+
+      // Resetear consultas seleccionadas y monto
       setData('consultation_ids', []);
       setData('amount', 0);
     } else {
@@ -69,23 +81,26 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
     }
     setData('consultation_ids', newSelection);
 
+    // Actualizar monto según selección
     const selectedConsultations = pendingConsultations.filter(c => newSelection.includes(c.id));
     const totalAmount = selectedConsultations.reduce((total, c) => {
-      const amt = c.amount !== undefined ? parseFloat(c.amount) : 0; // Asegúrate de que amount sea un número
+      const amt = (typeof c.amount === 'number' ? c.amount : parseFloat(c.amount)) || 0; // Asegúrate de que amount sea un número
       return total + (isNaN(amt) ? 0 : amt);
     }, 0);
 
     setData('amount', totalAmount);
   };
 
+
   useEffect(() => {
     if (data.patient_id) {
-        const filtered = consultations.filter(
-            c => c.patient_id === data.patient_id && c.payment_status !== "paid"
-        );
-        setPendingConsultations(filtered);
+      const filtered = consultations.filter(
+        c => c.patient_id === data.patient_id && c.payment_status !== "paid"
+      );
+      setPendingConsultations(filtered);
     }
-}, [data.patient_id, consultations]);
+  }, [data.patient_id, consultations]);
+
 
   return (
     <>
@@ -103,6 +118,7 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
         <InputError message={errors.patient_id} />
       </div>
 
+      {/* Lista de consultas no pagadas con checkbox */}
       <div className="mb-4">
         <Label className="mb-2 block font-semibold text-gray-700">
           Consultas pendientes a pagar
@@ -110,20 +126,26 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
         {pendingConsultations.length === 0 && (
           <p className="text-gray-500">No hay consultas pendientes para este paciente.</p>
         )}
-        {pendingConsultations.map(consultation => (
-          <div key={consultation.id} className="flex items-center mb-1">
-            <input
-              id={`consultation-${consultation.id}`}
-              type="checkbox"
-              checked={data.consultation_ids.includes(consultation.id)}
-              onChange={() => toggleConsultationSelection(consultation.id)}
-              className="mr-2"
-            />
-            <label htmlFor={`consultation-${consultation.id}`} className="cursor-pointer">
-              Consulta #{consultation.id} - Fecha: {new Date(consultation.scheduled_at).toLocaleDateString()} - Monto: ${parseFloat(consultation.amount).toFixed(2)}
-            </label>
-          </div>
-        ))}
+        {pendingConsultations.map(consultation => {
+          const amountNumber = parseFloat(consultation.amount as unknown as string);
+          const displayAmount = !isNaN(amountNumber) ? amountNumber.toFixed(2) : '0.00';
+
+          return (
+            <div key={consultation.id} className="flex items-center mb-1">
+              <input
+                id={`consultation-${consultation.id}`}
+                type="checkbox"
+                checked={data.consultation_ids.includes(consultation.id)}
+                onChange={() => toggleConsultationSelection(consultation.id)}
+                className="mr-2"
+              />
+              <label htmlFor={`consultation-${consultation.id}`} className="cursor-pointer">
+                Consulta #{consultation.id} - Fecha: {new Date(consultation.scheduled_at).toLocaleDateString()} - Monto: ${displayAmount}
+              </label>
+            </div>
+          );
+        })}
+
         <InputError message={errors.consultation_ids} />
       </div>
 
@@ -147,12 +169,13 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
           id="amount"
           type="text"
           name="amount"
-          value={data.amount ? data.amount.toFixed(2) : '0.00'}
+          value={typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00'}
           className="mt-1 block w-full"
           readOnly
         />
         <InputError message={errors.amount} className="mt-2" />
       </div>
+
 
       <div>
         <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Status</Label>
