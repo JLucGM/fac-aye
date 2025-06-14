@@ -2,20 +2,11 @@ import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Select from 'react-select';
-import { Consultation, Patient, Payment, PaymentMethod } from "@/types";
+import { Consultation, CreatePaymentFormData, Patient, Payment, PaymentMethod } from "@/types";
 import { useEffect, useState } from 'react';
 
 type PaymentsFormProps = {
-  data: {
-    patient_id: number | null;
-    consultation_ids: number[];
-    payment_method_id: number | null;
-    amount: number;
-    status: string;
-    reference: string;
-    notes: string;
-    paid_at: string; // Formato ISO 8601
-  };
+  data: CreatePaymentFormData;
   patients: Patient[];
   paymentMethods: PaymentMethod[];
   consultations: Consultation[];

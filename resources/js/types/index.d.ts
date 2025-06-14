@@ -45,6 +45,8 @@ export interface User {
     remember_token?: string;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
+    // Relationships
+    consultations?: Consultation[]; // A User can have many Consultations
 }
 
 export interface Patient {
@@ -58,6 +60,9 @@ export interface Patient {
     birthdate?: string; // ISO date string or null
     created_at: string;
     updated_at: string;
+    // Relationships
+    consultations?: Consultation[]; // A Patient can have many Consultations
+    payments?: Payment[]; // A Patient can have many Payments (based on Patient model's hasMany)
 }
 
 export interface Service {
@@ -68,6 +73,8 @@ export interface Service {
     description?: string;
     created_at: string;
     updated_at: string;
+    // Relationships
+    consultations?: Consultation[]; // A Service can be part of many Consultations (many-to-many)
 }
 
 export interface PaymentMethod {
@@ -78,6 +85,8 @@ export interface PaymentMethod {
     active: boolean;
     created_at: string;
     updated_at: string;
+    // Relationships
+    payments?: Payment[]; // A PaymentMethod can have many Payments
 }
 
 export interface Payment {
@@ -90,10 +99,10 @@ export interface Payment {
     payment_method_id: number; // FK to PaymentMethod
     created_at: string;
     updated_at: string;
-    consultations?: Consultation[];
-    // Optional: patient_id and consultation_id commented out in migration; add if needed
-    // patient_id?: number;
-    // consultation_id?: number;
+    // Relationships
+    consultations?: Consultation[]; // A Payment can be associated with many Consultations (many-to-many)
+    paymentMethod?: PaymentMethod; // A Payment belongs to one PaymentMethod
+    patient?: Patient; // A Payment belongs to one Patient (based on Payment model's belongsTo)
 }
 
 
@@ -109,7 +118,13 @@ export interface Consultation {
     patient_id: number; // FK to Patient
     created_at: string;
     updated_at: string;
+    // Relationships
+    patient?: Patient; // A Consultation belongs to one Patient
+    user?: User; // A Consultation belongs to one User
+    services?: Service[]; // A Consultation can have many Services (many-to-many)
+    payments?: Payment[]; // A Consultation can have many Payments (many-to-many)
 }
+
 
 export interface ConsultationService {
     id: number;
@@ -153,6 +168,56 @@ export interface Session {
     last_activity: number;
 }
 
-// Job related interfaces can be created similarly as needed.
+export interface CreateConsultationFormData {
+    user_id: number;
+    patient_id: number;
+    service_id: number[]; // Array of service IDs for the many-to-many relationship
+    status: 'pendiente' | 'confirmed' | 'completed' | 'cancelled' | ''; // Allow empty string for form initial state
+    scheduled_at: string;
+    completed_at?: string; // Optional as it might not be provided on creation
+    notes: string;
+    payment_status: 'pendiente' | 'paid' | 'refunded' | ''; // Allow empty string for form initial state
+    amount: number;
+    consultation_type: 'domiciliary' | 'office' | ''; // Allow empty string for form initial state
+    [key: string]: any; // Add this index signature
+}
 
+export interface CreatePatientFormData {
+    name: string;
+    lastname: string;
+    email: string;
+    phone: string;
+    birthdate: string;
+    identification: string;
+    
+    [key: string]: any; // Allows for dynamic access if setData uses string keys
+}
 
+export interface CreatePaymentFormData {
+    patient_id: number | null;
+    consultation_ids: number[]; // Assuming this will store an array of consultation IDs
+    payment_method_id: number | null;
+    amount: number;
+    status: 'pending' | 'completed' | 'failed' | 'earring' | ''; // Correcting status values, including 'earring'
+    reference: string;
+    notes: string;
+    paid_at: string;
+    [key: string]: any;
+}
+
+export interface CreatePaymentMethodFormData {
+    name: string;
+    description: string;
+    active: boolean;
+    [key: string]: any; // For use with setData and dynamic key access
+}
+
+export interface ServiceFormData {
+    name: string; // El nombre del servicio
+    description: string; // La descripción del servicio. Aunque en el backend pueda ser opcional,
+                        // en el formulario lo manejamos como un string (posiblemente vacío).
+    price: number; // El precio del servicio
+    [key: string]: any; // Una firma de índice que permite que la interfaz sea más flexible,
+                        // útil cuando se trabaja con funciones como `setData` que pueden acceder
+                        // a las propiedades mediante claves de cadena.
+}

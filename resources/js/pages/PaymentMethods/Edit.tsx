@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
-import { type BreadcrumbItem } from '@/types';
+import { PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentMethodsForm from './PaymentMethodsForm';
@@ -15,37 +15,45 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/payment-methods',
     },
     {
-        title: 'Edit',
+        title: 'Edit Payment Method', // Updated title for clarity
         href: '#',
     },
 ];
 
-export default function Edit({ paymentMethod }: { paymentMethod: any }) {
+export default function Edit({ paymentMethod }: { paymentMethod: PaymentMethod }) {
 
+    // Initialize form data, ensuring optional properties default to empty strings or false
     const { data, setData, errors, put, recentlySuccessful } = useForm({
-        name: paymentMethod.name || '', // Asegúrate de que sea una cadena
-        description: paymentMethod.description || '', // Asegúrate de que sea una cadena
-        active: paymentMethod.active || false, // Asegúrate de que sea booleano
+        name: paymentMethod.name || '', // Ensure name is a string
+        description: paymentMethod.description || '', // Ensure description is a string
+        active: paymentMethod.active ?? false, // Ensure active is a boolean, using nullish coalescing for safety
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("Submitting updated payment method data:", data);
 
-            put(route('payment-methods.update', paymentMethod), {
+        // Fix: Address 'Argument of type 'Router' is not assignable to parameter of type 'string'.'
+        // This workaround helps TypeScript understand the global 'route' function (from Ziggy.js)
+        // by explicitly casting 'window.route' to a function type that returns a string.
+        const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
+
+        // Call the put method with the correct route and the payment method's ID
+        put(routeFn('payment-methods.update', paymentMethod.id), {
             onSuccess: () => {
                 console.log("Método de pago actualizado con éxito:", data);
-                // toast("Método de pago actualizado con éxito.");
+                // toast("Método de pago actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
                 console.error("Error al actualizar el método de pago:", err);
-                // toast("Error al actualizar el método de pago.");
+                // toast("Error al actualizar el método de pago."); // Uncomment if you have sonner setup
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit" />
+            <Head title="Edit Payment Method" /> {/* Updated Head title */}
 
             <ContentLayout>
                 <form className="flex flex-col gap-4" onSubmit={submit}>
@@ -56,11 +64,10 @@ export default function Edit({ paymentMethod }: { paymentMethod: any }) {
                     />
 
                     <Button variant={"default"}>
-                        Update paymentMethod
+                        Update Payment Method {/* Updated button text for clarity */}
                     </Button>
                 </form>
             </ContentLayout>
         </AppLayout>
     );
 }
-

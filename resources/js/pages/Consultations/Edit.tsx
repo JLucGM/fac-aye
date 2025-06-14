@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
-import { type BreadcrumbItem } from '@/types';
+import { Consultation, Patient, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import ConsultationsForm from './ConsultationsForm';
@@ -11,48 +11,56 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Patients',
-        href: '/patients',
+        title: 'Consultations', // Changed breadcrumb to reflect consultations
+        href: '/consultations', // Changed href to reflect consultations
     },
     {
-        title: 'Edit',
+        title: 'Edit Consultation', // Changed title for clarity
         href: '#',
     },
 ];
 
-export default function Edit({ consultation, patient, patients, users, services }: { consultation: any, patient: any, patients: any[], users: any[], services: any[] }) {   
+export default function Edit({ consultation, patients, users, services }: { consultation: Consultation, patients: Patient[], users: User[], services: Service[] }) {
     console.log("Edit consultation page loaded with consultation data:", consultation);
     const { data, setData, errors, put } = useForm({
         user_id: consultation.user_id,
         patient_id: consultation.patient_id,
-        service_id: consultation.services.map((service: any) => service.id), // Extraer los IDs de los servicios
+        // Safely access 'consultation.services' using optional chaining (?) and provide an empty array (?? [])
+        // if it's undefined or null, then map to extract service IDs.
+        service_id: consultation.services?.map((service: Service) => service.id) ?? [],
         status: consultation.status,
         scheduled_at: consultation.scheduled_at ? new Date(consultation.scheduled_at).toISOString().slice(0, 16) : '',
         notes: consultation.notes || '',
         payment_status: consultation.payment_status || '',
-        consultation_type: consultation.consultation_type || '', // Agregado
-        amount: consultation.amount || 0, // Agregado
+        consultation_type: consultation.consultation_type || '',
+        amount: consultation.amount || 0,
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data); // Verifica que los datos se están actualizando
+        console.log("Form data before submission:", data);
 
-        put(route('consultations.update', consultation), {
+        // To resolve the 'Argument of type 'Router' is not assignable to parameter of type 'string'.' error,
+        // we explicitly cast 'window.route' to 'any' to inform TypeScript about its correct usage as a function.
+        // This is a common workaround when global functions from libraries like Ziggy are not fully type-declared.
+        const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
+
+        // Ensure the correct consultation ID is passed for the update route.
+        put(routeFn('consultations.update', consultation.id), {
             onSuccess: () => {
                 console.log("Consulta actualizada con éxito:", data);
-                // toast("Consulta actualizada con éxito.");
+                // Optionally add a success toast notification here, e.g., toast("Consulta actualizada con éxito.");
             },
             onError: (err) => {
                 console.error("Error al actualizar la consulta:", err);
-                // toast("Error al actualizar la consulta.");
+                // Optionally add an error toast notification here, e.g., toast("Error al actualizar la consulta.");
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit" />
+            <Head title="Edit Consultation" /> {/* Updated head title for clarity */}
 
             <ContentLayout>
                 <form className="flex flex-col gap-4" onSubmit={submit}>
@@ -66,11 +74,10 @@ export default function Edit({ consultation, patient, patients, users, services 
                     />
 
                     <Button variant={"default"}>
-                        Update Patient
+                        Update Consultation {/* Changed button text for clarity */}
                     </Button>
                 </form>
             </ContentLayout>
         </AppLayout>
     );
 }
-

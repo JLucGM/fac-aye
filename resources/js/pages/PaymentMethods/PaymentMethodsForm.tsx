@@ -2,14 +2,11 @@ import InputError from "@/components/input-error";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CreatePaymentMethodFormData, PaymentMethod } from "@/types";
 import { Check } from "lucide-react";
 
 type PaymentMethodsFormProps = {
-    data: {
-        name?: string; // Asegúrate de que sea string
-        description?: string; // Asegúrate de que sea string
-        active?: boolean; // Asegúrate de que sea boolean
-    };
+    data: CreatePaymentMethodFormData;
     setData: (key: string, value: any) => void;
     errors: {
         name?: string; // Asegúrate de que sea string

@@ -1,6 +1,6 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { Consultation, Patient, Service, User, type BreadcrumbItem } from '@/types';
+import { Consultation, CreateConsultationFormData, Patient, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -31,7 +31,7 @@ export default function Create({ patients, users, services }: {
     // console.log("Create consultation page loaded with users:", users);
     // console.log("Create consultation page loaded with services:", services);
 
-    const { data, setData, errors, post } =  useForm<Consultation>({
+    const { data, setData, errors, post } =  useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,
         service_id: [],

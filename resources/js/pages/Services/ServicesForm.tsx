@@ -1,13 +1,10 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Service, ServiceFormData } from "@/types";
 
 type ServicesFormProps = {
-    data: {
-        name: string;
-        description: string;
-        price: number;
-    };
+    data: ServiceFormData;
     setData: (key: string, value: any) => void;
     errors: {
         name?: string;

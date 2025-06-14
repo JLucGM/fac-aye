@@ -2,7 +2,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
-import { type BreadcrumbItem } from '@/types';
+import { Consultation, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
@@ -18,7 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({ consultations }: { consultations: any[] }) {
+export default function Index({ consultations }: { consultations: Consultation[] }) {
 
     // console.log('consultations', consultations);
     return (

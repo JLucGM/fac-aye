@@ -33,13 +33,14 @@ export const columns: ColumnDef<Consultation>[] = [
     accessorKey: "patient_id",
     header: "Paciente",
     cell: ({ row }) => {
-      return (
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.patient?.name} {row.original.patient?.lastname}
-        </p>
-      )
+        const patient = row.original.patient; // Asegúrate de que esto esté cargado
+        return (
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                {patient ? `${patient.name} ${patient.lastname}` : 'No disponible'}
+            </p>
+        );
     },
-  },
+},
   {
     accessorKey: "user_id",
     header: "Tratante",
@@ -91,12 +92,12 @@ export const columns: ColumnDef<Consultation>[] = [
             </DropdownMenuItem> 
             <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.slug ?? row.original.id])} >
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
                 Editar
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.destroy', [row.original.slug ?? row.original.id])} method="delete">
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.destroy', [row.original.id])} method="delete">
                 Eliminar
               </Link>
             </DropdownMenuItem>

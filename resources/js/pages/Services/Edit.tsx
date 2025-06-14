@@ -1,7 +1,6 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
-import { Service, type BreadcrumbItem } from '@/types';
+import { Service, ServiceFormData, type BreadcrumbItem } from '@/types'; // Import ServiceFormData
 import { Head, useForm } from '@inertiajs/react';
 import ServicesForm from './ServicesForm';
 import { Button } from '@/components/ui/button';
@@ -16,38 +15,45 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/services',
     },
     {
-        title: 'Edit',
+        title: 'Edit Service', // Updated title for clarity
         href: '#',
     },
 ];
 
 export default function Edit({ service }: { service: Service }) {
 
-    const { data, setData, errors, put, recentlySuccessful } = useForm({
+    // IMPORTANT FIX: Explicitly use ServiceFormData as the type argument for useForm
+    const { data, setData, errors, put, recentlySuccessful } = useForm<ServiceFormData>({
         name: service.name,
-        description: service.description,
+        // Provide an empty string if description is undefined to match ServiceFormData's string type
+        description: service.description ?? '',
         price: service.price,
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-                console.log(data); // Verifica que los datos se están actualizando
+        console.log("Submitting updated service data:", data); // Verifies that data is updating
 
-        put(route('services.update', service.id), {
+        // FIX: Address 'Argument of type 'Router' is not assignable to parameter of type 'string'.'
+        // This workaround helps TypeScript understand the global 'route' function (from Ziggy.js)
+        // by explicitly casting 'window.route' to a function type that returns a string.
+        const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
+
+        put(routeFn('services.update', service.id), { // Use routeFn and pass service.id
             onSuccess: () => {
                 console.log("Servicio actualizado con éxito:", data);
-                // toast("Servicio actualizado con éxito.");
+                // toast("Servicio actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
                 console.error("Error al actualizar el servicio:", err);
-                // toast("Error al actualizar el servicio.");
+                // toast("Error al actualizar el servicio."); // Uncomment if you have sonner setup
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit" />
+            <Head title="Edit Service" /> {/* Updated Head title */}
 
             <ContentLayout>
                 <form className="flex flex-col gap-4" onSubmit={submit}>
@@ -65,4 +71,3 @@ export default function Edit({ service }: { service: Service }) {
         </AppLayout>
     );
 }
-

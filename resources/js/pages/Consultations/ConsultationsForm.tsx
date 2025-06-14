@@ -1,12 +1,12 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Consultation, Patient, Service, User } from "@/types";
+import { CreateConsultationFormData, Patient, Service, User } from "@/types";
 import Select from 'react-select';
 import { useEffect } from 'react';
 
 type ConsultationsFormProps = {
-    data: Consultation;
+    data: CreateConsultationFormData;
     patients: Patient[];
     users: User[];
     services: Service[];
@@ -19,15 +19,17 @@ type ConsultationsFormProps = {
         scheduled_at?: string;
         notes?: string;
         payment_status?: string;
-        consultation_type?: string; // Agregado
-        amount?: string; // Agregado
+        consultation_type?: string;
+        amount?: string;
     };
 };
 
 export default function ConsultationsForm({ data, patients, users, services, setData, errors }: ConsultationsFormProps) {
-    const userOptions = users.map(user => ({ value: user.id, label: user.name + ' ' + user.lastname + ' ( C.I:' + user.identification + ')' }));
-    const patientOptions = patients.map(patient => ({ value: patient.id, label: patient.name + ' ' + patient.lastname + ' ( C.I:' + patient.identification + ')' }));
-    const serviceOptions = services.map(service => ({ value: service.id, label: service.name + ' - $ ' + service.price }));
+    // Convert numerical IDs to strings for react-select options.
+    // This ensures consistency for react-select's internal handling of values.
+    const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname + ' ( C.I:' + user.identification + ')' }));
+    const patientOptions = patients.map(patient => ({ value: String(patient.id), label: patient.name + ' ' + patient.lastname + ' ( C.I:' + patient.identification + ')' }));
+    const serviceOptions = services.map(service => ({ value: String(service.id), label: service.name + ' - $ ' + service.price }));
 
     const statusOptions = [
         { value: 'scheduled', label: 'Programado' },
@@ -45,31 +47,38 @@ export default function ConsultationsForm({ data, patients, users, services, set
         { value: 'office', label: 'Consultorio' },
     ];
 
+    // Handles changes for the 'scheduled_at' datetime input
     const handleScheduledAtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const date = new Date(e.target.value);
-        const formattedDate = date.toISOString().slice(0, 19); // Formato Y-m-d H:i:s
+        const formattedDate = date.toISOString().slice(0, 19); // Format Y-m-d H:i:s
         setData('scheduled_at', formattedDate);
     };
 
-    // Calcular el monto total basado en los servicios seleccionados
+    // Calculate the total amount based on selected services whenever service_id or services change
     useEffect(() => {
         const totalAmount = data.service_id.reduce((total, serviceId) => {
+            // Find the service by its ID (serviceId is a number here, consistent with data.service_id)
             const service = services.find(s => s.id === serviceId);
-            return total + (service ? parseFloat(service.price) : 0); // Asegúrate de convertir el precio a número
+            // Add the service price to the total, ensuring price is parsed as a float
+            return total + (service ? parseFloat(String(service.price)) : 0); // Ensure service.price is treated as a string before parseFloat
         }, 0);
         setData('amount', totalAmount);
     }, [data.service_id, services, setData]);
 
-
     return (
         <>
             <div>
-                <Label htmlFor="user_id" className="mb-2 block font-semibold text-gray-700">User  ID</Label>
+                <Label htmlFor="user_id" className="mb-2 block font-semibold text-gray-700">User ID</Label>
                 <Select
                     id="user_id"
                     options={userOptions}
-                    value={userOptions.find(option => option.value === data.user_id) || null}
-                    onChange={(selectedOption) => setData('user_id', selectedOption?.value ?? null)}
+                    // Find the selected option by comparing against the string representation of data.user_id
+                    value={userOptions.find(option => option.value === String(data.user_id)) || null}
+                    onChange={(selectedOption) =>
+                        // Convert the selected option's value (which is a string) back to a number.
+                        // If no option is selected (selectedOption is null), set data.user_id to null.
+                        setData('user_id', selectedOption ? Number(selectedOption.value) : null)
+                    }
                     isSearchable
                     placeholder="Select User..."
                     className="rounded-md"
@@ -82,8 +91,12 @@ export default function ConsultationsForm({ data, patients, users, services, set
                 <Select
                     id="patient_id"
                     options={patientOptions}
-                    value={patientOptions.find(option => option.value === data.patient_id) || null}
-                    onChange={(selectedOption) => setData('patient_id', selectedOption?.value ?? null)}
+                    // Find the selected option by comparing against the string representation of data.patient_id
+                    value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
+                    onChange={(selectedOption) =>
+                        // Convert the selected option's value (string) back to a number, or null if unselected.
+                        setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
+                    }
                     isSearchable
                     placeholder="Select Patient..."
                     className="rounded-md"
@@ -96,9 +109,13 @@ export default function ConsultationsForm({ data, patients, users, services, set
                 <Select
                     id="service_id"
                     options={serviceOptions}
-                    isMulti
-                    value={serviceOptions.filter(option => data.service_id.includes(option.value))}
-                    onChange={(selectedOptions) => setData('service_id', (selectedOptions || []).map(option => option.value))}
+                    isMulti // Enable multi-selection for services
+                    // Filter selected options by converting data.service_id (array of numbers) to an array of strings for comparison
+                    value={serviceOptions.filter(option => data.service_id.map(String).includes(option.value))}
+                    onChange={(selectedOptions) =>
+                        // Map the selected options' values (strings) back to numbers
+                        setData('service_id', (selectedOptions || []).map(option => Number(option.value)))
+                    }
                     isSearchable
                     placeholder="Select Services..."
                     className="rounded-md"
@@ -126,7 +143,7 @@ export default function ConsultationsForm({ data, patients, users, services, set
                     id="scheduled_at"
                     type="datetime-local"
                     value={data.scheduled_at}
-                    onChange={handleScheduledAtChange} // Usar la función de manejo
+                    onChange={handleScheduledAtChange}
                     className="rounded-md"
                 />
                 <InputError message={errors.scheduled_at} />
@@ -176,23 +193,11 @@ export default function ConsultationsForm({ data, patients, users, services, set
                 <Label className="mb-2 block font-semibold text-gray-700">Total Amount</Label>
                 <Input
                     type="text"
-                    value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`} // Verifica que amount sea un número
+                    value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`}
                     readOnly
                     className="rounded-md bg-gray-200"
                 />
             </div>
-
-            {/* <div>
-                <Label htmlFor="amount" className="mb-2 block font-semibold text-gray-700">Amount</Label>
-                <Input
-                    id="amount"
-                    type="number"
-                    value={data.amount}
-                    onChange={(e) => setData('amount', parseFloat(e.target.value))}
-                    className="rounded-md"
-                />
-                <InputError message={errors.amount} />
-            </div> */}
         </>
     );
 }
