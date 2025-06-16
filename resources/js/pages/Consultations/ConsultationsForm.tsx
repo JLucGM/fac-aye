@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { CreateConsultationFormData, Patient, Service, User } from "@/types";
 import Select from 'react-select';
 import { useEffect } from 'react';
+import { DateTimePicker } from "@/components/DateTimePicker";
 
 type ConsultationsFormProps = {
     data: CreateConsultationFormData;
@@ -139,15 +140,13 @@ export default function ConsultationsForm({ data, patients, users, services, set
 
             <div>
                 <Label htmlFor="scheduled_at" className="mb-2 block font-semibold text-gray-700">Fecha programada</Label>
-                <Input
-                    id="scheduled_at"
-                    type="datetime-local"
+                <DateTimePicker
                     value={data.scheduled_at}
-                    onChange={handleScheduledAtChange}
-                    className="rounded-md"
+                    onChange={(newValue) => setData('scheduled_at', newValue)}
                 />
                 <InputError message={errors.scheduled_at} />
             </div>
+
 
             <div>
                 <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Status</Label>

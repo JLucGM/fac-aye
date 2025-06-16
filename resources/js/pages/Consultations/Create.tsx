@@ -43,7 +43,7 @@ export default function Create({ patients, users, services }: {
         payment_status: '',
         amount: 0,
     });
-    // console.log("Create consultation page loaded with initial data:", data);
+    console.log("Create consultation page loaded with initial data:", data);
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         // console.log("Submitting consultation with data:", data);
         e.preventDefault();
