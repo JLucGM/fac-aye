@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class PatientController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.patient.index')->only('index');
+        $this->middleware('can:admin.patient.create')->only('create', 'store');
+        $this->middleware('can:admin.patient.edit')->only('edit', 'update');
+        $this->middleware('can:admin.patient.delete')->only('delete');
+    }
     /**
      * Display a listing of the resource.
      */

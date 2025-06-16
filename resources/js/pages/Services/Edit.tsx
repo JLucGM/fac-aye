@@ -39,7 +39,7 @@ export default function Edit({ service }: { service: Service }) {
         // by explicitly casting 'window.route' to a function type that returns a string.
         const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
 
-        put(routeFn('services.update', service.id), { // Use routeFn and pass service.id
+        put(routeFn('services.update', service), { // Use routeFn and pass service.id
             onSuccess: () => {
                 console.log("Servicio actualizado con éxito:", data);
                 // toast("Servicio actualizado con éxito."); // Uncomment if you have sonner setup

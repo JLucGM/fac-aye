@@ -36,10 +36,12 @@ export default function Edit({ paymentMethod }: { paymentMethod: PaymentMethod }
         // Fix: Address 'Argument of type 'Router' is not assignable to parameter of type 'string'.'
         // This workaround helps TypeScript understand the global 'route' function (from Ziggy.js)
         // by explicitly casting 'window.route' to a function type that returns a string.
-        const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
+const routeFn = (name: string, params?: string | object | number) => (window as any).route(name, params);
+
+console.log("Intentando actualizar el método de pago en:", routeFn('payment-methods.update', paymentMethod.slug));
 
         // Call the put method with the correct route and the payment method's ID
-        put(routeFn('payment-methods.update', paymentMethod.id), {
+        put(routeFn('payment-methods.update', paymentMethod.slug), {
             onSuccess: () => {
                 console.log("Método de pago actualizado con éxito:", data);
                 // toast("Método de pago actualizado con éxito."); // Uncomment if you have sonner setup

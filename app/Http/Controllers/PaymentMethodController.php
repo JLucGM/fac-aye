@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\PaymentMethod;
 use App\Http\Requests\StorePaymentMethodRequest;
 use App\Http\Requests\UpdatePaymentMethodRequest;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class PaymentMethodController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.paymentmethod.index')->only('index');
+        $this->middleware('can:admin.paymentmethod.create')->only('create', 'store');
+        $this->middleware('can:admin.paymentmethod.edit')->only('edit', 'update');
+        $this->middleware('can:admin.paymentmethod.delete')->only('delete');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -56,6 +64,7 @@ class PaymentMethodController extends Controller
      */
     public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod)
     {
+        // dd($request->all());
         $paymentMethod->update($request->validated());
         return redirect()->route('payment-methods.index');
     }

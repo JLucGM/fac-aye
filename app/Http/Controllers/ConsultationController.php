@@ -8,10 +8,18 @@ use App\Http\Requests\UpdateConsultationRequest;
 use App\Models\Patient;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class ConsultationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.consultation.index')->only('index');
+        $this->middleware('can:admin.consultation.create')->only('create', 'store');
+        $this->middleware('can:admin.consultation.edit')->only('edit', 'update');
+        $this->middleware('can:admin.consultation.delete')->only('delete');
+    }
     /**
      * Display a listing of the resource.
      */

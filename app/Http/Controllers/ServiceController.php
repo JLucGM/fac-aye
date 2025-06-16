@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class ServiceController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.consultation.index')->only('index');
+        $this->middleware('can:admin.consultation.create')->only('create', 'store');
+        $this->middleware('can:admin.consultation.edit')->only('edit', 'update');
+        $this->middleware('can:admin.consultation.delete')->only('delete');
+    }
     /**
      * Display a listing of the resource.
      */

@@ -44,7 +44,7 @@ export default function Edit({ patient }: { patient: Patient }) {
         const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
 
         // Ensure you pass the correct ID to the update route, which is patient.id
-        put(routeFn('patients.update', patient.id), {
+        put(routeFn('patients.update', patient), {
             onSuccess: () => {
                 console.log("Paciente actualizado con éxito:", data);
                 // toast("Paciente actualizado con éxito."); // Uncomment if you have sonner setup
