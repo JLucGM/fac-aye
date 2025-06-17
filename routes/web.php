@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\ModuleoperationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
@@ -29,6 +30,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'roles' => RoleController::class,
     ]);
 
+    Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');
+    Route::get('first-visit', [ModuleOperationController::class, 'first_visit_index'])->name('module-operation.first_visit_index');
+    Route::post('first-visit-store', [ModuleOperationController::class, 'first_visit_store'])->name('module-operation.first_visit_store');
+    Route::get('profile-patient-index', [ModuleOperationController::class, 'profile_patient_index'])->name('module-operation.profile_patient_index');
     // Route::get('services', [ServiceController::class, 'index'])->name('services.index');
     // Route::get('services/create', [ServiceController::class, 'create'])->name('services.create');
     // Route::post('services', [ServiceController::class, 'store'])->name('services.store');

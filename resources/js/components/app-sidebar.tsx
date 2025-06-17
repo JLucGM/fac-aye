@@ -14,6 +14,11 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Modulo operativo',
+        href: '/module-operation',
+        icon: LayoutGrid,
+    },
+    {
         title: 'Servicios',
         href: '/services',
         icon: LayoutGrid,

@@ -9,7 +9,7 @@ type PaymentsFormProps = {
   data: CreatePaymentFormData;
   patients: Patient[];
   paymentMethods: PaymentMethod[];
-  consultations: Consultation[];
+  consultations?: Consultation[]; 
   setData: (key: string, value: any) => void;
   errors: {
     patient_id?: string;
@@ -23,13 +23,13 @@ type PaymentsFormProps = {
   };
 };
 
-export default function PaymentsForm({ data, patients, paymentMethods, consultations, setData, errors }: PaymentsFormProps) {
+export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], setData, errors }: PaymentsFormProps) {
   const [pendingConsultations, setPendingConsultations] = useState<Consultation[]>([]);
 
-  const patientOptions = patients.map(patient => ({
-    value: patient.id,
-    label: `${patient.name} ${patient.lastname} (C.I: ${patient.identification})`
-  }));
+  const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
+    value: String(patient.id),
+    label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
+  })) : [];
 
   const paymentMethodOptions = paymentMethods.map(method => ({
     value: method.id,
@@ -95,50 +95,51 @@ export default function PaymentsForm({ data, patients, paymentMethods, consultat
 
   return (
     <>
-      <div>
-        <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Buscar Paciente</Label>
-        <Select
-          id="patient_id"
-          options={patientOptions}
-          value={patientOptions.find(option => option.value === data.patient_id) || null}
-          onChange={handlePatientChange}
-          isSearchable
-          placeholder="Selecciona un paciente..."
-          className="rounded-md"
-        />
-        <InputError message={errors.patient_id} />
-      </div>
+      {patientOptions.length > 0 && (
+        <div>
+          <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Patient ID</Label>
+          <Select
+            id="patient_id"
+            options={patientOptions}
+            value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
+            onChange={(selectedOption) =>
+              setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
+            }
+            isSearchable
+            placeholder="Select Patient..."
+            className="rounded-md"
+          />
+          <InputError message={errors.patient_id} />
+        </div>
+      )}
 
       {/* Lista de consultas no pagadas con checkbox */}
-      <div className="mb-4">
-        <Label className="mb-2 block font-semibold text-gray-700">
-          Consultas pendientes a pagar
-        </Label>
-        {pendingConsultations.length === 0 && (
-          <p className="text-gray-500">No hay consultas pendientes para este paciente.</p>
-        )}
-        {pendingConsultations.map(consultation => {
-          const amountNumber = parseFloat(consultation.amount as unknown as string);
-          const displayAmount = !isNaN(amountNumber) ? amountNumber.toFixed(2) : '0.00';
-
-          return (
-            <div key={consultation.id} className="flex items-center mb-1">
-              <input
-                id={`consultation-${consultation.id}`}
-                type="checkbox"
-                checked={data.consultation_ids.includes(consultation.id)}
-                onChange={() => toggleConsultationSelection(consultation.id)}
-                className="mr-2"
-              />
-              <label htmlFor={`consultation-${consultation.id}`} className="cursor-pointer">
-                Consulta #{consultation.id} - Fecha: {new Date(consultation.scheduled_at).toLocaleDateString()} - Monto: ${displayAmount}
-              </label>
-            </div>
-          );
-        })}
-
-        <InputError message={errors.consultation_ids} />
-      </div>
+      {pendingConsultations.length > 0 && (
+        <div className="mb-4">
+          <Label className="mb-2 block font-semibold text-gray-700">
+            Consultas pendientes a pagar
+          </Label>
+          {pendingConsultations.map(consultation => {
+            const amountNumber = parseFloat(consultation.amount as unknown as string);
+            const displayAmount = !isNaN(amountNumber) ? amountNumber.toFixed(2) : '0.00';
+            return (
+              <div key={consultation.id} className="flex items-center mb-1">
+                <input
+                  id={`consultation-${consultation.id}`}
+                  type="checkbox"
+                  checked={data.consultation_ids.includes(consultation.id)}
+                  onChange={() => toggleConsultationSelection(consultation.id)}
+                  className="mr-2"
+                />
+                <label htmlFor={`consultation-${consultation.id}`} className="cursor-pointer">
+                  Consulta #{consultation.id} - Fecha: {new Date(consultation.scheduled_at).toLocaleDateString()} - Monto: ${displayAmount}
+                </label>
+              </div>
+            );
+          })}
+          <InputError message={errors.consultation_ids} />
+        </div>
+      )}
 
       <div>
         <Label htmlFor="payment_method_id">Método de Pago</Label>

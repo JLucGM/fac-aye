@@ -13,10 +13,8 @@ class Consultation extends Model
     protected $fillable = [
         'user_id',
         'patient_id',
-        'service_id',
         'status',
         'scheduled_at',
-        'completed_at',
         'notes',
         'payment_status',
         'amount',

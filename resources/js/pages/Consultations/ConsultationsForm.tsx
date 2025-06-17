@@ -25,11 +25,14 @@ type ConsultationsFormProps = {
     };
 };
 
-export default function ConsultationsForm({ data, patients, users, services, setData, errors }: ConsultationsFormProps) {
+export default function ConsultationsForm({ data, patients = [], users, services, setData, errors }: ConsultationsFormProps) {
     // Convert numerical IDs to strings for react-select options.
     // This ensures consistency for react-select's internal handling of values.
     const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname + ' ( C.I:' + user.identification + ')' }));
-    const patientOptions = patients.map(patient => ({ value: String(patient.id), label: patient.name + ' ' + patient.lastname + ' ( C.I:' + patient.identification + ')' }));
+    const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
+        value: String(patient.id),
+        label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
+    })) : [];
     const serviceOptions = services.map(service => ({ value: String(service.id), label: service.name + ' - $ ' + service.price }));
 
     const statusOptions = [
@@ -87,23 +90,23 @@ export default function ConsultationsForm({ data, patients, users, services, set
                 <InputError message={errors.user_id} />
             </div>
 
-            <div>
-                <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Patient ID</Label>
-                <Select
-                    id="patient_id"
-                    options={patientOptions}
-                    // Find the selected option by comparing against the string representation of data.patient_id
-                    value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
-                    onChange={(selectedOption) =>
-                        // Convert the selected option's value (string) back to a number, or null if unselected.
-                        setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
-                    }
-                    isSearchable
-                    placeholder="Select Patient..."
-                    className="rounded-md"
-                />
-                <InputError message={errors.patient_id} />
-            </div>
+            {patientOptions.length > 0 && (
+                <div>
+                    <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Patient ID</Label>
+                    <Select
+                        id="patient_id"
+                        options={patientOptions}
+                        value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
+                        onChange={(selectedOption) =>
+                            setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
+                        }
+                        isSearchable
+                        placeholder="Select Patient..."
+                        className="rounded-md"
+                    />
+                    <InputError message={errors.patient_id} />
+                </div>
+            )}
 
             <div>
                 <Label htmlFor="service_id" className="mb-2 block font-semibold text-gray-700">Service ID</Label>
