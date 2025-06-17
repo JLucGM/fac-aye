@@ -5,6 +5,7 @@ use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'patients' => PatientController::class,
         'users' => RegisteredUserController::class,
         'services' => ServiceController::class,
+        'roles' => RoleController::class,
     ]);
 
     // Route::get('services', [ServiceController::class, 'index'])->name('services.index');

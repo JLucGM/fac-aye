@@ -125,6 +125,12 @@ export interface Consultation {
     payments?: Payment[]; // A Consultation can have many Payments (many-to-many)
 }
 
+export interface Role {
+    id: number;
+    name: string;
+    slug: string;
+}
+
 
 export interface ConsultationService {
     id: number;
@@ -189,7 +195,7 @@ export interface CreatePatientFormData {
     phone: string;
     birthdate: string;
     identification: string;
-    
+
     [key: string]: any; // Allows for dynamic access if setData uses string keys
 }
 
@@ -212,12 +218,18 @@ export interface CreatePaymentMethodFormData {
     [key: string]: any; // For use with setData and dynamic key access
 }
 
+export interface CreateRoleFormData {
+    name: string;
+    permissions: string[];
+    [key: string]: any; // For use with setData and dynamic key access
+}
+
 export interface ServiceFormData {
     name: string; // El nombre del servicio
     description: string; // La descripción del servicio. Aunque en el backend pueda ser opcional,
-                        // en el formulario lo manejamos como un string (posiblemente vacío).
+    // en el formulario lo manejamos como un string (posiblemente vacío).
     price: number; // El precio del servicio
     [key: string]: any; // Una firma de índice que permite que la interfaz sea más flexible,
-                        // útil cuando se trabaja con funciones como `setData` que pueden acceder
-                        // a las propiedades mediante claves de cadena.
+    // útil cuando se trabaja con funciones como `setData` que pueden acceder
+    // a las propiedades mediante claves de cadena.
 }
