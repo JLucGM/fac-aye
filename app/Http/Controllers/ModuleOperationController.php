@@ -118,10 +118,12 @@ class ModuleOperationController extends Controller
 
     public function profile_patient_index()
     {
-        $patients = Patient::all();
+        $patients = Patient::with('consultations')->get();
 
         return Inertia::render('ModuleOperation/ProfilePatient', compact('patients'));
     }
+
+    
 
 
 }

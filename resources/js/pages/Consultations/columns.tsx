@@ -96,11 +96,11 @@ export const columns: ColumnDef<Consultation>[] = [
                 Editar
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.destroy', [row.original.id])} method="delete">
                 Eliminar
               </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       )

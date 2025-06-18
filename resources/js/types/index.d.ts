@@ -114,7 +114,7 @@ export interface Consultation {
     consultation_type: 'domiciliary' | 'office';
     amount: number;
     notes?: string;
-    payment_status: 'pendiente' | 'paid' | 'refunded';
+    payment_status: "pending" | 'paid' | 'refunded';
     patient_id: number; // FK to Patient
     created_at: string;
     updated_at: string;

@@ -102,22 +102,26 @@ export default function Index({ users, services, paymentMethods }: {
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
 
-                    <h1 className='text-xl'>paciente</h1>
-                    <PatientsForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
+                        <div className="grid grid-cols-2 gap-4">
+                            <h1 className='text-xl col-span-full'>Paciente</h1>
+                            <PatientsForm
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                            />
 
-                    <h1 className='text-xl'>consulta</h1>
-                    <ConsultationsForm
-                        data={data}
-                        // patients={patients}
-                        users={users}
-                        services={services}
-                        setData={setData}
-                        errors={errors}
-                    />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <h1 className='text-xl col-span-full'>Consulta</h1>
+                            <ConsultationsForm
+                                data={data}
+                                // patients={patients}
+                                users={users}
+                                services={services}
+                                setData={setData}
+                                errors={errors}
+                            />
+                        </div>
 
                     <h1 className='text-xl'>pago</h1>
                     <div>

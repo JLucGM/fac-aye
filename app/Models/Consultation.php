@@ -45,9 +45,11 @@ class Consultation extends Model
     {
         return $this->belongsToMany(Service::class, 'consultation_service');
     }
-
-    public function payments()
+    
+    public function payment()
     {
-        return $this->belongsToMany(Payment::class);
+        return $this->belongsToMany(Payment::class, 'consultation_payment');
     }
+
+    
 };

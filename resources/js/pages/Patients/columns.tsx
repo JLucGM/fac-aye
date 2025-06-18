@@ -62,6 +62,11 @@ export const columns: ColumnDef<Patient>[] = [
             </DropdownMenuItem> 
             <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.show', [row.original.slug ?? row.original.id])} >
+                Mostrar
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.edit', [row.original.slug ?? row.original.id])} >
                 Editar
               </Link>

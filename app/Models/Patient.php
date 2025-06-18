@@ -41,10 +41,10 @@ class Patient extends Model
     {
         return $this->hasMany(Consultation::class);
     }
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
-    }
+    // public function payments()
+    // {
+    //     return $this->hasMany(Payment::class);
+    // }
     public function getFullNameAttribute()
     {
         return "{$this->name} {$this->lastname}";
