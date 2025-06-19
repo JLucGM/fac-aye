@@ -16,7 +16,7 @@ export default function ServicesForm({ data, setData, errors }: ServicesFormProp
     return (
         <>
             <div>
-                <Label htmlFor="name">name</Label>
+                <Label htmlFor="name">Nombre</Label>
                 <Input
                     id="name"
                     type="text"
@@ -26,20 +26,6 @@ export default function ServicesForm({ data, setData, errors }: ServicesFormProp
                     onChange={(e) => setData('name', e.target.value)}
                 />
                 <InputError message={errors.name} className="mt-2" />
-            </div>
-
-
-            <div>
-                <Label htmlFor="description">Descripción</Label>
-                <Input
-                    id="description"
-                    type="text"
-                    name="description"
-                    value={data.description}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData('description', e.target.value)}
-                />
-                <InputError message={errors.description} className="mt-2" />
             </div>
 
             <div>
@@ -55,8 +41,18 @@ export default function ServicesForm({ data, setData, errors }: ServicesFormProp
                 <InputError message={errors.price} className="mt-2" />
             </div>
 
-
-
+            <div>
+                <Label htmlFor="description">Descripción</Label>
+                <Input
+                    id="description"
+                    type="text"
+                    name="description"
+                    value={data.description}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('description', e.target.value)}
+                />
+                <InputError message={errors.description} className="mt-2" />
+            </div>
 
         </>
     );

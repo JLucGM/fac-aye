@@ -101,7 +101,7 @@ export interface Payment {
     updated_at: string;
     // Relationships
     consultations?: Consultation[]; // A Payment can be associated with many Consultations (many-to-many)
-    paymentMethod?: PaymentMethod; // A Payment belongs to one PaymentMethod
+    payment_method?: PaymentMethod; // A Payment belongs to one PaymentMethod
     patient?: Patient; // A Payment belongs to one Patient (based on Payment model's belongsTo)
 }
 
@@ -176,13 +176,13 @@ export interface Session {
 
 export interface CreateConsultationFormData {
     user_id: number;
-    patient_id: number;
+    patient_id?: number;
     service_id: number[]; // Array of service IDs for the many-to-many relationship
     status: 'pendiente' | 'confirmed' | 'completed' | 'cancelled' | ''; // Allow empty string for form initial state
     scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;
-    payment_status: 'pendiente' | 'paid' | 'refunded' | ''; // Allow empty string for form initial state
+    payment_status: 'pending' | 'paid' | 'refunded' | ''; // Allow empty string for form initial state
     amount: number;
     consultation_type: 'domiciliary' | 'office' | ''; // Allow empty string for form initial state
     [key: string]: any; // Add this index signature

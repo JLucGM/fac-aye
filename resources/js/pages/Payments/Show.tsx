@@ -32,7 +32,7 @@ export default function Show({ payment }: { payment: Payment }) {
                 <div className="mb-4">
                     <h2 className="text-xl font-semibold">Información del Pago</h2>
                     <p><strong>ID:</strong> {payment.id}</p>
-                    <p><strong>Monto:</strong> ${parseFloat(payment.amount).toFixed(2)}</p>
+                    <p><strong>Monto:</strong> ${payment.amount}</p>
                     <p><strong>Estado:</strong> {payment.status}</p>
                     <p><strong>Referencia:</strong> {payment.reference}</p>
                     <p><strong>Notas:</strong> {payment.notes}</p>
@@ -61,7 +61,7 @@ export default function Show({ payment }: { payment: Payment }) {
                                         <TableCell>{consultation.consultation_type}</TableCell>
                                         <TableCell>{consultation.status}</TableCell>
                                         <TableCell>{new Date(consultation.scheduled_at).toLocaleDateString()}</TableCell>
-                                        <TableCell>${parseFloat(consultation.amount).toFixed(2)}</TableCell>
+                                        <TableCell>${consultation.amount}</TableCell>
                                         <TableCell>{consultation.notes}</TableCell>
                                     </TableRow>
                                 ))}

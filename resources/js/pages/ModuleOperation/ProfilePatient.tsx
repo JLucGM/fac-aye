@@ -1,10 +1,14 @@
 import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
 import ContentLayout from '@/layouts/content-layout';
-import { Patient, type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Patient, type BreadcrumbItem, Consultation } from '@/types';
+import { Head, Link } from '@inertiajs/react';
 import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@/components/data-table';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -12,7 +16,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'paciente',
+        title: 'Búsqueda rápida paciente',
         href: '/module-operation.profile_patient_index',
     },
 ];
@@ -25,7 +29,7 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
         const value = event.target.value;
         setSearchTerm(value);
 
-        const foundPatient = patients.find(patient => 
+        const foundPatient = patients.find(patient =>
             patient.name.toLowerCase().includes(value.toLowerCase()) ||
             patient.email.toLowerCase().includes(value.toLowerCase()) ||
             patient.identification.includes(value)
@@ -35,7 +39,7 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
     };
 
     // Calcular totales
-    const calculateTotals = (consultations) => {
+    const calculateTotals = (consultations: Consultation[]): { totalConsultations: number; paidConsultations: number; pendingConsultations: number } => {
         const totalConsultations = consultations.length;
         const paidConsultations = consultations.filter(c => c.payment_status === 'paid').length;
         const pendingConsultations = totalConsultations - paidConsultations;
@@ -43,50 +47,85 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
         return { totalConsultations, paidConsultations, pendingConsultations };
     };
 
+    // Definir las columnas para el DataTable
+    const columns: ColumnDef<Consultation>[] = [
+        {
+            accessorKey: 'scheduled_at',
+            header: 'Fecha Programada',
+            cell: ({ row }) => new Date(row.original.scheduled_at).toLocaleString(),
+        },
+        {
+            accessorKey: 'status',
+            header: 'Estado',
+        },
+        {
+            accessorKey: 'payment_status',
+            header: 'Estado de Pago',
+        },
+        {
+            accessorKey: 'amount',
+            header: 'Monto',
+        },
+        {
+            id: "actions",
+            cell: ({ row }) => {
+                return (
+                    <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])}>
+                        Editar
+                    </Link>
+                );
+            },
+        },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Index" />
 
             <ContentLayout>
                 <Heading
-                    title="Consultations"
+                    title="Búsqueda rápida paciente"
                     description="Manage your consultations"
                 />
-                <Input 
-                    type="text" 
-                    placeholder="Buscar por nombre, correo o identificación..." 
+                <Input
+                    type="text"
+                    placeholder="Buscar por nombre, correo o identificación..."
                     value={searchTerm}
                     onChange={handleSearch}
                 />
 
                 {filteredPatient ? (
                     <div className="mt-4">
-                        <h2>Información del Paciente</h2>
-                        <p><strong>Nombre:</strong> {filteredPatient.fullName}</p>
-                        <p><strong>Email:</strong> {filteredPatient.email}</p>
-                        <p><strong>Identificación:</strong> {filteredPatient.identification}</p>
-                        <p><strong>Teléfono:</strong> {filteredPatient.phone}</p>
-                        <p><strong>Fecha de Nacimiento:</strong> {new Date(filteredPatient.birthdate).toLocaleDateString()}</p>
+                        <div className="flex justify-between">
+                            <h2>Información del Paciente</h2>
+                            <Link className={buttonVariants({ variant: 'outline' }) + ' w-auto'} href={route('patients.show', [filteredPatient.slug ?? filteredPatient.id])}>
+                                <Eye /> Mostrar
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-2">
+                            <div className="">
+                                <p><strong>Nombre:</strong> {filteredPatient.name} {filteredPatient.lastname}</p>
+                                <p><strong>Email:</strong> {filteredPatient.email}</p>
+                                <p><strong>Identificación:</strong> {filteredPatient.identification}</p>
+                                <p><strong>Teléfono:</strong> {filteredPatient.phone}</p>
+                                <p><strong>Fecha de Nacimiento:</strong> {filteredPatient.birthdate ? new Date(filteredPatient.birthdate).toLocaleDateString() : 'Fecha no disponible'}</p>
+                            </div>
+
+                            {/* Mostrar totales */}
+                            <div className="mt-4">
+                                {filteredPatient.consultations && filteredPatient.consultations.length > 0 && (
+                                    <>
+                                        <p><strong>Total de Consultas:</strong> {calculateTotals(filteredPatient.consultations).totalConsultations}</p>
+                                        <p><strong>Consultas Pagadas:</strong> {calculateTotals(filteredPatient.consultations).paidConsultations}</p>
+                                        <p><strong>Consultas No Pagadas:</strong> {calculateTotals(filteredPatient.consultations).pendingConsultations}</p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
 
                         <h3>Consultas</h3>
-                        <ul>
-                            {filteredPatient.consultations.map(consultation => (
-                                <li key={consultation.id}>
-                                    {consultation.scheduled_at}: {consultation.notes} - Estado de Pago: {consultation.payment_status}
-                                </li>
-                            ))}
-                        </ul>
-
-                        {/* Mostrar totales */}
-                        <div className="mt-4">
-                            {filteredPatient.consultations.length > 0 && (
-                                <>
-                                    <p><strong>Total de Consultas:</strong> {calculateTotals(filteredPatient.consultations).totalConsultations}</p>
-                                    <p><strong>Consultas Pagadas:</strong> {calculateTotals(filteredPatient.consultations).paidConsultations}</p>
-                                    <p><strong>Consultas No Pagadas:</strong> {calculateTotals(filteredPatient.consultations).pendingConsultations}</p>
-                                </>
-                            )}
-                        </div>
+                        {/* Usar el DataTable para mostrar las consultas */}
+                        <DataTable columns={columns} data={filteredPatient.consultations || []} />
                     </div>
                 ) : (
                     searchTerm && (

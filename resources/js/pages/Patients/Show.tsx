@@ -7,6 +7,10 @@ import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { PenBox } from 'lucide-react';
+import React, { useState } from 'react';
+import { format, parseISO } from 'date-fns';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,33 +28,60 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const calculateAge = (birthdate: string | undefined): number | string => {
-    if (!birthdate) return 'Fecha no disponible'; // Manejo de caso donde no hay fecha
+    if (!birthdate) return 'Fecha no disponible';
     const birthDate = new Date(birthdate);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDifference = today.getMonth() - birthDate.getMonth();
-    
-    // Ajustar la edad si el cumpleaños no ha ocurrido aún este año
+
     if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
         age--;
     }
-    
+
     return age;
 };
 
 const calculateTotalDebt = (consultations: Consultation[]): number => {
     return consultations
-        .filter(consultation => consultation.payment_status === 'pending') // Filtrar consultas pendientes
-        .reduce((total, consultation) => total + (typeof consultation.amount === 'string' ? parseFloat(consultation.amount) : consultation.amount), 0); // Sumar los montos
+        .filter(consultation => consultation.payment_status === 'pending')
+        .reduce((total, consultation) => total + (typeof consultation.amount === 'string' ? parseFloat(consultation.amount) : consultation.amount), 0);
 };
 
 export default function Show({ patient }: { patient: Patient }) {
-    console.log('paciente', patient);
+    const [paymentStatus, setPaymentStatus] = useState<string>('all'); // 'all', 'paid', 'pending'
+    const [consultationType, setConsultationType] = useState<string>('all'); // 'all', 'domiciliary', 'office'
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
 
-    // Contar total de consultas, pagadas y no pagadas
-    const totalConsultations = patient.consultations?.length || 0;
-    const paidConsultations = patient.consultations?.filter(consultation => consultation.payment_status === 'paid').length || 0;
-    const pendingConsultations = patient.consultations?.filter(consultation => consultation.payment_status === 'pending').length || 0;
+    // Asegúrate de que consultations tenga un valor predeterminado
+    const consultations = patient.consultations || [];
+
+    const filteredConsultations = consultations.filter(consultation => {
+        // Filtros básicos
+        const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
+        const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
+
+        // Filtro de fechas mejorado
+        let dateMatch = true;
+        if (startDate || endDate) {
+            const consultationDate = parseISO(consultation.scheduled_at);
+            const formattedConsultationDate = format(consultationDate, 'yyyy-MM-dd');
+
+            if (startDate && endDate) {
+                dateMatch = formattedConsultationDate >= startDate && formattedConsultationDate <= endDate;
+            } else if (startDate) {
+                dateMatch = formattedConsultationDate >= startDate;
+            } else if (endDate) {
+                dateMatch = formattedConsultationDate <= endDate;
+            }
+        }
+
+        return paymentMatch && typeMatch && dateMatch;
+    });
+
+    const totalConsultations = filteredConsultations.length;
+    const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'paid').length;
+    const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pending').length;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -62,8 +93,8 @@ export default function Show({ patient }: { patient: Patient }) {
                     description="Detalles del paciente"
                 >
                     <Button asChild>
-                        <Link className="btn btn-primary" href={route('patients.edit',[patient])}>
-                        <PenBox />
+                        <Link className="btn btn-primary" href={route('patients.edit', [patient])}>
+                            <PenBox />
                             Actualizar paciente
                         </Link>
                     </Button>
@@ -77,23 +108,90 @@ export default function Show({ patient }: { patient: Patient }) {
                         <p><strong>Identificación:</strong> {patient.identification}</p>
                         <p><strong>Teléfono:</strong> {patient.phone}</p>
                         <p><strong>Fecha de Nacimiento:</strong> {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-ES') : 'Fecha no disponible'}</p>
-                        <p><strong>Edad:</strong> {calculateAge(patient.birthdate)}</p> {/* Cálculo de edad aquí */}
+                        <p><strong>Edad:</strong> {calculateAge(patient.birthdate)}</p>
                     </div>
 
                     <div className="flex flex-col">
                         <p><strong>Total de Consultas:</strong> {totalConsultations}</p>
                         <p><strong>Consultas Pagadas:</strong> {paidConsultations}</p>
                         <p><strong>Consultas Pendientes:</strong> {pendingConsultations}</p>
-                        <p><strong>Total de Deuda:</strong> ${calculateTotalDebt(patient.consultations || []).toFixed(2)}</p> {/* Cálculo de deuda aquí */}
+                        <p><strong>Total de Deuda:</strong> ${calculateTotalDebt(consultations).toFixed(2)}</p>
                     </div>
                 </div>
 
-                <div className="mt-4">
-                    <h2>Consultas</h2>
-                    <DataTable
-                        columns={consultationColumns}
-                        data={patient.consultations || []} // Asegúrate de pasar un array, incluso si está vacío
-                    />
+                <div className="mt-4 space-y-4">
+                    <h2 className="text-xl font-bold">Filtros de Consultas</h2>
+
+                    <div className="flex flex-wrap gap-4 items-center">
+                        <div className="flex items-center space-x-2">
+                            <Label htmlFor="paymentStatus" className="whitespace-nowrap">Estado de pago:</Label>
+                            <select
+                                id="paymentStatus"
+                                value={paymentStatus}
+                                onChange={(e) => setPaymentStatus(e.target.value)}
+                                className="border rounded p-2"
+                            >
+                                <option value="all">Todos</option>
+                                <option value="paid">Pagadas</option>
+                                <option value="pending">Pendientes</option>
+                            </select>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de consulta:</Label>
+                            <select
+                                id="consultationType"
+                                value={consultationType}
+                                onChange={(e) => setConsultationType(e.target.value)}
+                                className="border rounded p-2"
+                            >
+                                <option value="all">Todos</option>
+                                <option value="domiciliary">Domicilio</option>
+                                <option value="office">Oficina</option>
+                            </select>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <Label htmlFor="startDate">Desde:</Label>
+                            <Input
+                                id="startDate"
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <Label htmlFor="endDate">Hasta:</Label>
+                            <Input
+                                id="endDate"
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                min={startDate}
+                            />
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                setPaymentStatus('all');
+                                setConsultationType('all');
+                                setStartDate('');
+                                setEndDate('');
+                            }}
+                            className="text-blue-600 hover:underline"
+                        >
+                            Limpiar filtros
+                        </button>
+                    </div>
+
+                    <div className="mt-4">
+                        <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
+                        <DataTable
+                            columns={consultationColumns}
+                            data={filteredConsultations}
+                        />
+                    </div>
                 </div>
             </ContentLayout>
         </AppLayout>

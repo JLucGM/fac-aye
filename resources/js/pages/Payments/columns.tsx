@@ -17,9 +17,29 @@ export const columns: ColumnDef<Payment>[] = [
   //   accessorKey: "id",
   //   header: "ID",
   // },
+
+  {
+    accessorKey: "paid_at",
+    header: "Fecha Programada",
+    cell: ({ row }) => {
+      return new Date(row.original.paid_at).toLocaleString();
+    },
+  },
   {
     accessorKey: "reference",
     header: "reference",
+  },
+  {
+    accessorKey: "payment_method_id",
+    header: "Método de pago",
+    cell: ({ row }) => {
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {row.original.payment_method?.name}
+        </p>
+      )
+    },
+
   },
   {
     accessorKey: "amount",
@@ -50,7 +70,7 @@ export const columns: ColumnDef<Payment>[] = [
             <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])} >
-              Mostrar
+                Mostrar
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>

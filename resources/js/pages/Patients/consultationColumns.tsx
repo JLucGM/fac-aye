@@ -48,8 +48,8 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     id: "actions",
     cell: ({ row }) => {
       return (
-        <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
-          mostrar
+        <Link className={buttonVariants({ variant: 'outline' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
+          Editar
         </Link>
         // <DropdownMenu>
         //   <DropdownMenuTrigger asChild>

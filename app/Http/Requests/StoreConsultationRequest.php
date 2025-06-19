@@ -33,6 +33,9 @@ class StoreConsultationRequest extends FormRequest
             'amount' => 'nullable|numeric|min:0',
             'consultation_type' => 'required|in:domiciliary,office',
             
+            'payment_method_id' => 'required|integer|exists:payment_methods,id',
+            'reference' => 'nullable|string',
+            'paid_at' => 'required|date',
         ];
     }
 }

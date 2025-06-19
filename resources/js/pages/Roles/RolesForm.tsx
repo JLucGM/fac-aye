@@ -8,7 +8,7 @@ import { CreateRoleFormData } from '@/types';
 type RolesFormProps = {
     data: CreateRoleFormData;
     setData: (key: string, value: any) => void;
-    permissions: { name: string }[];
+    permissions: { name: string, description?: string }[];
     errors: {
         name?: string;
         permissions?: string;

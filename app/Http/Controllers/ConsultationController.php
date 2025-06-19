@@ -6,6 +6,8 @@ use App\Models\Consultation;
 use App\Http\Requests\StoreConsultationRequest;
 use App\Http\Requests\UpdateConsultationRequest;
 use App\Models\Patient;
+use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Routing\Controller;
@@ -37,31 +39,44 @@ class ConsultationController extends Controller
         $patients = Patient::all();
         $users = User::all();
         $services = Service::all(); // Assuming you have a Service model
-        return Inertia::render('Consultations/Create', compact('patients', 'users', 'services'));
+        $paymentMethods = PaymentMethod::where('active', 1)->get();
+
+        return Inertia::render('Consultations/Create', compact('patients', 'users', 'services', 'paymentMethods'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreConsultationRequest $request)
-{
-    // Crear la consulta sin el campo service_id
-    $validatedData = $request->validated();
-    unset($validatedData['service_id']); // Eliminar service_id del array de datos
+    {
+        // Crear la consulta sin el campo service_id
+        $validatedData = $request->validated();
+        unset($validatedData['service_id']); // Eliminar service_id del array de datos
 
-    // Crear la consulta
-    $consultation = Consultation::create($validatedData);
+        // Crear la consulta
+        $consultation = Consultation::create($validatedData);
 
-    // Asociar los servicios seleccionados
-    if (is_array($request->service_id)) {
-        $consultation->services()->attach($request->service_id);
-    } else {
-        // Si solo hay un servicio, puedes usar attach directamente
-        $consultation->services()->attach($request->service_id);
+        // Asociar los servicios seleccionados
+        if (is_array($request->service_id)) {
+            $consultation->services()->attach($request->service_id);
+        } else {
+            // Si solo hay un servicio, puedes usar attach directamente
+            $consultation->services()->attach($request->service_id);
+        }
+
+        $payment = Payment::create([
+            'payment_method_id' => $validatedData['payment_method_id'],
+            'amount' => $validatedData['amount'],
+            'status' => $validatedData['payment_status'],
+            'reference' => $validatedData['reference'],
+            'paid_at' => $validatedData['paid_at'],
+        ]);
+
+        $payment->consultations()->sync($consultation->id);
+
+
+        return redirect()->route('consultations.index');
     }
-    
-    return redirect()->route('consultations.index');
-}
 
     /**
      * Display the specified resource.
@@ -76,12 +91,14 @@ class ConsultationController extends Controller
      */
     public function edit(Consultation $consultation)
     {
-        $consultation->load('services','patient','user'); // Cargar los servicios relacionados
+        $consultation->load('services', 'patient', 'user','payment'); // Cargar los servicios relacionados
         $patients = Patient::all();
         $users = User::all();
         $services = Service::all();
+                $paymentMethods = PaymentMethod::where('active', 1)->get();
 
-        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services'));
+
+        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services','paymentMethods'));
     }
 
     /**
@@ -99,9 +116,32 @@ class ConsultationController extends Controller
     // Sincronizar los servicios
     $consultation->services()->sync($request->input('service_id'));
 
+    // Manejar la actualización del pago
+    if ($request->payment_method_id) {
+        $paymentData = [
+            'amount' => $data['amount'], // Asegúrate de que el monto sea correcto
+            'status' => 'pending', // O el estado que desees
+            'reference' => $request->reference,
+            'paid_at' => $request->paid_at,
+            'payment_method_id' => $request->payment_method_id,
+        ];
+
+        // Verificar si ya existe un pago asociado
+        $payment = $consultation->payment()->first(); // Obtener el primer pago asociado
+
+        if ($payment) {
+            // Actualizar el pago existente
+            $payment->update($paymentData);
+        } else {
+            // Si no existe un pago, crear uno nuevo
+            $consultation->payment()->create($paymentData);
+        }
+    }
+
     // Redirigir a la lista de consultas con un mensaje de éxito
     return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');
 }
+
 
 
     /**

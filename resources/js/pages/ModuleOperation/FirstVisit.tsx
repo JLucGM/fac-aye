@@ -40,9 +40,9 @@ export default function Index({ users, services, paymentMethods }: {
 
         // datos de la consulta
         user_id: users[0].id,
-        // patient_id: patients[0].id,
+        patient_id: null,
         service_id: [],
-        status: '',
+        status: 'scheduled',
         scheduled_at: '',
         consultation_type: '', // Uncomment if you want to include consultation type
         // completed_at: '',
