@@ -91,56 +91,56 @@ class ConsultationController extends Controller
      */
     public function edit(Consultation $consultation)
     {
-        $consultation->load('services', 'patient', 'user','payment'); // Cargar los servicios relacionados
+        $consultation->load('services', 'patient', 'user', 'payment'); // Cargar los servicios relacionados
         $patients = Patient::all();
         $users = User::all();
         $services = Service::all();
-                $paymentMethods = PaymentMethod::where('active', 1)->get();
+        $paymentMethods = PaymentMethod::where('active', 1)->get();
 
 
-        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services','paymentMethods'));
+        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services', 'paymentMethods'));
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateConsultationRequest $request, Consultation $consultation)
-{
-    // Extraer los datos validados, excluyendo service_id
-    $data = $request->validated();
-    unset($data['service_id']); // Eliminar service_id de los datos que se van a actualizar
+    {
+        // Extraer los datos validados, excluyendo service_id
+        $data = $request->validated();
+        unset($data['service_id']); // Eliminar service_id de los datos que se van a actualizar
 
-    // Actualizar la consulta con los datos validados
-    $consultation->update($data);
+        // Actualizar la consulta con los datos validados
+        $consultation->update($data);
 
-    // Sincronizar los servicios
-    $consultation->services()->sync($request->input('service_id'));
+        // Sincronizar los servicios
+        $consultation->services()->sync($request->input('service_id'));
 
-    // Manejar la actualización del pago
-    if ($request->payment_method_id) {
-        $paymentData = [
-            'amount' => $data['amount'], // Asegúrate de que el monto sea correcto
-            'status' => 'pending', // O el estado que desees
-            'reference' => $request->reference,
-            'paid_at' => $request->paid_at,
-            'payment_method_id' => $request->payment_method_id,
-        ];
+        // Manejar la actualización del pago
+        if ($request->payment_method_id) {
+            $paymentData = [
+                'amount' => $data['amount'], // Asegúrate de que el monto sea correcto
+                'status' => $request->payment_status, // O el estado que desees
+                'reference' => $request->reference,
+                'paid_at' => $request->paid_at,
+                'payment_method_id' => $request->payment_method_id,
+            ];
 
-        // Verificar si ya existe un pago asociado
-        $payment = $consultation->payment()->first(); // Obtener el primer pago asociado
+            // Verificar si ya existe un pago asociado
+            $payment = $consultation->payment()->first(); // Obtener el primer pago asociado
 
-        if ($payment) {
-            // Actualizar el pago existente
-            $payment->update($paymentData);
-        } else {
-            // Si no existe un pago, crear uno nuevo
-            $consultation->payment()->create($paymentData);
+            if ($payment) {
+                // Actualizar el pago existente
+                $payment->update($paymentData);
+            } else {
+                // Si no existe un pago, crear uno nuevo
+                $consultation->payment()->create($paymentData);
+            }
         }
-    }
 
-    // Redirigir a la lista de consultas con un mensaje de éxito
-    return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');
-}
+        // Redirigir a la lista de consultas con un mensaje de éxito
+        return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');
+    }
 
 
 

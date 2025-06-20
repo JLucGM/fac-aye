@@ -19,12 +19,29 @@ export const columns: ColumnDef<Payment>[] = [
   // },
 
   {
-    accessorKey: "paid_at",
+    accessorKey: "created_at",
     header: "Fecha Programada",
     cell: ({ row }) => {
-      return new Date(row.original.paid_at).toLocaleString();
+      return new Date(row.original.created_at).toLocaleString();
     },
   },
+  {
+    accessorKey: "patient",
+    header: "Paciente",
+    cell: ({ row }) => {
+      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
+      if (consultations.length > 0) {
+        const patient = consultations[0].patient; // Obtener el primer paciente
+        return (
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+            {patient?.name} {patient?.lastname}
+          </p>
+        );
+      }
+      return <p className="text-sm text-gray-500">Sin paciente</p>;
+    },
+  },
+
   {
     accessorKey: "reference",
     header: "reference",

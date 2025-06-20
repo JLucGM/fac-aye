@@ -28,7 +28,7 @@ export interface SharedData {
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
-    // [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
+    [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
 }
 
 export interface User {
@@ -95,7 +95,7 @@ export interface Payment {
     status: 'pendiente' | 'completado' | 'fallido'; // payment status
     reference: string; // transaction id or reference
     notes: string;
-    paid_at: string; // ISO date string or null
+    // paid_at: string; // ISO date string or null
     payment_method_id: number; // FK to PaymentMethod
     created_at: string;
     updated_at: string;
@@ -104,7 +104,6 @@ export interface Payment {
     payment_method?: PaymentMethod; // A Payment belongs to one PaymentMethod
     patient?: Patient; // A Payment belongs to one Patient (based on Payment model's belongsTo)
 }
-
 
 export interface Consultation {
     id: number;
@@ -207,7 +206,7 @@ export interface CreatePaymentFormData {
     status: 'pending' | 'completed' | 'failed' | 'earring' | ''; // Correcting status values, including 'earring'
     reference: string;
     notes: string;
-    paid_at: string;
+    // paid_at: string;
     [key: string]: any;
 }
 

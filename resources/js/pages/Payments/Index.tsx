@@ -29,6 +29,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ payments }: { payments: Payment[] }) {
+  console.log(payments)
   const [selectedMethod, setSelectedMethod] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [startDate, setStartDate] = useState('');
@@ -58,7 +59,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
     // Filtrado de fechas
     let dateMatch = true;
     if (startDate || endDate) {
-      const paymentDate = payment.paid_at ? parseISO(payment.paid_at) : null;
+      const paymentDate = payment.created_at ? parseISO(payment.created_at) : null;
       const formattedDate = paymentDate ? format(paymentDate, 'yyyy-MM-dd') : null;
 
       if (formattedDate) {
@@ -108,13 +109,13 @@ export default function Index({ payments }: { payments: Payment[] }) {
               <Button variant="ghost" size="sm">
                 {isFiltersOpen ? (
                   <>
-                    <ChevronsUp className="h-4 w-4 mr-2" />
                     Ocultar filtros
+                    <ChevronsUp className="h-4 w-4 mr-2" />
                   </>
                 ) : (
                   <>
-                    <ChevronsDown className="h-4 w-4 mr-2" />
                     Mostrar filtros
+                    <ChevronsDown className="h-4 w-4 mr-2" />
                   </>
                 )}
               </Button>

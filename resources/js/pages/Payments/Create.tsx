@@ -32,7 +32,7 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
         status: 'earring',
         reference: '',
         notes: '',
-        paid_at: new Date().toISOString().split('T')[0],
+        // paid_at: new Date().toISOString().split('T')[0],
     });
 
 

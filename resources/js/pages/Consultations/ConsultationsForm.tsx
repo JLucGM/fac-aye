@@ -108,24 +108,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 </div>
             )}
 
-            <div>
-                <Label htmlFor="service_id" className="mb-2 block font-semibold text-gray-700">Service ID</Label>
-                <Select
-                    id="service_id"
-                    options={serviceOptions}
-                    isMulti // Enable multi-selection for services
-                    // Filter selected options by converting data.service_id (array of numbers) to an array of strings for comparison
-                    value={serviceOptions.filter(option => data.service_id.map(String).includes(option.value))}
-                    onChange={(selectedOptions) =>
-                        // Map the selected options' values (strings) back to numbers
-                        setData('service_id', (selectedOptions || []).map(option => Number(option.value)))
-                    }
-                    isSearchable
-                    placeholder="Select Services..."
-                    className="rounded-md"
-                />
-                <InputError message={errors.service_id} />
-            </div>
+            
 
             <div>
                 <Label htmlFor="consultation_type" className="mb-2 block font-semibold text-gray-700">Tipo de Consulta</Label>
@@ -189,6 +172,25 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     className="rounded-md"
                 />
                 <InputError message={errors.notes} />
+            </div>
+
+            <div>
+                <Label htmlFor="service_id" className="mb-2 block font-semibold text-gray-700">Servicios</Label>
+                <Select
+                    id="service_id"
+                    options={serviceOptions}
+                    isMulti // Enable multi-selection for services
+                    // Filter selected options by converting data.service_id (array of numbers) to an array of strings for comparison
+                    value={serviceOptions.filter(option => data.service_id.map(String).includes(option.value))}
+                    onChange={(selectedOptions) =>
+                        // Map the selected options' values (strings) back to numbers
+                        setData('service_id', (selectedOptions || []).map(option => Number(option.value)))
+                    }
+                    isSearchable
+                    placeholder="Select Services..."
+                    className="rounded-md"
+                />
+                <InputError message={errors.service_id} />
             </div>
 
             <div>

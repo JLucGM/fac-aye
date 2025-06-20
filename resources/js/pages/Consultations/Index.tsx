@@ -88,13 +88,13 @@ export default function Index({ consultations }: { consultations: Consultation[]
               <Button variant="ghost" size="sm">
                 {isFiltersOpen ? (
                   <>
-                    <ChevronsUp className="h-4 w-4 mr-2" />
                     Ocultar filtros
+                    <ChevronsUp className="h-4 w-4 mr-2" />
                   </>
                 ) : (
                   <>
-                    <ChevronsDown className="h-4 w-4 mr-2" />
                     Mostrar filtros
+                    <ChevronsDown className="h-4 w-4 mr-2" />
                   </>
                 )}
               </Button>

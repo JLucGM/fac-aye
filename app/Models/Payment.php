@@ -16,16 +16,16 @@ class Payment extends Model
         'status',
         'reference',
         'notes',
-        'paid_at',
+        // 'paid_at',
     ];
 
     protected $attributes = [
         'status' => 'pendiente', // pendiente, completado, fallido
     ];
 
-    protected $casts = [
-        'paid_at' => 'datetime',
-    ];
+    // protected $casts = [
+    //     'paid_at' => 'datetime',
+    // ];
 
     public function consultations()
     {
@@ -37,10 +37,10 @@ class Payment extends Model
         return $this->belongsTo(PaymentMethod::class);
     }
 
-    public function patient()
-    {
-        return $this->belongsTo(Patient::class);
-    }
+    // public function patient()
+    // {
+    //     return $this->belongsTo(Patient::class);
+    // }
 
     // public function getStatusLabelAttribute()
     // {

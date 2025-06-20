@@ -1,8 +1,9 @@
-import { buttonVariants } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { Button, buttonVariants } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import ContentLayout from '@/layouts/content-layout';
+import { SharedData, type BreadcrumbItem } from '@/types';
+import { Head, usePage, useForm, Link } from '@inertiajs/react';
+import { Timer } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -12,50 +13,68 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
+    const { auth } = usePage<SharedData>().props;
+    const { post } = useForm(); // Cambiar a post para descargar el PDF
+
+    const handleCierreDelDia = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        window.open(route('cierre.del.dia'), '_blank'); // Abre en una nueva pestaña
+    };
+    
+    const handlePagoDelDia = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        window.open(route('pagos.del.dia'), '_blank'); // Abre en una nueva pestaña
+    };
+
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    {/* <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div> */}
-                    <div className="col-span-full">
-                        <h1 >Modulo operativo</h1>
-                    </div>
-                    <Link
-                        className={buttonVariants({ variant: "default" })}
-                        href={route('module-operation.first_visit_index')}
-                    >
-                        Primera visita
-                    </Link>
 
-                    {/* <Link
-                        className={buttonVariants({ variant: "default" })}
-                        href={route('payments.create')}
-                    >
-                        Registrar pago
-                    </Link> */}
-                    <Link
-                        className={buttonVariants({ variant: "default" })}
-                        href={route('module-operation.profile_patient_index')}
-                    >
-                        Búsqueda rápida de paciente
-                    </Link>
-                    <div className="col-span-full">
-                        <h1 >Modulo asistencia</h1>
-                    </div>
-                    <Link
-                        className={buttonVariants({ variant: "default" })}
-                        href={route('patients.index')}
-                    >
-                        lista de paciente
-                    </Link>
-                    <div className="col-span-full">
-                        <h1 >Modulo administrativo</h1>
+            <ContentLayout>
+                <div className="flex items-center justify-between">
+                    <p className='text-xl'><strong>Bienvenido,</strong> {auth.user.name} {auth.user.lastname}</p>
+                    <Button variant="default" onClick={handleCierreDelDia}>
+                        <Timer className="mr-2" />
+                        Cierre de asistencia del día
+                    </Button>
+                    <Button variant="default" onClick={handlePagoDelDia}>
+                        <Timer className="mr-2" />
+                        Pagos del día
+                    </Button>
+                </div>
+                <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                    <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+                        <div className="col-span-full">
+                            <h1>Modulo operativo</h1>
+                        </div>
+                        <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('module-operation.first_visit_index')}
+                        >
+                            Primera visita
+                        </Link>
+                        <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('module-operation.profile_patient_index')}
+                        >
+                            Búsqueda rápida de paciente
+                        </Link>
+                        <div className="col-span-full">
+                            <h1>Modulo asistencia</h1>
+                        </div>
+                        <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('patients.index')}
+                        >
+                            lista de paciente
+                        </Link>
+                        <div className="col-span-full">
+                            <h1>Modulo administrativo</h1>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </ContentLayout>
         </AppLayout>
     );
 }

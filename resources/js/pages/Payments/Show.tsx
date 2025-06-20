@@ -47,6 +47,7 @@ export default function Show({ payment }: { payment: Payment }) {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Consulta ID</TableHead>
+                                    <TableHead>Paciente</TableHead>
                                     <TableHead>Tipo de Consulta</TableHead>
                                     <TableHead>Estado</TableHead>
                                     <TableHead>Fecha Programada</TableHead>
@@ -58,6 +59,7 @@ export default function Show({ payment }: { payment: Payment }) {
                                 {payment.consultations.map((consultation) => (
                                     <TableRow key={consultation.id}>
                                         <TableCell>{consultation.id}</TableCell>
+                                        <TableCell>{consultation.patient?.name}</TableCell>
                                         <TableCell>{consultation.consultation_type}</TableCell>
                                         <TableCell>{consultation.status}</TableCell>
                                         <TableCell>{new Date(consultation.scheduled_at).toLocaleDateString()}</TableCell>

@@ -29,7 +29,7 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
     status: payment.status,
     reference: payment.reference,
     notes: payment.notes,
-    paid_at: payment.paid_at,
+    // paid_at: payment.paid_at,
 });
 console.log(payment)
 

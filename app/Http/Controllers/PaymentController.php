@@ -26,7 +26,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::with('paymentMethod','patient')->get();
+        $payments = Payment::with('paymentMethod', 'consultations.patient')->get();
         return Inertia::render('Payments/Index', compact('payments'));
     }
 
@@ -46,33 +46,33 @@ class PaymentController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StorePaymentRequest $request)
-{
-    // Iniciar una transacción para asegurar la integridad de los datos
-    DB::transaction(function () use ($request) {
-        // Crear el pago
-        $payment = Payment::create([
-            'payment_method_id' => $request->payment_method_id,
-            'amount' => $request->amount,
-            'status' => $request->status,
-            'reference' => $request->reference,
-            'notes' => $request->notes,
-            'paid_at' => $request->paid_at,
-        ]);
+    {
+        // Iniciar una transacción para asegurar la integridad de los datos
+        DB::transaction(function () use ($request) {
+            // Crear el pago
+            $payment = Payment::create([
+                'payment_method_id' => $request->payment_method_id,
+                'amount' => $request->amount,
+                'status' => $request->status,
+                'reference' => $request->reference,
+                'notes' => $request->notes,
+                // 'paid_at' => $request->paid_at,
+            ]);
 
-        // Sincronizar las consultas seleccionadas
-        $payment->consultations()->sync($request->consultation_ids);
+            // Sincronizar las consultas seleccionadas
+            $payment->consultations()->sync($request->consultation_ids);
 
-        // Actualizar el estado de las consultas
-        foreach ($request->consultation_ids as $consultationId) {
-            $consultation = Consultation::find($consultationId);
-            if ($consultation) {
-                $consultation->update(['payment_status' => 'paid']);
+            // Actualizar el estado de las consultas
+            foreach ($request->consultation_ids as $consultationId) {
+                $consultation = Consultation::find($consultationId);
+                if ($consultation) {
+                    $consultation->update(['payment_status' => 'paid']);
+                }
             }
-        }
-    });
+        });
 
-    return redirect()->route('payments.index')->with('success', 'Pago creado con éxito.');
-}
+        return redirect()->route('payments.index')->with('success', 'Pago creado con éxito.');
+    }
 
 
     /**
@@ -80,7 +80,7 @@ class PaymentController extends Controller
      */
     public function show(Payment $payment)
     {
-        $payment->load('patient', 'consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
+        $payment->load('consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
         return Inertia::render('Payments/Show', compact('payment'));
     }
 
@@ -89,11 +89,11 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment)
     {
-        $payment->load('patient', 'consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
+        $payment->load('consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
         $paymentMethods = PaymentMethod::where('active', 1)->get();
         $patients = Patient::all();
         $consultations = Consultation::with('patient', 'user')->get();
-        
+
         return Inertia::render('Payments/Edit', compact('payment', 'paymentMethods', 'patients', 'consultations'));
     }
 

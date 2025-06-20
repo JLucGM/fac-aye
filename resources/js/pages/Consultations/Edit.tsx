@@ -16,11 +16,27 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Edit Consultation', href: '#' },
 ];
 
-export default function Edit({ consultation, patients, users, services, paymentMethods }: { consultation: Consultation, patients: Patient[], users: User[], services: Service[], paymentMethods: PaymentMethod[] }) {
-    console.log(consultation); // Verifica que la propiedad payments esté presente
+export default function Edit({ consultation, patients, users, services, paymentMethods }: {
+    consultation: Consultation & {
+        payment?: Array<{
+            id: number;
+            payment_method_id: number;
+            reference: string;
+            // paid_at: string;
+        }>
+    },
+    patients: Patient[],
+    users: User[],
+    services: Service[],
+    paymentMethods: PaymentMethod[]
+}) {
 
-    // Extraer datos de pago si existen
-    const payment = consultation.payments && consultation.payments.length > 0 ? consultation.payments[0] : null;
+    // Extraer datos de pago de manera segura
+    const payment = consultation.payment && consultation.payment.length > 0 ? consultation.payment[0] : {
+        payment_method_id: null,
+        reference: '',
+        // paid_at: ''
+    };
 
     const { data, setData, errors, put } = useForm({
         user_id: consultation.user_id,
@@ -32,24 +48,16 @@ export default function Edit({ consultation, patients, users, services, paymentM
         payment_status: consultation.payment_status || '',
         consultation_type: consultation.consultation_type || '',
         amount: consultation.amount || 0,
-        payment_method_id: payment ? payment.payment_method_id : null, // Asignar el método de pago si existe
-        reference: payment ? payment.reference : '', // Asignar la referencia si existe
-        paid_at: payment ? new Date(payment.paid_at).toISOString().split('T')[0] : '', // Asignar la fecha de pago si existe
+        // Datos de pago
+        payment_method_id: payment.payment_method_id,
+        reference: payment.reference,
+        // paid_at: payment.paid_at ? new Date(payment.paid_at).toISOString().split('T')[0] : '',
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
-        console.log(data);
         e.preventDefault();
         const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
-        put(routeFn('consultations.update', consultation.id), {
-            onSuccess: () => {
-                // toast("Consulta actualizada con éxito.");
-            },
-            onError: (err) => {
-                console.error("Error al actualizar la consulta:", err);
-                // toast("Error al actualizar la consulta.");
-            },
-        });
+        put(routeFn('consultations.update', consultation.id));
     };
 
     const paymentMethodOptions = paymentMethods.map(method => ({
@@ -68,57 +76,76 @@ export default function Edit({ consultation, patients, users, services, paymentM
                 />
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <ConsultationsForm
-                        data={data}
-                        patients={patients}
-                        users={users}
-                        services={services}
-                        setData={setData}
-                        errors={errors}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="col-span-full md:col-span-2">
 
-                    <h1 className='text-xl'>Pago</h1>
-                    <div>
-                        <Label htmlFor="payment_method_id">Método de Pago</Label>
-                        <Select
-                            id="payment_method_id"
-                            options={paymentMethodOptions}
-                            value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
-                            onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
-                            isSearchable
-                            placeholder="Selecciona un método de pago..."
-                            className="rounded-md mt-1 block w-full"
-                        />
-                        <InputError message={errors.payment_method_id} className="mt-2" />
+                            <ConsultationsForm
+                                data={data}
+                                patients={patients}
+                                users={users}
+                                services={services}
+                                setData={setData}
+                                errors={errors}
+                            />
+
+                        </div>
+                        <div className="">
+                            <h2 className="text-lg font-semibold">Información de Pago</h2>
+
+                            {/* Método de Pago */}
+                            <div>
+                                <Label htmlFor="payment_method_id">Método de Pago</Label>
+                                <Select
+                                    id="payment_method_id"
+                                    options={paymentMethodOptions}
+                                    value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
+                                    onChange={selectedOption => setData('payment_method_id', selectedOption?.value || null)}
+                                    isSearchable
+                                    placeholder="Selecciona un método de pago..."
+                                    className="basic-single rounded-md mt-1 block w-full"
+                                    classNamePrefix="select"
+                                />
+                                {errors.payment_method_id && (
+                                    <InputError message={errors.payment_method_id} className="mt-2" />
+                                )}
+                            </div>
+
+                            {/* Referencia */}
+                            <div>
+                                <Label htmlFor="reference">Referencia/Número de Transacción</Label>
+                                <Input
+                                    id="reference"
+                                    type="text"
+                                    value={data.reference}
+                                    onChange={e => setData('reference', e.target.value)}
+                                    placeholder="Ingrese la referencia de pago"
+                                    className="mt-1 block w-full"
+                                />
+                                {errors.reference && (
+                                    <InputError message={errors.reference} className="mt-2" />
+                                )}
+                            </div>
+
+                            {/* Fecha de Pago */}
+                            {/* <div>
+                                <Label htmlFor="paid_at">Fecha de Pago</Label>
+                                <Input
+                                    id="paid_at"
+                                    type="date"
+                                    value={data.paid_at}
+                                    onChange={e => setData('paid_at', e.target.value)}
+                                    className="mt-1 block w-full bg-gray-200"
+                                    readOnly
+                                />
+                                {errors.paid_at && (
+                                    <InputError message={errors.paid_at} className="mt-2" />
+                                )}
+                            </div> */}
+                        </div>
                     </div>
-
-                    <div>
-                        <Label htmlFor="reference">Referencia</Label>
-                        <Input
-                            id="reference"
-                            type="text"
-                            name="reference"
-                            value={data.reference}
-                            className="mt-1 block w-full"
-                            onChange={e => setData('reference', e.target.value)}
-                        />
-                        <InputError message={errors.reference} className="mt-2" />
-                    </div>
-
-                    <div>
-                        <Label htmlFor="paid_at">Fecha de Pago</Label>
-                        <Input
-                            id="paid_at"
-                            type="date"
-                            name="paid_at"
-                            value={data.paid_at}
-                            className="mt-1 block w-full"
-                            onChange={e => setData('paid_at', e.target.value)}
-                        />
-                        <InputError message={errors.paid_at} className="mt-2" />
-                    </div>
-
-                    <Button variant={"default"}>Actualizar Consulta</Button>
+                    <Button type="submit" variant="default">
+                        Actualizar Consulta
+                    </Button>
                 </form>
             </ContentLayout>
         </AppLayout>

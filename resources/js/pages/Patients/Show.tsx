@@ -6,11 +6,16 @@ import ContentLayout from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
-import { PenBox } from 'lucide-react';
+import { ChevronsDown, ChevronsUp, PenBox } from 'lucide-react';
 import React, { useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import {
+    Collapsible,
+    CollapsibleTrigger,
+    CollapsibleContent,
+} from "@/components/ui/collapsible"; // Asegúrate de importar los componentes de colapso
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -48,20 +53,18 @@ const calculateTotalDebt = (consultations: Consultation[]): number => {
 };
 
 export default function Show({ patient }: { patient: Patient }) {
-    const [paymentStatus, setPaymentStatus] = useState<string>('all'); // 'all', 'paid', 'pending'
-    const [consultationType, setConsultationType] = useState<string>('all'); // 'all', 'domiciliary', 'office'
+    const [paymentStatus, setPaymentStatus] = useState<string>('all');
+    const [consultationType, setConsultationType] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false); // Estado para controlar el colapso
 
-    // Asegúrate de que consultations tenga un valor predeterminado
     const consultations = patient.consultations || [];
 
     const filteredConsultations = consultations.filter(consultation => {
-        // Filtros básicos
         const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
         const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
 
-        // Filtro de fechas mejorado
         let dateMatch = true;
         if (startDate || endDate) {
             const consultationDate = parseISO(consultation.scheduled_at);
@@ -122,68 +125,97 @@ export default function Show({ patient }: { patient: Patient }) {
                 <div className="mt-4 space-y-4">
                     <h2 className="text-xl font-bold">Filtros de Consultas</h2>
 
-                    <div className="flex flex-wrap gap-4 items-center">
-                        <div className="flex items-center space-x-2">
-                            <Label htmlFor="paymentStatus" className="whitespace-nowrap">Estado de pago:</Label>
-                            <select
-                                id="paymentStatus"
-                                value={paymentStatus}
-                                onChange={(e) => setPaymentStatus(e.target.value)}
-                                className="border rounded p-2"
-                            >
-                                <option value="all">Todos</option>
-                                <option value="paid">Pagadas</option>
-                                <option value="pending">Pendientes</option>
-                            </select>
+                    <Collapsible
+                        open={isFiltersOpen}
+                        onOpenChange={setIsFiltersOpen}
+                        className="w-full space-y-2"
+                    >
+                        <div className="flex items-center justify-between space-x-4 px-4 bg-gray-100 p-3 rounded-md">
+                            <h4 className="text-sm font-semibold">
+                                Filtros de Consulta
+                            </h4>
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                    {isFiltersOpen ? (
+                                        <>
+                                            Ocultar filtros
+                                            <ChevronsUp className="h-4 w-4 mr-2" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            Mostrar filtros
+                                            <ChevronsDown className="h-4 w-4 mr-2" />
+                                        </>
+                                    )}
+                                </Button>
+                            </CollapsibleTrigger>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de consulta:</Label>
-                            <select
-                                id="consultationType"
-                                value={consultationType}
-                                onChange={(e) => setConsultationType(e.target.value)}
-                                className="border rounded p-2"
-                            >
-                                <option value="all">Todos</option>
-                                <option value="domiciliary">Domicilio</option>
-                                <option value="office">Oficina</option>
-                            </select>
-                        </div>
+                        <CollapsibleContent>
+                            <div className="flex flex-wrap gap-4 items-center">
+                                <div className="flex items-center space-x-2">
+                                    <Label htmlFor="paymentStatus" className="whitespace-nowrap">Estado de pago:</Label>
+                                    <select
+                                        id="paymentStatus"
+                                        value={paymentStatus}
+                                        onChange={(e) => setPaymentStatus(e.target.value)}
+                                        className="border rounded p-2"
+                                    >
+                                        <option value="all">Todos</option>
+                                        <option value="paid">Pagadas</option>
+                                        <option value="pending">Pendientes</option>
+                                    </select>
+                                </div>
 
-                        <div className="flex items-center space-x-2">
-                            <Label htmlFor="startDate">Desde:</Label>
-                            <Input
-                                id="startDate"
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
-                        </div>
+                                <div className="flex items-center space-x-2">
+                                    <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de consulta:</Label>
+                                    <select
+                                        id="consultationType"
+                                        value={consultationType}
+                                        onChange={(e) => setConsultationType(e.target.value)}
+                                        className="border rounded p-2"
+                                    >
+                                        <option value="all">Todos</option>
+                                        <option value="domiciliary">Domicilio</option>
+                                        <option value="office">Oficina</option>
+                                    </select>
+                                </div>
 
-                        <div className="flex items-center space-x-2">
-                            <Label htmlFor="endDate">Hasta:</Label>
-                            <Input
-                                id="endDate"
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                min={startDate}
-                            />
-                        </div>
+                                <div className="flex items-center space-x-2">
+                                    <Label htmlFor="startDate">Desde:</Label>
+                                    <Input
+                                        id="startDate"
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                    />
+                                </div>
 
-                        <button
-                            onClick={() => {
-                                setPaymentStatus('all');
-                                setConsultationType('all');
-                                setStartDate('');
-                                setEndDate('');
-                            }}
-                            className="text-blue-600 hover:underline"
-                        >
-                            Limpiar filtros
-                        </button>
-                    </div>
+                                <div className="flex items-center space-x-2">
+                                    <Label htmlFor="endDate">Hasta:</Label>
+                                    <Input
+                                        id="endDate"
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        min={startDate}
+                                    />
+                                </div>
+
+                                <Button
+                                    onClick={() => {
+                                        setPaymentStatus('all');
+                                        setConsultationType('all');
+                                        setStartDate('');
+                                        setEndDate('');
+                                    }}
+                                    variant={'outline'}
+                                >
+                                    Limpiar filtros
+                                </Button>
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
 
                     <div className="mt-4">
                         <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>

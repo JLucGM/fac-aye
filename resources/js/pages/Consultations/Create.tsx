@@ -51,9 +51,9 @@ export default function Create({ patients, users, services, paymentMethods }: {
         amount: 0,
 
 
-         payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
+        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
         reference: '',
-        paid_at: new Date().toISOString().split('T')[0],
+        // paid_at: new Date().toISOString().split('T')[0],
     });
     // console.log("Create consultation page loaded with initial data:", data);
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,41 +89,47 @@ export default function Create({ patients, users, services, paymentMethods }: {
                 </Heading>
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <ConsultationsForm
-                        data={data}
-                        patients={patients}
-                        users={users}
-                        services={services}
-                        setData={setData}
-                        errors={errors}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="">
+                            <ConsultationsForm
+                                data={data}
+                                patients={patients}
+                                users={users}
+                                services={services}
+                                setData={setData}
+                                errors={errors}
+                            />
+                        </div>
 
-                    <h1 className='text-xl'>pago</h1>
-                    <div>
-                        <Label htmlFor="payment_method_id">Método de Pago</Label>
-                        <Select
-                            id="payment_method_id"
-                            options={paymentMethodOptions}
-                            value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
-                            onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
-                            isSearchable
-                            placeholder="Selecciona un método de pago..."
-                            className="rounded-md mt-1 block w-full"
-                        />
-                        <InputError message={errors.payment_method_id} className="mt-2" />
-                    </div>
+                        <div className="">
+                            <h1 className='text-xl'>pago</h1>
+                            <div>
+                                <Label htmlFor="payment_method_id">Método de Pago</Label>
+                                <Select
+                                    id="payment_method_id"
+                                    options={paymentMethodOptions}
+                                    value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
+                                    onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
+                                    isSearchable
+                                    placeholder="Selecciona un método de pago..."
+                                    className="rounded-md mt-1 block w-full"
+                                />
+                                <InputError message={errors.payment_method_id} className="mt-2" />
+                            </div>
 
-                    <div>
-                        <Label htmlFor="reference">Referencia</Label>
-                        <Input
-                            id="reference"
-                            type="text"
-                            name="reference"
-                            value={data.reference}
-                            className="mt-1 block w-full"
-                            onChange={e => setData('reference', e.target.value)}
-                        />
-                        <InputError message={errors.reference} className="mt-2" />
+                            <div>
+                                <Label htmlFor="reference">Referencia</Label>
+                                <Input
+                                    id="reference"
+                                    type="text"
+                                    name="reference"
+                                    value={data.reference}
+                                    className="mt-1 block w-full"
+                                    onChange={e => setData('reference', e.target.value)}
+                                />
+                                <InputError message={errors.reference} className="mt-2" />
+                            </div>
+                        </div>
                     </div>
 
                     <Button

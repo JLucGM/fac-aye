@@ -12,12 +12,36 @@ import { MoreHorizontal } from "lucide-react"
 import { Link } from "@inertiajs/react"
 import { Consultation } from "@/types"
 import { format } from 'date-fns'; // Importar la función format
+import { Checkbox } from "@/components/ui/checkbox"
+
 
 export const columns: ColumnDef<Consultation>[] = [
   // {
   //   accessorKey: "id",
   //   header: "ID",
   // },
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    // enableSorting: false,
+    // enableHiding: false,
+  },
   {
     accessorKey: "identification",
     header: "Cédula",

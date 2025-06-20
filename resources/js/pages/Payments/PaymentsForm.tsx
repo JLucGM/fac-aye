@@ -19,7 +19,7 @@ type PaymentsFormProps = {
     status?: string;
     reference?: string;
     notes?: string;
-    paid_at?: string;
+    // paid_at?: string;
   };
 };
 
