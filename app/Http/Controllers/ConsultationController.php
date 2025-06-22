@@ -49,7 +49,7 @@ class ConsultationController extends Controller
      */
     public function store(StoreConsultationRequest $request)
     {
-        // Crear la consulta sin el campo service_id
+        // Validar los datos de la consulta
         $validatedData = $request->validated();
         unset($validatedData['service_id']); // Eliminar service_id del array de datos
 
@@ -64,16 +64,20 @@ class ConsultationController extends Controller
             $consultation->services()->attach($request->service_id);
         }
 
-        $payment = Payment::create([
-            'payment_method_id' => $validatedData['payment_method_id'],
-            'amount' => $validatedData['amount'],
-            'status' => $validatedData['payment_status'],
-            'reference' => $validatedData['reference'],
-            'paid_at' => $validatedData['paid_at'],
-        ]);
+        // Verificar el estado del pago
+        if ($validatedData['payment_status'] !== 'pending') {
+            // Solo crear el pago si el estado no es "pending"
+            $payment = Payment::create([
+                'payment_method_id' => $validatedData['payment_method_id'],
+                'amount' => $validatedData['amount'],
+                'status' => $validatedData['payment_status'],
+                'reference' => $validatedData['reference'],
+                // 'paid_at' => $validatedData['paid_at'], // Si necesitas esta línea, asegúrate de que el campo exista en el formulario
+            ]);
 
-        $payment->consultations()->sync($consultation->id);
-
+            // Asociar el pago a la consulta
+            $payment->consultations()->sync($consultation->id);
+        }
 
         return redirect()->route('consultations.index');
     }
@@ -122,7 +126,7 @@ class ConsultationController extends Controller
                 'amount' => $data['amount'], // Asegúrate de que el monto sea correcto
                 'status' => $request->payment_status, // O el estado que desees
                 'reference' => $request->reference,
-                'paid_at' => $request->paid_at,
+                // 'paid_at' => $request->paid_at,
                 'payment_method_id' => $request->payment_method_id,
             ];
 
@@ -141,6 +145,7 @@ class ConsultationController extends Controller
         // Redirigir a la lista de consultas con un mensaje de éxito
         return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');
     }
+
 
 
 

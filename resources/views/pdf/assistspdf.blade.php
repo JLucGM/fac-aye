@@ -34,12 +34,14 @@
 
         /* Estilo para la tabla sin bordes */
         .no-border {
-            border: none; /* Elimina el borde de la tabla */
+            border: none;
+            /* Elimina el borde de la tabla */
         }
 
         .no-border th,
         .no-border td {
-            border: none; /* Elimina el borde de las celdas */
+            border: none;
+            /* Elimina el borde de las celdas */
         }
 
         /* Centrar el texto en la celda del título */
@@ -73,16 +75,16 @@
                     $data = file_get_contents($path);
                     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                     @endphp
-                    <img src="{{ $base64 }}" alt="Logo" style="width: 250px;">
+                    <img src="{{ $base64 }}" alt="Logo" style="max-width: 100px;">
                     @endif
                     @endforeach
                 </td>
                 <td class="center">
-                    <h1>Reporte de Pagos</h1>
+                    <h1>Comprobante de asistencia</h1>
                 </td>
                 <td>
-                    <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p>
-                    <p>Cierre elaborado por: <br> {{$auth->name}} {{$auth->lastname}}</p>
+                    <!-- Mover la fecha aquí -->
+                    <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p> <!-- Formatear la fecha -->
                 </td>
             </tr>
         </tbody>
@@ -96,7 +98,8 @@
                 <th>Referencia</th>
                 <th>Fecha de Pago</th>
                 <th>Método de Pago</th>
-                <th>Paciente Asignado</th>
+                <th>Paciente Asignado</th> <!-- Nueva columna para el paciente -->
+                <!-- <th>Notas</th> -->
             </tr>
         </thead>
         <tbody>
@@ -113,19 +116,10 @@
                     {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}<br>
                     @endforeach
                 </td>
+                <!-- <td>{{ $pago->notes }}</td> -->
             </tr>
             @endforeach
         </tbody>
-    </table>
-
-    <!-- Mostrar la suma total -->
-    <table>
-        <tfoot>
-            <tr>
-                <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
-                <td><strong>{{ $totalAmount }}</strong></td>
-            </tr>
-        </tfoot>
     </table>
 
     <div class="footer">

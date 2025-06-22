@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      position: relative;
     }
 
     h1 {
@@ -32,12 +32,73 @@
     th {
       background-color: #f2f2f2;
     }
+
+    /* Estilo para la tabla sin bordes */
+    .no-border {
+      border: none;
+      /* Elimina el borde de la tabla */
+    }
+
+    .no-border th,
+    .no-border td {
+      border: none;
+      /* Elimina el borde de las celdas */
+    }
+
+    /* Centrar el texto en la celda del título */
+    .center {
+      text-align: center;
+    }
+
+    /* Estilo para el pie de página */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 10px;
+      border-top: 1px solid #000;
+      padding-top: 5px;
+    }
+
+    @page {
+      margin-bottom: 50px;
+      /* Espacio para el pie de página */
+    }
   </style>
 </head>
 
 <body>
-  <h1>Reporte de Consultas</h1>
-  <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p> <!-- Formatear la fecha -->
+
+  <table class="no-border">
+    <tbody>
+      <tr>
+        <td>
+          @foreach ($settings as $setting)
+          @if($setting->hasMedia('logo'))
+          @php
+          $path = $setting->getMedia('logo')->first()->getPath();
+          $type = pathinfo($path, PATHINFO_EXTENSION);
+          $data = file_get_contents($path);
+          $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+          @endphp
+          <img src="{{ $base64 }}" alt="Logo" style="max-width: 250px;">
+          @endif
+          @endforeach
+        </td>
+        <td class="center">
+          <h1>Reporte de Consultas</h1>
+        </td>
+        <td>
+          <!-- Mover la fecha aquí -->
+          <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p> <!-- Formatear la fecha -->
+          <p>Cierre elaborado por: <br> {{$auth->name}} {{$auth->lastname}}</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
   <table>
     <thead>
       <tr>
@@ -74,6 +135,14 @@
       @endforeach
     </tbody>
   </table>
+
+  <div class="footer">
+    @foreach ($settings as $setting)
+    <p>Dirección: {{ $setting->direction }}</p>
+    <p>Telef: {{ $setting->phone }} - R.I.F:{{ $setting->rif }}</p>
+    @endforeach
+  </div>
+
 </body>
 
 </html>

@@ -50,7 +50,7 @@ export default function Create({ patients, users, services, paymentMethods }: {
         payment_status: '',
         amount: 0,
 
-
+        // campo de pago
         payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
         reference: '',
         // paid_at: new Date().toISOString().split('T')[0],

@@ -35,7 +35,7 @@ class StoreConsultationRequest extends FormRequest
             
             'payment_method_id' => 'required|integer|exists:payment_methods,id',
             'reference' => 'nullable|string',
-            'paid_at' => 'required|date',
+            // 'paid_at' => 'required|date',
         ];
     }
 }
