@@ -4,6 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentsForm from './PaymentsForm';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,16 +23,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Edit({ payment, paymentMethods, patients, consultations }: { payment: any, paymentMethods: any[], patients: any[], consultations: any[] }) {
     const { data, setData, errors, put, recentlySuccessful } = useForm({
-    patient_id: payment.patient_id || null, // Agrega esta línea para inicializar patient_id
-    consultation_ids: payment.consultation_ids || [], // Asegúrate de que sea un array
-    payment_method_id: payment.payment_method_id,
-    amount: payment.amount,
-    status: payment.status,
-    reference: payment.reference,
-    notes: payment.notes,
-    // paid_at: payment.paid_at,
-});
-console.log(payment)
+        patient_id: payment.patient_id || null, // Agrega esta línea para inicializar patient_id
+        consultation_ids: payment.consultation_ids || [], // Asegúrate de que sea un array
+        payment_method_id: payment.payment_method_id,
+        amount: payment.amount,
+        status: payment.status,
+        reference: payment.reference,
+        notes: payment.notes,
+        // paid_at: payment.paid_at,
+    });
+    console.log(payment)
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -51,9 +52,13 @@ console.log(payment)
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Payment" />
+            <Head title="Editar Pago" />
 
             <ContentLayout>
+                <Heading
+                    title="Editar Pago"
+                    description="Aquí puedes editar un pago existente."
+                />
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <PaymentsForm
                         data={data}

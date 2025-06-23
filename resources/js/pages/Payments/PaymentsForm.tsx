@@ -9,7 +9,7 @@ type PaymentsFormProps = {
   data: CreatePaymentFormData;
   patients: Patient[];
   paymentMethods: PaymentMethod[];
-  consultations?: Consultation[]; 
+  consultations?: Consultation[];
   setData: (key: string, value: any) => void;
   errors: {
     patient_id?: string;
@@ -97,7 +97,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
     <>
       {patientOptions.length > 0 && (
         <div>
-          <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Patient ID</Label>
+          <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente</Label>
           <Select
             id="patient_id"
             options={patientOptions}
@@ -106,7 +106,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
               setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
             }
             isSearchable
-            placeholder="Select Patient..."
+            placeholder="Selecciona un paciente..."
             className="rounded-md"
           />
           <InputError message={errors.patient_id} />
@@ -170,7 +170,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
 
       <div>
-        <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Status</Label>
+        <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado del pago</Label>
         <Select
           id="status"
           options={statusOptions}

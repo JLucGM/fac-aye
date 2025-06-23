@@ -118,7 +118,9 @@ class PaymentController extends Controller
 
     public function accounts_receivable_index()
     {
-        $payments = Payment::with('paymentMethod', 'consultations.patient')->where('status', 'pending')->get();
+        // $payments = Payment::with('paymentMethod', 'consultations.patient')->where('status', 'pending')->get();
+$payments = Consultation::with('patient', 'user')->where('payment_status', 'pending')->get();
+        // dd($payments);
         return Inertia::render('Payments/AccountsReceivable', compact('payments'));
     }
 }

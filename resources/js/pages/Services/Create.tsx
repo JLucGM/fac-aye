@@ -6,6 +6,7 @@ import ServicesForm from './ServicesForm';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import ContentLayout from '@/layouts/content-layout';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -45,9 +46,13 @@ export default function Create() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create" />
-           
-           <ContentLayout>
+            <Head title="Crear Servicio" />
+
+            <ContentLayout>
+                <Heading
+                    title="Crear Servicio"
+                    description="Aquí puedes crear un nuevo servicio."
+                />
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <ServicesForm
@@ -59,7 +64,7 @@ export default function Create() {
                     <Button
                         variant={"default"}
                     >
-                        Create Service
+                        Crear Servicio
                     </Button>
                 </form>
             </ContentLayout>

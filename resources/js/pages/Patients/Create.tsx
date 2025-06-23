@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import ContentLayout from '@/layouts/content-layout';
 import PatientsForm from './PatientsForm';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -47,9 +48,13 @@ export default function Create() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create" />
-           
-           <ContentLayout>
+            <Head title="Crear Paciente" />
+
+            <ContentLayout>
+                <Heading
+                    title="Crear Paciente"
+                    description="Aquí puedes crear un nuevo paciente."
+                />
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <PatientsForm
                         data={data}
@@ -60,7 +65,7 @@ export default function Create() {
                     <Button
                         variant={"default"}
                     >
-                        Create Patient
+                        Crear Paciente
                     </Button>
                 </form>
             </ContentLayout>

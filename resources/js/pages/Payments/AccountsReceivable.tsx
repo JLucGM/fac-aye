@@ -42,10 +42,12 @@ export default function AccountsReceivable({ payments }: { payments: Payment[] }
 
       <ContentLayout>
         <div className="flex justify-between items-center">
+          
           <Heading
             title="Cuentas por pagar"
             description="Gestión de todas las cuentas por pagar"
           />
+
           <Button asChild>
             <Link href={route('payments.create')}>
               Registrar Pago

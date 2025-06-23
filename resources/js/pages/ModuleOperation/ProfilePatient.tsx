@@ -80,13 +80,15 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Index" />
+            <Head title="Perfil del Paciente" />
 
             <ContentLayout>
+                
                 <Heading
                     title="Búsqueda rápida paciente"
-                    description="Manage your consultations"
+                    description="Aquí puedes buscar un paciente por nombre, correo o identificación y ver sus consultas."
                 />
+                
                 <Input
                     type="text"
                     placeholder="Buscar por nombre, correo o identificación..."

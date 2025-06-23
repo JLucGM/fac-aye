@@ -3,6 +3,7 @@ import ContentLayout from '@/layouts/content-layout';
 import { Consultation, Payment, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'; // Asegúrate de que la ruta sea correcta
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,9 +25,14 @@ export default function Show({ payment }: { payment: Payment }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Show Payment" />
+            <Head title="Detalles del Pago" />
 
             <ContentLayout>
+                <Heading
+                    title="Detalles del Pago"
+                    description="Aquí puedes ver la información de un pago existente."
+                />
+
                 <h1 className="text-2xl font-bold mb-4">Detalles del Pago</h1>
 
                 <div className="mb-4">
@@ -36,7 +42,7 @@ export default function Show({ payment }: { payment: Payment }) {
                     <p><strong>Estado:</strong> {payment.status}</p>
                     <p><strong>Referencia:</strong> {payment.reference}</p>
                     <p><strong>Notas:</strong> {payment.notes}</p>
-                    <p><strong>Fecha de Pago:</strong> {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString() : 'No disponible'}</p>
+                    {/* <p><strong>Fecha de Pago:</strong> {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString() : 'No disponible'}</p> */}
                     <p><strong>Método de Pago:</strong> {payment.payment_method_id}</p>
                 </div>
 

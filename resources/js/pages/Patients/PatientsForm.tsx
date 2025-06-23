@@ -20,7 +20,7 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
     return (
         <>
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="identification">identification</Label>
+                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="identification">Cédula de identidad</Label>
                 <Input
                     id="identification"
                     type="text"
@@ -33,7 +33,7 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
             </div>
 
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="name">name</Label>
+                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="name">Nombre</Label>
                 <Input
                     id="name"
                     type="text"
@@ -46,7 +46,7 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
             </div>
 
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="lastname">last name</Label>
+                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="lastname">Apellido</Label>
                 <Input
                     id="lastname"
                     type="text"
@@ -59,7 +59,7 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
             </div>
             
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="email">email</Label>
+                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="email">Email</Label>
                 <Input
                     id="email"
                     type="email"
@@ -72,7 +72,7 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
             </div>
 
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="phone">phone</Label>
+                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="phone">Teléfono</Label>
                 <Input
                     id="phone"
                     type="text"
@@ -85,7 +85,7 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
             </div>
 
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="birthdate">birth date</Label>
+                <Label className="mb-2 block font-semibold text-gray-700" htmlFor="birthdate">Fecha de nacimiento</Label>
                 <Input
                     id="birthdate"
                     type="date"

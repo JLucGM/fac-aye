@@ -4,6 +4,7 @@ import { PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentMethodsForm from './PaymentMethodsForm';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -36,9 +37,9 @@ export default function Edit({ paymentMethod }: { paymentMethod: PaymentMethod }
         // Fix: Address 'Argument of type 'Router' is not assignable to parameter of type 'string'.'
         // This workaround helps TypeScript understand the global 'route' function (from Ziggy.js)
         // by explicitly casting 'window.route' to a function type that returns a string.
-const routeFn = (name: string, params?: string | object | number) => (window as any).route(name, params);
+        const routeFn = (name: string, params?: string | object | number) => (window as any).route(name, params);
 
-console.log("Intentando actualizar el método de pago en:", routeFn('payment-methods.update', paymentMethod.slug));
+        console.log("Intentando actualizar el método de pago en:", routeFn('payment-methods.update', paymentMethod.slug));
 
         // Call the put method with the correct route and the payment method's ID
         put(routeFn('payment-methods.update', paymentMethod.slug), {
@@ -55,9 +56,13 @@ console.log("Intentando actualizar el método de pago en:", routeFn('payment-met
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Payment Method" /> {/* Updated Head title */}
+            <Head title="Editar Método de Pago" /> {/* Updated Head title */}
 
             <ContentLayout>
+                <Heading
+                    title="Editar Método de Pago" // Updated heading title for clarity
+                    description="Aquí puedes editar un método de pago existente."
+                />
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <PaymentMethodsForm
                         data={data}
@@ -66,7 +71,7 @@ console.log("Intentando actualizar el método de pago en:", routeFn('payment-met
                     />
 
                     <Button variant={"default"}>
-                        Update Payment Method {/* Updated button text for clarity */}
+                        Actualizar Método de Pago
                     </Button>
                 </form>
             </ContentLayout>

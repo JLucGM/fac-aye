@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Patient;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,9 +19,9 @@ class DatabaseSeeder extends Seeder
         $this->call(ServiceSeeder::class);
         $this->call(PaymentMethodSeeder::class);
         // User::factory(10)->create();
-        // Patient::factory()
-        //     ->count(5)
-        //     ->create();
+        Patient::factory()
+            ->count(5)
+            ->create();
 
         //     PaymentMethod::factory()
         //     ->count(3)

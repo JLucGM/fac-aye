@@ -23,17 +23,16 @@ export default function Index({ patients }: { patients: Patient[] }) {
     // console.log('patients', patients);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Index" />
-
+            <Head title="Listado de Pacientes" />
 
             <ContentLayout>
                 <Heading
-                    title="patients"
-                    description="Manage your patients"
+                    title="Listado de Pacientes"
+                    description="Gestiona tus pacientes."
                 >
                     <Button asChild>
                         <Link className="btn btn-primary" href={route('patients.create')}>
-                            Create paciente
+                            Crear paciente
                         </Link>
                     </Button>
                 </Heading>

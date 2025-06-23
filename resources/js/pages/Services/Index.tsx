@@ -23,17 +23,16 @@ export default function Index({ services }: { services: Service[] }) {
     // console.log('services', services);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Index" />
-
+            <Head title="Listado de Servicios" />
 
             <ContentLayout>
                 <Heading
-                    title="Services"
-                    description="Manage your services"
+                    title="Servicios"
+                    description="Administra tus servicios"
                 >
                     <Button asChild>
                         <Link className="btn btn-primary" href={route('services.create')}>
-                            Create Service
+                            Crear servicio
                         </Link>
                     </Button>
                 </Heading>

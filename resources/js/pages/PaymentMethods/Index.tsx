@@ -24,16 +24,16 @@ export default function Index({ paymentMethods }: { paymentMethods: PaymentMetho
     // console.log('paymentMethods', paymentMethods);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Index" />
+            <Head title="Listado de Métodos de Pago" />
 
             <ContentLayout>
                 <Heading
-                    title="paymentMethods"
-                    description="Manage your paymentMethods"
+                    title="Listado de Métodos de Pago"
+                    description="Gestiona tus métodos de pago."
                 >
                     <Button asChild>
                         <Link className="btn btn-primary" href={route('payment-methods.create')}>
-                            Create Payment Method
+                            Crear Método de Pago
                         </Link>
                     </Button>
                 </Heading>

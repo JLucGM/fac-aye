@@ -4,6 +4,7 @@ import { Service, ServiceFormData, type BreadcrumbItem } from '@/types'; // Impo
 import { Head, useForm } from '@inertiajs/react';
 import ServicesForm from './ServicesForm';
 import { Button } from '@/components/ui/button';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -53,9 +54,13 @@ export default function Edit({ service }: { service: Service }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Service" /> {/* Updated Head title */}
+            <Head title="Editar Servicio" /> {/* Updated Head title */}
 
             <ContentLayout>
+                <Heading
+                    title="Editar Servicio"
+                    description="Aquí puedes editar un servicio existente."
+                />
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <ServicesForm
                         data={data}
@@ -64,7 +69,7 @@ export default function Edit({ service }: { service: Service }) {
                     />
 
                     <Button variant={"default"}>
-                        Update Service
+                        Actualizar Servicio
                     </Button>
                 </form>
             </ContentLayout>

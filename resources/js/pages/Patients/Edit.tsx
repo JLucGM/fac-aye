@@ -4,6 +4,7 @@ import { Patient, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PatientsForm from './PatientsForm';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -58,9 +59,13 @@ export default function Edit({ patient }: { patient: Patient }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Patient" /> {/* Updated Head title */}
+            <Head title="Editar Paciente" /> {/* Updated Head title */}
 
             <ContentLayout>
+                <Heading
+                    title="Editar Paciente" // Updated heading title for clarity
+                    description="Aquí puedes editar la información de un paciente existente."
+                />
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <PatientsForm
                         data={data}
@@ -69,7 +74,7 @@ export default function Edit({ patient }: { patient: Patient }) {
                     />
 
                     <Button variant={"default"}>
-                        Update Patient {/* Button text remains "Update Patient" */}
+                        Actualizar Paciente
                     </Button>
                 </form>
             </ContentLayout>

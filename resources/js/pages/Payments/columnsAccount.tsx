@@ -13,57 +13,37 @@ import { Link } from "@inertiajs/react"
 import { Payment } from "@/types"
 
 export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
-  // {
-  //   accessorKey: "id",
-  //   header: "ID",
-  // },
-
-  // {
-  //   accessorKey: "created_at",
-  //   header: "Fecha Programada",
-  //   cell: ({ row }) => {
-  //     return new Date(row.original.created_at).toLocaleString();
-  //   },
-  // },
   {
-    accessorKey: "identification",
+    accessorKey: "patient.identification",
     header: "C.I",
     cell: ({ row }) => {
-      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
-      if (consultations.length > 0) {
-        const patient = consultations[0].patient; // Obtener el primer paciente
-        return (
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-            {patient?.identification || "Sin identificación"} {/* Mostrar identificación si existe */}
-          </p>
-        );
-      }
-      return <p className="text-sm text-gray-500">Sin paciente</p>;
+      const patient = row.original.patient;
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {patient?.identification || "Sin identificación"}
+        </p>
+      );
     },
   },
   {
-    accessorKey: "patient",
+    accessorKey: "patient.name",
     header: "Paciente",
     cell: ({ row }) => {
-      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
-      if (consultations.length > 0) {
-        const patient = consultations[0].patient; // Obtener el primer paciente
-        return (
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-            {patient?.name} {patient?.lastname}
-          </p>
-        );
-      }
-      return <p className="text-sm text-gray-500">Sin paciente</p>;
+      const patient = row.original.patient;
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {patient?.name} {patient?.lastname}
+        </p>
+      );
     },
   },
   {
     accessorKey: "status",
-    header: "status",
+    header: "Estado de la consulta",
   },
   {
     accessorKey: "amount",
-    header: "amount",
+    header: "Monto",
   },
   {
     id: "actions",
@@ -77,15 +57,8 @@ export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {/*<DropdownMenuLabel>Actions</DropdownMenuLabel>
-             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(service.id)}
-            >
-              Copy service ID
-            </DropdownMenuItem> 
-            <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])} >
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])}>
                 Mostrar
               </Link>
             </DropdownMenuItem>
@@ -96,7 +69,7 @@ export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];

@@ -18,14 +18,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'consultations',
-        href: '/consultations',
-    },
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+  },
+  {
+    title: 'consultations',
+    href: '/consultations',
+  },
 ];
 
 export default function Index({ consultations }: { consultations: Consultation[] }) {
@@ -59,20 +59,19 @@ export default function Index({ consultations }: { consultations: Consultation[]
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Consultas" />
+      <Head title="Listado de Consultas" />
 
       <ContentLayout>
-        <div className="flex justify-between items-center">
-          <Heading
-            title="Consultas"
-            description="Gestión de consultas médicas"
-          />
+        <Heading
+          title="Consultas"
+          description="Gestión de consultas médicas"
+        >
           <Button asChild>
             <Link href={route('consultations.create')}>
               Crear consulta
             </Link>
           </Button>
-        </div>
+        </Heading>
 
         {/* Filtros colapsables */}
         <Collapsible
@@ -100,7 +99,7 @@ export default function Index({ consultations }: { consultations: Consultation[]
               </Button>
             </CollapsibleTrigger>
           </div>
-          
+
           <CollapsibleContent className="space-y-2">
             <div className="rounded-md border px-4 py-3 text-sm">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -22,13 +22,12 @@ export default function Index({ }: {}) {
     // console.log('consultations', consultations);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Index" />
-
+            <Head title="Listado de Consultas" />
 
             <ContentLayout>
                 <Heading
-                    title="consultations"
-                    description="Manage your consultations"
+                    title="Listado de Consultas"
+                    description="Gestiona tus consultas."
                 >
                     {/* <Button asChild>
                         <Link className="btn btn-primary" href={route('consultations.create')}>

@@ -83,7 +83,7 @@ export default function Create({ patients, users, services, paymentMethods }: {
             <ContentLayout>
                 <Heading
                     title="Crear consulta"
-                    description="Manage your consultations"
+                    description="Aquí puedes crear una nueva consulta para un paciente."
                 >
 
                 </Heading>
@@ -135,7 +135,7 @@ export default function Create({ patients, users, services, paymentMethods }: {
                     <Button
                         variant={"default"}
                     >
-                        Create Patient
+                        Crear Consulta
                     </Button>
                 </form>
             </ContentLayout>

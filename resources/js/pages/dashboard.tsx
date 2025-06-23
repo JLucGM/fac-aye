@@ -52,13 +52,13 @@ export default function Dashboard() {
                             <h1>Modulo operativo</h1>
                         </div>
                         <Link
-                            className={buttonVariants({ variant: "default" })}
+                            className={buttonVariants({ variant: "outline" })}
                             href={route('module-operation.first_visit_index')}
                         >
                             Primera visita
                         </Link>
                         <Link
-                            className={buttonVariants({ variant: "default" })}
+                            className={buttonVariants({ variant: "outline" })}
                             href={route('module-operation.profile_patient_index')}
                         >
                             Búsqueda rápida de paciente
@@ -67,7 +67,7 @@ export default function Dashboard() {
                             <h1>Modulo asistencia</h1>
                         </div>
                         <Link
-                            className={buttonVariants({ variant: "default" })}
+                            className={buttonVariants({ variant: "outline" })}
                             href={route('patients.index')}
                         >
                             Lista de paciente
@@ -77,13 +77,13 @@ export default function Dashboard() {
                         </div>
 
                         <Link
-                            className={buttonVariants({ variant: "default" })}
+                            className={buttonVariants({ variant: "outline" })}
                             href={route('payments.index')}
                         >
                             Listo de Pagos
                         </Link>
                         <Link
-                            className={buttonVariants({ variant: "default" })}
+                            className={buttonVariants({ variant: "outline" })}
                             href={route('module-operation.accounts_receivable_index')}
                         >
                             Cuentas por cobrar

@@ -19,7 +19,7 @@ export default function PaymentMethodsForm({ data, setData, errors }: PaymentMet
     return (
         <>
             <div>
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Nombre</Label>
                 <Input
                     id="name"
                     type="text"
@@ -32,7 +32,7 @@ export default function PaymentMethodsForm({ data, setData, errors }: PaymentMet
             </div>
 
             <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Descripción</Label>
                 <Input
                     id="description"
                     type="text"
@@ -52,7 +52,7 @@ export default function PaymentMethodsForm({ data, setData, errors }: PaymentMet
                     className="mt-1 blocks"
                     onCheckedChange={(checked) => setData('active', checked)}
                 />
-                <Label htmlFor="active">Active</Label>
+                <Label htmlFor="active">Activo</Label>
                 {/* <Input
                     id="active"
                     type="checkbox"

@@ -85,8 +85,7 @@ export default function Index({ users, services, paymentMethods }: {
     // console.log('consultations', consultations);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Index" />
-
+            <Head title="Primera Visita" />
 
             <ContentLayout>
                 <Heading

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import ContentLayout from '@/layouts/content-layout';
 import PaymentsForm from './PaymentsForm';
+import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -53,9 +54,13 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Payment" />
+            <Head title="Crear Pago" />
 
             <ContentLayout>
+                <Heading
+                    title="Crear Pago"
+                    description="Aquí puedes crear un nuevo pago para un paciente."
+                />
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <PaymentsForm
                         data={data}

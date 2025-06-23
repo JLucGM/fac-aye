@@ -72,7 +72,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
     return (
         <>
             <div>
-                <Label htmlFor="user_id" className="mb-2 block font-semibold text-gray-700">User ID</Label>
+                <Label htmlFor="user_id" className="mb-2 block font-semibold text-gray-700">Tratante</Label>
                 <Select
                     id="user_id"
                     options={userOptions}
@@ -92,7 +92,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
             {patientOptions.length > 0 && (
                 <div>
-                    <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Patient ID</Label>
+                    <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente</Label>
                     <Select
                         id="patient_id"
                         options={patientOptions}
@@ -135,35 +135,35 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
 
             <div>
-                <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Status</Label>
+                <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado de la consulta</Label>
                 <Select
                     id="status"
                     options={statusOptions}
                     value={statusOptions.find(option => option.value === data.status) || null}
                     onChange={(selectedOption) => setData('status', selectedOption?.value ?? '')}
                     isSearchable
-                    placeholder="Select Status..."
+                    placeholder="Selecciona el estado..."
                     className="rounded-md"
                 />
                 <InputError message={errors.status} />
             </div>
 
             <div>
-                <Label htmlFor="payment_status" className="mb-2 block font-semibold text-gray-700">Payment Status</Label>
+                <Label htmlFor="payment_status" className="mb-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
                     options={paymentStatusOptions}
                     value={paymentStatusOptions.find(option => option.value === data.payment_status) || null}
                     onChange={(selectedOption) => setData('payment_status', selectedOption?.value ?? '')}
                     isSearchable
-                    placeholder="Select Payment Status..."
+                    placeholder="Selecciona el estado de pago..."
                     className="rounded-md"
                 />
                 <InputError message={errors.payment_status} />
             </div>
 
             <div>
-                <Label htmlFor="notes" className="mb-2 block font-semibold text-gray-700">Notes</Label>
+                <Label htmlFor="notes" className="mb-2 block font-semibold text-gray-700">Notas</Label>
                 <Input
                     id="notes"
                     type="text"

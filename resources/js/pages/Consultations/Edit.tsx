@@ -78,7 +78,7 @@ console.log('Edit Consultation Page Loaded', consultation);
 
                 <Heading
                     title="Editar consulta"
-                    description="Manage your consultations"
+                    description="Modifica los detalles de la consulta y la información de pago."
                 >
                     <Button variant="default" onClick={assistpdf}>
                         <Download />
