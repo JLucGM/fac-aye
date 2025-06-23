@@ -79,7 +79,7 @@ class ConsultationController extends Controller
             $payment->consultations()->sync($consultation->id);
         }
 
-        return redirect()->route('consultations.index');
+        return redirect()->route('consultations.edit', $consultation->id);
     }
 
     /**

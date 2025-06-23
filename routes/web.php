@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
 Route::get('/cierre-del-dia', [ClosuresController::class, 'cierreDelDia'])->name('cierre.del.dia');
 Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
+Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');
 
     // Route::get('services', [ServiceController::class, 'index'])->name('services.index');
     // Route::get('services/create', [ServiceController::class, 'create'])->name('services.create');

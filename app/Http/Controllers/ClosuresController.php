@@ -27,7 +27,7 @@ class ClosuresController extends Controller
         // Cargar la vista del PDF
         $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth'))->setPaper('a4', 'landscape');
         // // Devolver el PDF para abrir en una nueva pestaña
-        return $pdf->stream('cierre_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
+        return $pdf->stream($fechaHoy->format('d-m-Y') .'_cierre_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
     }
 
     public function pagosDelDia()
@@ -44,8 +44,25 @@ class ClosuresController extends Controller
 
         // return $pagos;
         // Cargar la vista del PDF
-        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagos', 'fechaHoy', 'settings', 'auth','totalAmount'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagos', 'fechaHoy', 'settings', 'auth', 'totalAmount'))->setPaper('a4', 'landscape');
         // // Devolver el PDF para abrir en una nueva pestaña
-        return $pdf->stream('cierre_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
+        return $pdf->stream( $fechaHoy->format('d-m-Y') .'_pagos_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
+    }
+
+    public function consultationpdf(Consultation $consultation)
+    {
+        // Obtener la fecha actual
+        $fechaHoy = Carbon::today();
+        $auth = Auth::user();
+
+        // Obtener la consulta específica
+        $consultation = Consultation::with('patient', 'services')->findOrFail($consultation->id);
+        $settings = Setting::with('media')->first()->get();
+        // return $consultas;
+        // Cargar la vista del PDF
+        $pdf = Pdf::loadView('pdf.assistspdf', compact('consultation', 'fechaHoy', 'settings', 'auth'))->setPaper('a4');
+
+        // Devolver el PDF para abrir en una nueva pestaña
+        return $pdf->stream('comprobante_asistencia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
     }
 }

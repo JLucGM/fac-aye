@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import Select from 'react-select';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
+import { Download, Timer } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -30,7 +31,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-
+console.log('Edit Consultation Page Loaded', consultation);
     // Extraer datos de pago de manera segura
     const payment = consultation.payment && consultation.payment.length > 0 ? consultation.payment[0] : {
         payment_method_id: null,
@@ -60,6 +61,11 @@ export default function Edit({ consultation, patients, users, services, paymentM
         put(routeFn('consultations.update', consultation.id));
     };
 
+    const assistpdf = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    window.open(route('consultationpdf', consultation.id), '_blank'); // Abre en una nueva pestaña
+};
+
     const paymentMethodOptions = paymentMethods.map(method => ({
         value: method.id,
         label: method.name
@@ -73,7 +79,12 @@ export default function Edit({ consultation, patients, users, services, paymentM
                 <Heading
                     title="Editar consulta"
                     description="Manage your consultations"
-                />
+                >
+                    <Button variant="default" onClick={assistpdf}>
+                        <Download />
+                        Descargar PDF
+                    </Button>
+                </Heading>
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

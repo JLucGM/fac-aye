@@ -3,16 +3,33 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consulta PDF</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            position: relative;
+            margin: -20px;
+            width: 250px;
         }
 
         h1 {
             text-align: center;
+        }
+
+        h2 {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 12px;
+        }
+
+        .no-border {
+            border-color: white;
+            /* Elimina el borde de la tabla */
+        }
+        .m-0 {
+            margin: 0;
         }
 
         table {
@@ -26,27 +43,17 @@
             border: 1px solid #000;
             padding: 8px;
             text-align: left;
+            font-size: 12px;
         }
 
         th {
             background-color: #f2f2f2;
+            font-size: 12px;
         }
 
-        /* Estilo para la tabla sin bordes */
-        .no-border {
-            border: none;
-            /* Elimina el borde de la tabla */
-        }
-
-        .no-border th,
-        .no-border td {
-            border: none;
-            /* Elimina el borde de las celdas */
-        }
-
-        /* Centrar el texto en la celda del título */
-        .center {
-            text-align: center;
+        .patient-info,
+        .consultation-info {
+            margin-top: 20px;
         }
 
         .footer {
@@ -63,70 +70,97 @@
 </head>
 
 <body>
-    <table class="no-border">
-        <tbody>
-            <tr>
-                <td>
-                    @foreach ($settings as $setting)
-                    @if($setting->hasMedia('logo'))
-                    @php
-                    $path = $setting->getMedia('logo')->first()->getPath();
-                    $type = pathinfo($path, PATHINFO_EXTENSION);
-                    $data = file_get_contents($path);
-                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                    @endphp
-                    <img src="{{ $base64 }}" alt="Logo" style="max-width: 100px;">
-                    @endif
-                    @endforeach
-                </td>
-                <td class="center">
-                    <h1>Comprobante de asistencia</h1>
-                </td>
-                <td>
-                    <!-- Mover la fecha aquí -->
-                    <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p> <!-- Formatear la fecha -->
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table>
-        <thead>
+    <!-- <div class=""style="width: 250px; border: none; margin-bottom: 20px; background-color: red;">s</div> -->
+
+    @foreach ($settings as $setting)
+    @if($setting->hasMedia('logo'))
+    @php
+    $path = $setting->getMedia('logo')->first()->getPath();
+    $type = pathinfo($path, PATHINFO_EXTENSION);
+    $data = file_get_contents($path);
+    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+    @endphp
+    <img src="{{ $base64 }}" alt="Logo" style="max-width: 150px;">
+    @endif
+    @endforeach
+
+    <!-- Mover la fecha aquí -->
+    <p class="m-0">Fecha: {{ $fechaHoy->format('d/m/Y') }}</p> <!-- Formatear la fecha -->
+    <p class="m-0">Procesado por: <br> {{$auth->name}} {{$auth->lastname}}</p>
+
+    <h3>Comprobante de Asistencia</h3>
+
+    <div class="consultation-info">
+
+        <div class="" style="border-bottom: 3px solid #000; border-top: 3px solid #000; ">
+            <h4>Información del Paciente</h4>
+            <p> <strong>Identificación:</strong> {{ $consultation->patient->identification }}</p>
+            <p> <strong>Nombre:</strong> {{ $consultation->patient->name }}</p>
+            <p> <strong>Apellido:</strong> {{ $consultation->patient->lastname }}</p>
+            <p> <strong>Email:</strong> {{ $consultation->patient->email }}</p>
+            <p> <strong>Teléfono:</strong> {{ $consultation->patient->phone }}</p>
+            <p> <strong>Fecha de Visita:</strong> {{ $consultation->created_at }}</p>
+        </div>
+
+        <!-- <h4>Información de la Consulta</h4>
+        <table>
             <tr>
                 <th>ID</th>
                 <th>Monto</th>
                 <th>Estado</th>
                 <th>Referencia</th>
-                <th>Fecha de Pago</th>
                 <th>Método de Pago</th>
-                <th>Paciente Asignado</th> <!-- Nueva columna para el paciente -->
-                <!-- <th>Notas</th> -->
             </tr>
-        </thead>
-        <tbody>
-            @foreach ($pagos as $pago)
             <tr>
-                <td>{{ $pago->id }}</td>
-                <td>{{ $pago->amount }}</td>
-                <td>{{ $pago->status }}</td>
-                <td>{{ $pago->reference }}</td>
-                <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
-                <td>{{ $pago->paymentMethod->name }}</td>
-                <td>
-                    @foreach ($pago->consultations as $consulta)
-                    {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}<br>
-                    @endforeach
-                </td>
-                <!-- <td>{{ $pago->notes }}</td> -->
+                <td>{{ $consultation->id }}</td>
+                <td>{{ $consultation->amount }}</td>
+                <td>{{ $consultation->payment_status }}</td>
+                <td>{{ $consultation->reference }}</td>
+                <td>{{ $consultation->payment_method_id }}</td>
+            </tr>
+        </table> -->
+    </div>
+
+    <div class="services-info">
+        <h4>Servicios Realizados</h4>
+        <table>
+            <tr>
+                <!-- <th>ID</th> -->
+                <th>Nombre del Servicio</th>
+                <th>Precio</th>
+            </tr>
+            @foreach ($consultation->services as $service)
+            <tr>
+                <!-- <td>{{ $service->id }}</td> -->
+                <td>{{ $service->name }}</td>
+                <td>{{ $service->price }}</td>
             </tr>
             @endforeach
-        </tbody>
-    </table>
+            <tr>
+                <td colspan="1">Total</td>
+                <td>{{ $consultation->amount }}</td>
+            </tr>
+        </table>
+    </div>
+    <p>
+        <strong>Nota:</strong> Este comprobante es válido como constancia de asistencia a la consulta médica. Por favor, guárdelo para sus registros.
+    </p>
 
-    <div class="footer">
-        @foreach ($settings as $setting)
-        <p>Dirección: {{ $setting->direction }}</p>
-        <p>Telef: {{ $setting->phone }} - R.I.F:{{ $setting->rif }}</p>
-        @endforeach
+    <div style="padding-top: 50px;">
+
+        <p style="border-top: 3px solid #000; font-size: 16px; text-align: center; ">
+            <strong>
+                Firma en aceptación asistencia y su
+                respectivo pago
+            </strong>
+        </p>
+        <div style="border-top: 3px solid #000; margin-top: 50px;">
+            @foreach ($settings as $setting)
+            <p>Dirección: {{ $setting->direction }}</p>
+            <p>Telef: {{ $setting->phone }} - R.I.F:{{ $setting->rif }}</p>
+            @endforeach
+        </div>
+
     </div>
 </body>
 
