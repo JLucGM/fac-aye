@@ -1,0 +1,102 @@
+import { ColumnDef } from "@tanstack/react-table"
+import { Button, buttonVariants } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { MoreHorizontal } from "lucide-react"
+import { Link } from "@inertiajs/react"
+import { Payment } from "@/types"
+
+export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
+  // {
+  //   accessorKey: "id",
+  //   header: "ID",
+  // },
+
+  // {
+  //   accessorKey: "created_at",
+  //   header: "Fecha Programada",
+  //   cell: ({ row }) => {
+  //     return new Date(row.original.created_at).toLocaleString();
+  //   },
+  // },
+  {
+    accessorKey: "identification",
+    header: "C.I",
+    cell: ({ row }) => {
+      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
+      if (consultations.length > 0) {
+        const patient = consultations[0].patient; // Obtener el primer paciente
+        return (
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+            {patient?.identification || "Sin identificación"} {/* Mostrar identificación si existe */}
+          </p>
+        );
+      }
+      return <p className="text-sm text-gray-500">Sin paciente</p>;
+    },
+  },
+  {
+    accessorKey: "patient",
+    header: "Paciente",
+    cell: ({ row }) => {
+      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
+      if (consultations.length > 0) {
+        const patient = consultations[0].patient; // Obtener el primer paciente
+        return (
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+            {patient?.name} {patient?.lastname}
+          </p>
+        );
+      }
+      return <p className="text-sm text-gray-500">Sin paciente</p>;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "status",
+  },
+  {
+    accessorKey: "amount",
+    header: "amount",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {/*<DropdownMenuLabel>Actions</DropdownMenuLabel>
+             <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(service.id)}
+            >
+              Copy service ID
+            </DropdownMenuItem> 
+            <DropdownMenuSeparator />*/}
+            <DropdownMenuItem>
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])} >
+                Mostrar
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.destroy', [row.original.id])} method="delete">
+                Eliminar
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
+  },
+]

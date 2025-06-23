@@ -1,5 +1,5 @@
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import ContentLayout from '@/layouts/content-layout';
 import { Payment, type BreadcrumbItem } from '@/types';
@@ -48,12 +48,12 @@ export default function Index({ payments }: { payments: Payment[] }) {
 
   // Filtrar resultados
   const filteredPayments = payments.filter(payment => {
-    const methodMatch = 
-      selectedMethod === 'all' || 
+    const methodMatch =
+      selectedMethod === 'all' ||
       payment.paymentMethod?.name === selectedMethod;
 
-    const statusMatch = 
-      selectedStatus === 'all' || 
+    const statusMatch =
+      selectedStatus === 'all' ||
       payment.status === selectedStatus;
 
     // Filtrado de fechas
@@ -88,11 +88,20 @@ export default function Index({ payments }: { payments: Payment[] }) {
             title="Pagos"
             description="Gestión de todos los pagos registrados"
           />
-          <Button asChild>
-            <Link href={route('payments.create')}>
-              Registrar Pago
-            </Link>
-          </Button>
+
+          <div className="flex gap-4 items-center">
+              <Link className={buttonVariants({ variant: "outline" })}
+                href={route('module-operation.accounts_receivable_index')}>
+                Ver Cuentas por Pagar
+              </Link>
+
+            <Button asChild>
+              <Link href={route('payments.create')}>
+                Registrar Pago
+              </Link>
+            </Button>
+
+          </div>
         </div>
 
         {/* Filtros colapsables */}
@@ -121,7 +130,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
               </Button>
             </CollapsibleTrigger>
           </div>
-          
+
           <CollapsibleContent className="space-y-2">
             <div className="rounded-md border px-4 py-3 text-sm space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

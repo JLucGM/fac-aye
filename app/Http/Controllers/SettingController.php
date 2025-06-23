@@ -4,10 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class SettingController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.settings.index')->only('index');
+        $this->middleware('can:admin.settings.create')->only('create', 'store');
+        $this->middleware('can:admin.settings.edit')->only('edit', 'update');
+        $this->middleware('can:admin.settings.delete')->only('delete');
+    }
+    
     public function index()
     {
         $settings = Setting::with('media')->first();

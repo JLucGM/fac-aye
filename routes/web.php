@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Inertia::render('auth/login');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -36,9 +36,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('first-visit-store', [ModuleOperationController::class, 'first_visit_store'])->name('module-operation.first_visit_store');
     Route::get('profile-patient-index', [ModuleOperationController::class, 'profile_patient_index'])->name('module-operation.profile_patient_index');
     
+    Route::get('accounts-receivable', [PaymentController::class, 'accounts_receivable_index'])->name('module-operation.accounts_receivable_index');
+
+
 Route::get('/cierre-del-dia', [ClosuresController::class, 'cierreDelDia'])->name('cierre.del.dia');
 Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
 Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');
+
+
 
     // Route::get('services', [ServiceController::class, 'index'])->name('services.index');
     // Route::get('services/create', [ServiceController::class, 'create'])->name('services.create');

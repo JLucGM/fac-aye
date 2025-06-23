@@ -13,11 +13,11 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
-    {
-        title: 'Modulo operativo',
-        href: '/module-operation',
-        icon: LayoutGrid,
-    },
+    // {
+    //     title: 'Modulo operativo',
+    //     href: '/module-operation',
+    //     icon: LayoutGrid,
+    // },
     {
         title: 'Servicios',
         href: '/services',
@@ -43,11 +43,11 @@ const mainNavItems: NavItem[] = [
         href: '/payment-methods',
         icon: LayoutGrid,
     },
-    {
-        title: 'Roles',
-        href: '/roles',
-        icon: LayoutGrid,
-    },
+    // {
+    //     title: 'Roles',
+    //     href: '/roles',
+    //     icon: LayoutGrid,
+    // },
 ];
 
 // const footerNavItems: NavItem[] = [

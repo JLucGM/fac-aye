@@ -34,14 +34,17 @@ export default function Dashboard() {
             <ContentLayout>
                 <div className="flex items-center justify-between">
                     <p className='text-xl'><strong>Bienvenido,</strong> {auth.user.name} {auth.user.lastname}</p>
+                
+                <div className="flex gap-4">
                     <Button variant="default" onClick={handleCierreDelDia}>
                         <Timer className="mr-2" />
                         Cierre de asistencia del día
                     </Button>
                     <Button variant="default" onClick={handlePagoDelDia}>
                         <Timer className="mr-2" />
-                        Pagos del día
+                        Cierre de Pagos del día
                     </Button>
+                </div>
                 </div>
                 <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                     <div className="grid auto-rows-min gap-4 md:grid-cols-3">
@@ -67,11 +70,49 @@ export default function Dashboard() {
                             className={buttonVariants({ variant: "default" })}
                             href={route('patients.index')}
                         >
-                            lista de paciente
+                            Lista de paciente
                         </Link>
                         <div className="col-span-full">
                             <h1>Modulo administrativo</h1>
                         </div>
+
+                        <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('payments.index')}
+                        >
+                            Listo de Pagos
+                        </Link>
+                        <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('module-operation.accounts_receivable_index')}
+                        >
+                            Cuentas por cobrar
+                        </Link>
+                        {/* <Link
+
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('payments.accounts-payable')}
+                        >
+                            Cuentas por pagar
+                        </Link> */}
+                        {/* <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('settings.index')}
+                        >
+                            Configuraciones generales
+                        </Link> */}
+                        {/* <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('users.index')}
+                        >
+                            Usuarios
+                        </Link>
+                        <Link
+                            className={buttonVariants({ variant: "default" })}
+                            href={route('patients.create')}
+                        >
+                            Registrar paciente
+                        </Link> */}
                     </div>
                 </div>
             </ContentLayout>

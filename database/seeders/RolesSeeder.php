@@ -17,7 +17,6 @@ class RolesSeeder extends Seeder
     {
         $rolSuperAdmin = Role::create(['name' => 'super-admin', 'slug' => 'super-admin']);
         $rolAdmin = Role::create(['name' => 'admin', 'slug' => 'admin']);
-        $rolClient = Role::create(['name' => 'client', 'slug' => 'client']);
 
         Permission::create(['name' => 'admin.dashboard.charts', 'description' => 'Ver graficos del dashboard'])->syncRoles([$rolSuperAdmin, $rolAdmin]);
 
@@ -55,6 +54,11 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'admin.role.create', 'description' => 'Crear roles'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.role.edit', 'description' => 'Editar roles'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.role.delete', 'description' => 'Eliminar roles'])->syncRoles([$rolSuperAdmin]);
+
+        Permission::create(['name' => 'admin.settings.index', 'description' => 'Ver lista de settings'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.settings.create', 'description' => 'Crear settings'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.settings.edit', 'description' => 'Editar settings'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.settings.delete', 'description' => 'Eliminar settings'])->syncRoles([$rolSuperAdmin]);
 
     }
 }
