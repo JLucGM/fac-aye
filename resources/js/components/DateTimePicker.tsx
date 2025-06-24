@@ -36,7 +36,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
         <div className="flex gap-4">
             <div className="flex flex-col gap-3">
                 <Label htmlFor="date-picker" className="px-1">Fecha</Label>
-                
+
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button variant="outline" id="date-picker" className="w-32 justify-between font-normal">

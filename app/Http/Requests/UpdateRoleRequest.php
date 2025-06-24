@@ -27,4 +27,18 @@ class UpdateRoleRequest extends FormRequest
             'permissions.*' => 'string|exists:permissions,name', // Validar que cada permiso sea un string y exista en la tabla de permisos
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'El campo nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser un texto.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+
+            'permissions.array' => 'Los permisos deben ser un array.',
+
+            'permissions.*.string' => 'Cada permiso debe ser un texto.',
+            'permissions.*.exists' => 'Uno o más permisos seleccionados no existen en la base de datos.',
+        ];
+    }
 }

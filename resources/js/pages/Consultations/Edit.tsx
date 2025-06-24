@@ -10,11 +10,12 @@ import Select from 'react-select';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Download, Timer } from 'lucide-react';
+import ServicesTable from './ServicesTable';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Consultations', href: '/consultations' },
-    { title: 'Edit Consultation', href: '#' },
+    { title: 'Editar Consulta', href: '#' },
 ];
 
 export default function Edit({ consultation, patients, users, services, paymentMethods }: {
@@ -31,7 +32,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-console.log('Edit Consultation Page Loaded', consultation);
+    console.log('Edit Consultation Page Loaded', consultation);
     // Extraer datos de pago de manera segura
     const payment = consultation.payment && consultation.payment.length > 0 ? consultation.payment[0] : {
         payment_method_id: null,
@@ -62,18 +63,21 @@ console.log('Edit Consultation Page Loaded', consultation);
     };
 
     const assistpdf = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    window.open(route('consultationpdf', consultation.id), '_blank'); // Abre en una nueva pestaña
-};
+        e.preventDefault();
+        window.open(route('consultationpdf', consultation.id), '_blank'); // Abre en una nueva pestaña
+    };
 
     const paymentMethodOptions = paymentMethods.map(method => ({
         value: method.id,
         label: method.name
     }));
 
+    const selectedServices = services.filter(service => data.service_id.includes(service.id));
+
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Consultation" />
+            <Head title="Editar Consulta" />
             <ContentLayout>
 
                 <Heading
@@ -123,7 +127,7 @@ console.log('Edit Consultation Page Loaded', consultation);
 
                             {/* Referencia */}
                             <div>
-                                <Label htmlFor="reference">Referencia/Número de Transacción</Label>
+                                <Label htmlFor="reference" className="my-2 block font-semibold text-gray-700">Referencia/Número de Transacción  (Opcional)</Label>
                                 <Input
                                     id="reference"
                                     type="text"
@@ -137,23 +141,11 @@ console.log('Edit Consultation Page Loaded', consultation);
                                 )}
                             </div>
 
-                            {/* Fecha de Pago */}
-                            {/* <div>
-                                <Label htmlFor="paid_at">Fecha de Pago</Label>
-                                <Input
-                                    id="paid_at"
-                                    type="date"
-                                    value={data.paid_at}
-                                    onChange={e => setData('paid_at', e.target.value)}
-                                    className="mt-1 block w-full bg-gray-200"
-                                    readOnly
-                                />
-                                {errors.paid_at && (
-                                    <InputError message={errors.paid_at} className="mt-2" />
-                                )}
-                            </div> */}
                         </div>
                     </div>
+                    {/* Aquí se muestra la tabla de servicios seleccionados */}
+                    {/* <h2 className='text-xl mt-4'>Servicios Seleccionados</h2> */}
+                    <ServicesTable services={selectedServices} />
                     <Button type="submit" variant="default">
                         Actualizar Consulta
                     </Button>

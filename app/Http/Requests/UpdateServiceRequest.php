@@ -27,4 +27,20 @@ class UpdateServiceRequest extends FormRequest
             'price' => 'required|numeric|min:0',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'El campo nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser un texto.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+
+            'description.string' => 'La descripción debe ser un texto.',
+            'description.max' => 'La descripción no puede exceder los 1000 caracteres.',
+
+            'price.required' => 'El campo precio es obligatorio.',
+            'price.numeric' => 'El precio debe ser un número.',
+            'price.min' => 'El precio no puede ser menor que 0.',
+        ];
+    }
 }

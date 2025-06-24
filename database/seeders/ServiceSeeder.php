@@ -13,7 +13,7 @@ class ServiceSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['Ninguno','evaluacion', 'evaluacion-seguro', 'evaluacion-tarifa-especial', 'fisioterapia', 'fisioterapia-seguro', 'fisioterapia-tarifa-especial', 'funcional-1', 'funcional-2', 'funcional-3', 'k-tape', 'k-tape-gym', 'k-tape-terapeutico', 'masaje-descarga', 'masaje-gym', 'masaje-terapeutico'] as $slug) {
+        foreach (['evaluacion', 'evaluacion-seguro', 'evaluacion-tarifa-especial', 'fisioterapia', 'fisioterapia-seguro', 'fisioterapia-tarifa-especial', 'funcional-1', 'funcional-2', 'funcional-3', 'k-tape', 'k-tape-gym', 'k-tape-terapeutico', 'masaje-descarga', 'masaje-gym', 'masaje-terapeutico'] as $slug) {
             Service::create([
                 'name' => ucfirst(str_replace('-', ' ', $slug)),
                 'slug' => $slug,

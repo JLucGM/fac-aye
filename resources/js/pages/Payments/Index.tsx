@@ -23,7 +23,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/dashboard',
   },
   {
-    title: 'Pagos',
+    title: 'Lista de Pagos',
     href: '/payments',
   },
 ];
@@ -38,7 +38,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
 
   // Obtener métodos de pago únicos
   const paymentMethods = [
-    ...new Set(payments.map(p => p.paymentMethod?.name).filter(Boolean))
+    ...new Set(payments.map(p => p.payment_method?.name).filter(Boolean))
   ].sort();
 
   // Obtener estados únicos
@@ -50,7 +50,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
   const filteredPayments = payments.filter(payment => {
     const methodMatch =
       selectedMethod === 'all' ||
-      payment.paymentMethod?.name === selectedMethod;
+      payment.payment_method?.name === selectedMethod;
 
     const statusMatch =
       selectedStatus === 'all' ||
@@ -80,12 +80,12 @@ export default function Index({ payments }: { payments: Payment[] }) {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Pagos" />
+      <Head title="Lista de Pagos" />
 
       <ContentLayout>
         <div className="flex justify-between items-center">
           <Heading
-            title="Pagos"
+            title="Lista de Pagos"
             description="Gestión de todos los pagos registrados"
           />
 

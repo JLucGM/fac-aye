@@ -12,11 +12,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Payments',
+        title: 'Lista de Pagos',
         href: '/payments',
     },
     {
-        title: 'Edit',
+        title: 'Editar Pago',
         href: '#',
     },
 ];
@@ -32,15 +32,13 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
         notes: payment.notes,
         // paid_at: payment.paid_at,
     });
-    console.log(payment)
 
-    const submit = (e: React.FormEvent<HTMLFormElement>) => {
+        const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data); // Verifica que los datos se están actualizando
 
         put(route('payments.update', payment.id), { // Asegúrate de que la ruta sea correcta
             onSuccess: () => {
-                console.log("Pago actualizado con éxito:", data);
+                console.log("Pago actualizado con éxito");
                 // Aquí puedes mostrar un mensaje de éxito
             },
             onError: (err) => {
@@ -70,7 +68,7 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
                     />
 
                     <Button variant={"default"}>
-                        Update Payment
+                        Actualizar Pago
                     </Button>
                 </form>
             </ContentLayout>

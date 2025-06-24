@@ -27,4 +27,18 @@ class StorePaymentMethodRequest extends FormRequest
             'active' => 'boolean',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'El campo nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser un texto.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+
+            'description.string' => 'La descripción debe ser un texto.',
+            'description.max' => 'La descripción no puede exceder los 1000 caracteres.',
+
+            'active.boolean' => 'El campo activo debe ser verdadero o falso.',
+        ];
+    }
 }

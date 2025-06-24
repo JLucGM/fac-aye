@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
 import { Link } from "@inertiajs/react"
 import { Patient } from "@/types"
 
@@ -20,11 +20,11 @@ export const columns: ColumnDef<Patient>[] = [
   // },
   {
     accessorKey: "identification",
-    header: "Cédula",
+    header: "Cédula de identidad",
   },
   {
     accessorKey: "name",
-    header: "name",
+    header: "Nombre",
     cell: ({ row }) => {
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
@@ -36,11 +36,11 @@ export const columns: ColumnDef<Patient>[] = [
   },
   {
     accessorKey: "email",
-    header: "email",
+    header: "Correo electrónico",
   },
   {
     accessorKey: "phone",
-    header: "phone",
+    header: "Teléfono",
   },
   {
     id: "actions",
@@ -63,17 +63,17 @@ export const columns: ColumnDef<Patient>[] = [
             <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.show', [row.original.slug ?? row.original.id])} >
-                Mostrar
+                <Eye /> Mostrar
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.edit', [row.original.slug ?? row.original.id])} >
-                Editar
+                <Edit /> Editar
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.destroy', [row.original.slug ?? row.original.id])} method="delete">
-                Eliminar
+                <Trash /> Eliminar
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

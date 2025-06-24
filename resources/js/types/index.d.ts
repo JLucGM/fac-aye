@@ -108,7 +108,7 @@ export interface Payment {
 export interface Consultation {
     id: number;
     user_id: number; // FK to User (doctor/professional)
-    status: 'pendiente' | 'confirmed' | 'completed' | 'cancelled';
+    status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
     scheduled_at: string; // ISO date string
     consultation_type: 'domiciliary' | 'office';
     amount: number;
@@ -177,7 +177,7 @@ export interface CreateConsultationFormData {
     user_id: number;
     patient_id?: number;
     service_id: number[]; // Array of service IDs for the many-to-many relationship
-    status: 'pendiente' | 'confirmed' | 'completed' | 'cancelled' | ''; // Allow empty string for form initial state
+    status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | ''; // Allow empty string for form initial state
     scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;

@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import Select from 'react-select';
 import { Consultation, CreatePaymentFormData, Patient, Payment, PaymentMethod } from "@/types";
 import { useEffect, useState } from 'react';
+import ConsultationsTable from "./ConsultationsTable";
 
 type PaymentsFormProps = {
   data: CreatePaymentFormData;
@@ -24,6 +25,7 @@ type PaymentsFormProps = {
 };
 
 export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], setData, errors }: PaymentsFormProps) {
+  console.log(consultations);
   const [pendingConsultations, setPendingConsultations] = useState<Consultation[]>([]);
 
   const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
@@ -37,9 +39,9 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
   }));
 
   const statusOptions = [
-    { value: 'earring', label: 'pendiente' },
-    { value: 'completed', label: 'completado' },
-    { value: 'cancelled', label: 'cancelado' },
+    { value: 'earring', label: 'Pendiente' },
+    { value: 'completed', label: 'Completado' },
+    { value: 'cancelled', label: 'Cancelado' },
   ];
 
   // Al cambiar el paciente, filtra y carga consultas no pagadas
@@ -119,27 +121,28 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           <Label className="mb-2 block font-semibold text-gray-700">
             Consultas pendientes a pagar
           </Label>
-          {pendingConsultations.map(consultation => {
-            const amountNumber = parseFloat(consultation.amount as unknown as string);
-            const displayAmount = !isNaN(amountNumber) ? amountNumber.toFixed(2) : '0.00';
-            return (
-              <div key={consultation.id} className="flex items-center mb-1">
-                <input
-                  id={`consultation-${consultation.id}`}
-                  type="checkbox"
-                  checked={data.consultation_ids.includes(consultation.id)}
-                  onChange={() => toggleConsultationSelection(consultation.id)}
-                  className="mr-2"
-                />
-                <label htmlFor={`consultation-${consultation.id}`} className="cursor-pointer">
-                  Consulta #{consultation.id} - Fecha: {new Date(consultation.scheduled_at).toLocaleDateString()} - Monto: ${displayAmount}
-                </label>
-              </div>
-            );
-          })}
+          <ConsultationsTable
+            pendingConsultations={pendingConsultations}
+            data={data}
+            toggleConsultationSelection={toggleConsultationSelection}
+          />
           <InputError message={errors.consultation_ids} />
         </div>
       )}
+
+
+      <div>
+        <Label htmlFor="amount">Monto a pagar</Label>
+        <Input
+          id="amount"
+          type="text"
+          name="amount"
+          value={typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00'}
+          className="mt-1 block w-full bg-gray-200"
+          readOnly
+        />
+        <InputError message={errors.amount} className="mt-2" />
+      </div>
 
       <div>
         <Label htmlFor="payment_method_id">Método de Pago</Label>
@@ -155,18 +158,6 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
         <InputError message={errors.payment_method_id} className="mt-2" />
       </div>
 
-      <div>
-        <Label htmlFor="amount">Monto a pagar</Label>
-        <Input
-          id="amount"
-          type="text"
-          name="amount"
-          value={typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00'}
-          className="mt-1 block w-full"
-          readOnly
-        />
-        <InputError message={errors.amount} className="mt-2" />
-      </div>
 
 
       <div>

@@ -13,7 +13,7 @@ class PaymentMethodSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['efectivo', 'tarjeta-credito', 'transferencia-bancaria', 'paypal', 'zelle'] as $slug) {
+        foreach (['ninguno','efectivo', 'tarjeta-credito', 'transferencia-bancaria', 'paypal', 'zelle'] as $slug) {
             PaymentMethod::create([
                 'name' => ucfirst(str_replace('-', ' ', $slug)),
                 'slug' => $slug,

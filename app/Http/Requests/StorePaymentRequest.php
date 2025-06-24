@@ -32,4 +32,31 @@ class StorePaymentRequest extends FormRequest
             'paid_at' => 'nullable|date', // Si es necesario
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'consultation_ids.required' => 'El campo de consultas es obligatorio.',
+            'consultation_ids.array' => 'El campo de consultas debe ser un array.',
+            'consultation_ids.*.exists' => 'Una o más consultas seleccionadas no existen.',
+
+            'payment_method_id.required' => 'El campo método de pago es obligatorio.',
+            'payment_method_id.exists' => 'El método de pago seleccionado no existe.',
+
+            'amount.required' => 'El campo monto es obligatorio.',
+            'amount.numeric' => 'El monto debe ser un número.',
+            'amount.min' => 'El monto no puede ser menor que 0.',
+
+            'status.required' => 'El campo estado es obligatorio.',
+            'status.string' => 'El estado debe ser un texto.',
+
+            'reference.string' => 'La referencia debe ser un texto.',
+            'reference.max' => 'La referencia no puede exceder los 255 caracteres.',
+
+            'notes.string' => 'Las notas deben ser un texto.',
+            'notes.max' => 'Las notas no pueden exceder los 255 caracteres.',
+
+            'paid_at.date' => 'La fecha de pago debe ser una fecha válida.',
+        ];
+    }
 }

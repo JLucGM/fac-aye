@@ -23,7 +23,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '/dashboard',
   },
   {
-    title: 'consultations',
+    title: 'Listado de Consultas',
     href: '/consultations',
   },
 ];

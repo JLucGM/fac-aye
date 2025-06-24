@@ -72,7 +72,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
     return (
         <>
             <div>
-                <Label htmlFor="user_id" className="mb-2 block font-semibold text-gray-700">Tratante</Label>
+                <Label htmlFor="user_id" className="my-2 block font-semibold text-gray-700">Tratante</Label>
                 <Select
                     id="user_id"
                     options={userOptions}
@@ -92,7 +92,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
             {patientOptions.length > 0 && (
                 <div>
-                    <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente</Label>
+                    <Label htmlFor="patient_id" className="my-2 block font-semibold text-gray-700">Paciente</Label>
                     <Select
                         id="patient_id"
                         options={patientOptions}
@@ -108,10 +108,8 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 </div>
             )}
 
-            
-
             <div>
-                <Label htmlFor="consultation_type" className="mb-2 block font-semibold text-gray-700">Tipo de Consulta</Label>
+                <Label htmlFor="consultation_type" className="my-2 block font-semibold text-gray-700">Tipo de Consulta</Label>
                 <Select
                     id="consultation_type"
                     options={consultationTypeOptions}
@@ -125,7 +123,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label htmlFor="scheduled_at" className="mb-2 block font-semibold text-gray-700">Fecha programada</Label>
+                <Label htmlFor="scheduled_at" className="my-2 block font-semibold text-gray-700">Fecha programada</Label>
                 <DateTimePicker
                     value={data.scheduled_at}
                     onChange={(newValue) => setData('scheduled_at', newValue)}
@@ -135,7 +133,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
 
             <div>
-                <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado de la consulta</Label>
+                <Label htmlFor="status" className="my-2 block font-semibold text-gray-700">Estado de la consulta</Label>
                 <Select
                     id="status"
                     options={statusOptions}
@@ -149,7 +147,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label htmlFor="payment_status" className="mb-2 block font-semibold text-gray-700">Estado de Pago</Label>
+                <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
                     options={paymentStatusOptions}
@@ -163,7 +161,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label htmlFor="notes" className="mb-2 block font-semibold text-gray-700">Notas</Label>
+                <Label htmlFor="notes" className="my-2 block font-semibold text-gray-700">Notas (Opcional)</Label>
                 <Input
                     id="notes"
                     type="text"
@@ -175,7 +173,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label htmlFor="service_id" className="mb-2 block font-semibold text-gray-700">Servicios</Label>
+                <Label htmlFor="service_id" className="my-2 block font-semibold text-gray-700">Servicios</Label>
                 <Select
                     id="service_id"
                     options={serviceOptions}
@@ -194,7 +192,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label className="mb-2 block font-semibold text-gray-700">Total Amount</Label>
+                <Label className="my-2 block font-semibold text-gray-700">Total Amount</Label>
                 <Input
                     type="text"
                     value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`}

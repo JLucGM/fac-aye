@@ -44,7 +44,7 @@ export const columns: ColumnDef<Payment>[] = [
 
   {
     accessorKey: "reference",
-    header: "reference",
+    header: "Referencia",
   },
   {
     accessorKey: "payment_method_id",
@@ -60,11 +60,11 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: "amount",
-    header: "amount",
+    header: "Monto",
   },
   {
     accessorKey: "status",
-    header: "status",
+    header: "Estado",
   },
   {
     id: "actions",

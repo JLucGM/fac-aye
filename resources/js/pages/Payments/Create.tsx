@@ -14,11 +14,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Payments',
+        title: 'Lista de Pagos',
         href: '/payments',
     },
     {
-        title: 'Create',
+        title: 'Crear Pago',
         href: '/payments/create',
     },
 ];
@@ -39,15 +39,15 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Submitting payment data:", data);
+
         post(route('payments.store'), {
             onSuccess: () => {
-                console.log("Pago creado con éxito:", data);
-                toast("Pago creado con éxito.");
+                console.log("Pago creado con éxito");
+                // toast("Pago creado con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear el pago:", err);
-                toast("Error al crear el pago.");
+                // toast("Error al crear el pago.");
             },
         });
     };
@@ -72,7 +72,7 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
                     />
 
                     <Button variant={"default"}>
-                        Create Payment
+                        Crear Pago
                     </Button>
                 </form>
             </ContentLayout>

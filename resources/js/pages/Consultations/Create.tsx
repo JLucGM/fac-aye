@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import Select from 'react-select';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
+import ServicesTable from './ServicesTable';
 
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -19,11 +20,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Consultations',
+        title: 'Listado de Consultas',
         href: '/consultations',
     },
     {
-        title: 'Create',
+        title: 'Crear Consulta',
         href: '#',
     },
 ];
@@ -34,20 +35,17 @@ export default function Create({ patients, users, services, paymentMethods }: {
     services: Service[],
     paymentMethods: PaymentMethod[],
 }) {
-    // console.log("Create consultation page loaded with patients:", patients);
-    // console.log("Create consultation page loaded with users:", users);
-    // console.log("Create consultation page loaded with services:", services);
-
+console.log(services)
     const { data, setData, errors, post } = useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,
         service_id: [],
-        status: '',
-        scheduled_at: '',
-        consultation_type: '', // Uncomment if you want to include consultation type
+        status: 'scheduled',
+        scheduled_at: new Date().toISOString().slice(0, 19),
+        consultation_type: 'office', // Uncomment if you want to include consultation type
         // completed_at: '',
         notes: '',
-        payment_status: '',
+        payment_status: 'pending',
         amount: 0,
 
         // campo de pago
@@ -55,9 +53,9 @@ export default function Create({ patients, users, services, paymentMethods }: {
         reference: '',
         // paid_at: new Date().toISOString().split('T')[0],
     });
-    // console.log("Create consultation page loaded with initial data:", data);
+
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
-        console.log("Submitting consultation with data:", data);
+        // console.log("Submitting consultation with data:", data);
         e.preventDefault();
         post(route('consultations.store'), {
             onSuccess: () => {
@@ -76,21 +74,22 @@ export default function Create({ patients, users, services, paymentMethods }: {
         label: method.name
     }));
 
+        const selectedServices = services.filter(service => data.service_id.includes(service.id));
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create" />
+            <Head title="Crear Consulta" />
 
             <ContentLayout>
                 <Heading
                     title="Crear consulta"
                     description="Aquí puedes crear una nueva consulta para un paciente."
-                >
-
-                </Heading>
+                />
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="col-span-full md:col-span-2">
+                            <h1 className='text-xl'>Información de la Consulta</h1>
                             <ConsultationsForm
                                 data={data}
                                 patients={patients}
@@ -102,9 +101,9 @@ export default function Create({ patients, users, services, paymentMethods }: {
                         </div>
 
                         <div className="">
-                            <h1 className='text-xl'>pago</h1>
+                            <h1 className='text-xl'>Información de Pago</h1>
                             <div>
-                                <Label htmlFor="payment_method_id">Método de Pago</Label>
+                                <Label htmlFor="payment_method_id" className="my-2 block font-semibold text-gray-700">Método de Pago</Label>
                                 <Select
                                     id="payment_method_id"
                                     options={paymentMethodOptions}
@@ -118,7 +117,7 @@ export default function Create({ patients, users, services, paymentMethods }: {
                             </div>
 
                             <div>
-                                <Label htmlFor="reference">Referencia</Label>
+                                <Label htmlFor="reference" className="my-2 block font-semibold text-gray-700">Referencia  (Opcional)</Label>
                                 <Input
                                     id="reference"
                                     type="text"
@@ -131,6 +130,10 @@ export default function Create({ patients, users, services, paymentMethods }: {
                             </div>
                         </div>
                     </div>
+
+                     {/* Aquí se muestra la tabla de servicios seleccionados */}
+                    <h2 className='text-xl mt-4'>Servicios Seleccionados</h2>
+                    <ServicesTable services={selectedServices} />
 
                     <Button
                         variant={"default"}

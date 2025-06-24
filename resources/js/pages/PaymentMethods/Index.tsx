@@ -13,7 +13,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'paymentMethods',
+        title: 'Listado de Métodos de Pago',
         href: '/paymentMethods',
     },
 

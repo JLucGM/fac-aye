@@ -13,7 +13,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'patients',
+        title: 'Listado de Pacientes',
         href: '/patients',
     },
 ];

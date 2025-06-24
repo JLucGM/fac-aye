@@ -20,11 +20,11 @@ export const columns: ColumnDef<PaymentMethod>[] = [
   // },
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Nombre",
   },
   {
     accessorKey: "active",
-    header: "Active",
+    header: "Activo",
     cell: ({ row }) => {
       return (
         <span className={row.original.active ? "text-green-500" : "text-red-500"}>

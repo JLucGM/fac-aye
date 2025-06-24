@@ -13,11 +13,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Patients',
+        title: 'Listado de Pacientes',
         href: '/patients',
     },
     {
-        title: 'Create',
+        title: 'Crear Paciente',
         href: '#',
     },
 ];
@@ -36,7 +36,7 @@ export default function Create() {
         e.preventDefault();
         post(route('patients.store'), {
             onSuccess: () => {
-                console.log("Paciente creado con éxito:", data);
+                // console.log("Paciente creado con éxito:", data);
                 // toast("Paciente creado con éxito.");
             },
             onError: (err) => {

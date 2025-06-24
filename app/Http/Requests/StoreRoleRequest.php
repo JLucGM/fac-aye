@@ -26,4 +26,15 @@ class StoreRoleRequest extends FormRequest
             'permissions' => 'array', // Suponiendo que los permisos son un array
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'El campo nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser un texto.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+
+            'permissions.array' => 'Los permisos deben ser un array.',
+        ];
+    }
 }

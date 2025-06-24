@@ -13,11 +13,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Payment Methods',
+        title: 'Listado de Métodos de Pago',
         href: '/payment-methods',
     },
     {
-        title: 'Create',
+        title: 'Crear Método de Pago',
         href: '#',
     },
 ];
@@ -33,7 +33,7 @@ export default function Create() {
         e.preventDefault();
         post(route('payment-methods.store'), {
             onSuccess: () => {
-                console.log("Metodo de pago creado con éxito:", data);
+                console.log("Metodo de pago creado con éxito:");
                 // toast("Metodo de pago creado con éxito.");
             },
             onError: (err) => {

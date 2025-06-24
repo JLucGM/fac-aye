@@ -55,7 +55,7 @@ class ModuleOperationController extends Controller
             'amount' => 'required|numeric',
             'payment_method_id' => 'required|integer|exists:payment_methods,id',
             'reference' => 'nullable|string',
-            'paid_at' => 'required|date',
+            // 'paid_at' => 'required|date',
         ]);
 
         // Crear o encontrar el paciente
@@ -96,7 +96,7 @@ class ModuleOperationController extends Controller
             'amount' => $validatedData['amount'],
             'status' => $validatedData['payment_status'],
             'reference' => $validatedData['reference'],
-            'paid_at' => $validatedData['paid_at'],
+            // 'paid_at' => $validatedData['paid_at'],
             // No se incluye consultation_id
         ]);
 
@@ -113,7 +113,7 @@ class ModuleOperationController extends Controller
         //     }
 
         // Redirigir o renderizar la vista después de crear los registros
-        return Inertia::render('ModuleOperation/Index');
+        return redirect()->route('consultations.edit', $consultation->id);
     }
 
     public function profile_patient_index()

@@ -32,4 +32,31 @@ class UpdatePaymentRequest extends FormRequest
             'paid_at' => 'nullable|date',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'patient_id.required' => 'El campo paciente es obligatorio.',
+            'patient_id.exists' => 'El paciente seleccionado no existe.',
+
+            'consultation_id.exists' => 'La consulta seleccionada no existe.',
+
+            'payment_method_id.required' => 'El campo método de pago es obligatorio.',
+            'payment_method_id.exists' => 'El método de pago seleccionado no existe.',
+
+            'amount.required' => 'El campo monto es obligatorio.',
+            'amount.numeric' => 'El monto debe ser un número.',
+            'amount.min' => 'El monto no puede ser menor que 0.',
+
+            'status.in' => 'El estado debe ser uno de los siguientes: pendiente, completado, fallido.',
+
+            'reference.string' => 'La referencia debe ser un texto.',
+            'reference.max' => 'La referencia no puede exceder los 255 caracteres.',
+
+            'notes.string' => 'Las notas deben ser un texto.',
+            'notes.max' => 'Las notas no pueden exceder los 1000 caracteres.',
+
+            'paid_at.date' => 'La fecha de pago debe ser una fecha válida.',
+        ];
+    }
 }
