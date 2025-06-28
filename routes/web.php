@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'users' => RegisteredUserController::class,
         'services' => ServiceController::class,
         'roles' => RoleController::class,
+        'user' => UserController::class,
     ]);
 
     Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');

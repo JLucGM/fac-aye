@@ -39,8 +39,13 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Metodos de Pagos',
+        title: 'Métodos de Pagos',
         href: '/payment-methods',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Usuarios',
+        href: '/user',
         icon: LayoutGrid,
     },
     // {

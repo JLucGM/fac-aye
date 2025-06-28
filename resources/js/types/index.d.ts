@@ -223,6 +223,18 @@ export interface CreateRoleFormData {
     [key: string]: any; // For use with setData and dynamic key access
 }
 
+export interface CreateUserFormData {
+    name: string;
+    lastname: string;
+    email: string;
+    active: boolean; // Asegúrate de que sea booleano
+    identification: string; // Asegúrate de que sea string
+    phone?: string;
+    password: string;
+    permissions?: string[];
+    [key: string]: any;
+}
+
 export interface ServiceFormData {
     name: string; // El nombre del servicio
     description: string; // La descripción del servicio. Aunque en el backend pueda ser opcional,
