@@ -57,17 +57,29 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'lastname' => 'nullable|string|max:255',
+            'identification' => 'required|string|max:255|unique:users,identification,' . $user->id,
+            'active' => 'boolean',
+            'phone' => 'nullable|string|max:15',
         ]);
+
+        // Solo actualiza el campo password si se proporciona
+        if (!empty($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']); // Asegúrate de encriptar la contraseña
+        } else {
+            unset($validated['password']); // Elimina el campo password si no se proporciona
+        }
 
         $user->update($validated);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('user.index')->with('success', 'User  updated successfully.');
     }
+
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        return redirect()->route('user.index')->with('success', 'User deleted successfully.');
     }
 }
