@@ -10,11 +10,17 @@ import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { AppContent } from '@/components/app-content';
+import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Password settings',
-        href: '/settings/password',
+        title: 'Inicio',
+        href: '/dashboard',
+    },
+    {
+        title: 'Configuraciones generales',
+        href: '/settings/general',
     },
 ];
 
@@ -72,7 +78,7 @@ export default function Index({ settings }: { settings: Settings }) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Configuraciones generales" />
 
             <SettingsLayout>
@@ -92,7 +98,7 @@ export default function Index({ settings }: { settings: Settings }) {
                         )}
 
                         <div>
-                            <Label htmlFor="logo">logo</Label>
+                            <Label htmlFor="logo">Logo</Label>
                             <Input
                                 id="logo"
                                 type="file"
@@ -188,7 +194,7 @@ export default function Index({ settings }: { settings: Settings }) {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save</Button>
+                            <Button disabled={processing}>Guardar</Button>
                             <Transition
                                 show={recentlySuccessful}
                                 enter="transition ease-in-out"
@@ -196,12 +202,12 @@ export default function Index({ settings }: { settings: Settings }) {
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-sm text-neutral-600">Guardado</p>
                             </Transition>
                         </div>
                     </form>
                 </div>
             </SettingsLayout>
-        </AppLayout>
+        </ContentLayout>
     );
 }

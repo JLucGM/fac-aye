@@ -5,6 +5,7 @@ import { CreateConsultationFormData, Patient, Service, User } from "@/types";
 import Select from 'react-select';
 import { useEffect } from 'react';
 import { DateTimePicker } from "@/components/DateTimePicker";
+import ServicesTable from "./ServicesTable";
 
 type ConsultationsFormProps = {
     data: CreateConsultationFormData;
@@ -19,7 +20,7 @@ type ConsultationsFormProps = {
         status?: string;
         scheduled_at?: string;
         notes?: string;
-        payment_status?: string;
+        // payment_status?: string;
         consultation_type?: string;
         amount?: string;
     };
@@ -36,27 +37,20 @@ export default function ConsultationsForm({ data, patients = [], users, services
     const serviceOptions = services.map(service => ({ value: String(service.id), label: service.name + ' - $ ' + service.price }));
 
     const statusOptions = [
-        { value: 'scheduled', label: 'Programado' },
-        { value: 'completed', label: 'Completado' },
-        { value: 'cancelled', label: 'Cancelado' },
+        { value: 'programado', label: 'Programado' },
+        { value: 'completado', label: 'Completado' },
+        { value: 'cancelado', label: 'Cancelado' },
     ];
-    const paymentStatusOptions = [
-        { value: 'pending', label: 'Pendiente' },
-        { value: 'paid', label: 'Pagado' },
-        { value: 'refunded', label: 'Reembolsado' },
-    ];
+    // const paymentStatusOptions = [
+    //     { value: 'pendiente', label: 'Pendiente' },
+    //     { value: 'pagado', label: 'Pagado' },
+    //     { value: 'reembolsado', label: 'Reembolsado' },
+    // ];
 
     const consultationTypeOptions = [
-        { value: 'domiciliary', label: 'A Domiciliaria' },
-        { value: 'office', label: 'Consultorio' },
+        { value: 'domiciliaria', label: 'Domiciliaria' },
+        { value: 'consultorio', label: 'Consultorio' },
     ];
-
-    // Handles changes for the 'scheduled_at' datetime input
-    const handleScheduledAtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const date = new Date(e.target.value);
-        const formattedDate = date.toISOString().slice(0, 19); // Format Y-m-d H:i:s
-        setData('scheduled_at', formattedDate);
-    };
 
     // Calculate the total amount based on selected services whenever service_id or services change
     useEffect(() => {
@@ -69,10 +63,12 @@ export default function ConsultationsForm({ data, patients = [], users, services
         setData('amount', totalAmount);
     }, [data.service_id, services, setData]);
 
+    const selectedServices = services.filter(service => data.service_id.includes(service.id));
+
     return (
         <>
             <div>
-                <Label htmlFor="user_id" className="my-2 block font-semibold text-gray-700">Tratante</Label>
+                <Label htmlFor="user_id" className="my-2 block font-semibold text-gray-700">Fisioterapeuta</Label>
                 <Select
                     id="user_id"
                     options={userOptions}
@@ -123,17 +119,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label htmlFor="scheduled_at" className="my-2 block font-semibold text-gray-700">Fecha programada</Label>
-                <DateTimePicker
-                    value={data.scheduled_at}
-                    onChange={(newValue) => setData('scheduled_at', newValue)}
-                />
-                <InputError message={errors.scheduled_at} />
-            </div>
-
-
-            <div>
-                <Label htmlFor="status" className="my-2 block font-semibold text-gray-700">Estado de la consulta</Label>
+                <Label htmlFor="status" className="my-2 block font-semibold text-gray-700">Estado de la asistencia</Label>
                 <Select
                     id="status"
                     options={statusOptions}
@@ -146,7 +132,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <InputError message={errors.status} />
             </div>
 
-            <div>
+            {/* <div>
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
@@ -158,21 +144,18 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     className="rounded-md"
                 />
                 <InputError message={errors.payment_status} />
-            </div>
+            </div> */}
 
             <div>
-                <Label htmlFor="notes" className="my-2 block font-semibold text-gray-700">Notas (Opcional)</Label>
-                <Input
-                    id="notes"
-                    type="text"
-                    value={data.notes}
-                    onChange={(e) => setData('notes', e.target.value)}
-                    className="rounded-md"
+                <Label htmlFor="scheduled_at" className="my-2 block font-semibold text-gray-700">Fecha programada</Label>
+                <DateTimePicker
+                    value={data.scheduled_at}
+                    onChange={(newValue) => setData('scheduled_at', newValue)}
                 />
-                <InputError message={errors.notes} />
+                <InputError message={errors.scheduled_at} />
             </div>
 
-            <div>
+            <div className="col-span-full">
                 <Label htmlFor="service_id" className="my-2 block font-semibold text-gray-700">Servicios</Label>
                 <Select
                     id="service_id"
@@ -200,6 +183,20 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     className="rounded-md bg-gray-200"
                 />
             </div>
+
+            <div className="col-span-full">
+                <Label htmlFor="notes" className="my-2 block font-semibold text-gray-700">Notas (Opcional)</Label>
+                <Input
+                    id="notes"
+                    type="text"
+                    value={data.notes}
+                    onChange={(e) => setData('notes', e.target.value)}
+                    className="rounded-md"
+                />
+                <InputError message={errors.notes} />
+            </div>
+
+            <ServicesTable className="col-span-full" services={selectedServices} />
         </>
     );
 }

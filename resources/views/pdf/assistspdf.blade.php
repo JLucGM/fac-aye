@@ -99,6 +99,7 @@
             <p> <strong>Apellido:</strong> {{ $consultation->patient->lastname }}</p>
             <p> <strong>Email:</strong> {{ $consultation->patient->email }}</p>
             <p> <strong>Teléfono:</strong> {{ $consultation->patient->phone }}</p>
+            <p> <strong>Dirección:</strong> {{ $consultation->patient->address }}</p>
             <p> <strong>Fecha de Visita:</strong> {{ $consultation->created_at }}</p>
         </div>
 

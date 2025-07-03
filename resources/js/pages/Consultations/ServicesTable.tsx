@@ -1,9 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Service } from "@/types";
 
-export default function ServicesTable({ services }: { services: Service[] }) {
+export default function ServicesTable({ services, className }: { services: Service[]; className?: string }) {
     return (
-        <div className="overflow-x-auto">
+        <div className={`overflow-x-auto ${className}`}>
             <Table className="min-w-full border-collapse border border-gray-200">
                 <TableHeader>
                     <TableRow>

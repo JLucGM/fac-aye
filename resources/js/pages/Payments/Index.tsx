@@ -1,7 +1,6 @@
 import Heading from '@/components/heading';
 import { Button, buttonVariants } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { Payment, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
@@ -19,7 +18,7 @@ import { Input } from '@/components/ui/input';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Inicio',
     href: '/dashboard',
   },
   {
@@ -79,10 +78,8 @@ export default function Index({ payments }: { payments: Payment[] }) {
   });
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+      <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Lista de Pagos" />
-
-      <ContentLayout>
         <div className="flex justify-between items-center">
           <Heading
             title="Lista de Pagos"
@@ -220,6 +217,5 @@ export default function Index({ payments }: { payments: Payment[] }) {
           />
         </div>
       </ContentLayout>
-    </AppLayout>
   );
 }

@@ -1,5 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
@@ -47,10 +46,9 @@ export default function Edit({ paymentMethod }: { paymentMethod: PaymentMethod }
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Editar Método de Pago" /> {/* Updated Head title */}
 
-            <ContentLayout>
+            <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Editar Método de Pago" /> {/* Updated Head title */}
                 <Heading
                     title="Editar Método de Pago" // Updated heading title for clarity
                     description="Aquí puedes editar un método de pago existente."
@@ -67,6 +65,5 @@ export default function Edit({ paymentMethod }: { paymentMethod: PaymentMethod }
                     </Button>
                 </form>
             </ContentLayout>
-        </AppLayout>
     );
 }

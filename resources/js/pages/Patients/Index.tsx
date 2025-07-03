@@ -1,7 +1,6 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
@@ -9,7 +8,7 @@ import { columns } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -22,10 +21,10 @@ export default function Index({ patients }: { patients: Patient[] }) {
 
     // console.log('patients', patients);
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Pacientes" />
+        // <AppLayout breadcrumbs={breadcrumbs}>
 
-            <ContentLayout>
+            <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Listado de Pacientes" />
                 <Heading
                     title="Listado de Pacientes"
                     description="Gestiona tus pacientes."
@@ -44,6 +43,6 @@ export default function Index({ patients }: { patients: Patient[] }) {
 
             </ContentLayout>
 
-        </AppLayout>
+        // </AppLayout>
     );
 }

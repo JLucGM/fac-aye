@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
@@ -23,10 +23,10 @@ export default function Index({ paymentMethods }: { paymentMethods: PaymentMetho
 
     // console.log('paymentMethods', paymentMethods);
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Métodos de Pago" />
-
-            <ContentLayout>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+        
+        <ContentLayout breadcrumbs={breadcrumbs}>
+                <Head title="Listado de Métodos de Pago" />
                 <Heading
                     title="Listado de Métodos de Pago"
                     description="Gestiona tus métodos de pago."
@@ -45,6 +45,6 @@ export default function Index({ paymentMethods }: { paymentMethods: PaymentMetho
 
             </ContentLayout>
 
-        </AppLayout>
+        // </AppLayout>
     );
 }

@@ -1,7 +1,6 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { Consultation, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
@@ -19,11 +18,11 @@ import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Inicio',
     href: '/dashboard',
   },
   {
-    title: 'Listado de Consultas',
+    title: 'Listado de asistencias',
     href: '/consultations',
   },
 ];
@@ -58,17 +57,17 @@ export default function Index({ consultations }: { consultations: Consultation[]
   });
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Listado de Consultas" />
+    // <AppLayout breadcrumbs={breadcrumbs}>
 
-      <ContentLayout>
+      <ContentLayout breadcrumbs={breadcrumbs}>
+      <Head title="Listado de Asistencias" />
         <Heading
-          title="Consultas"
-          description="Gestión de consultas médicas"
+          title="Asistencias"
+          description="Gestión de asistencias médicas"
         >
           <Button asChild>
             <Link href={route('consultations.create')}>
-              Crear consulta
+              Crear asistencia
             </Link>
           </Button>
         </Heading>
@@ -81,7 +80,7 @@ export default function Index({ consultations }: { consultations: Consultation[]
         >
           <div className="flex items-center justify-between space-x-4 px-4 bg-gray-100 p-3 rounded-md">
             <h4 className="text-sm font-semibold">
-              Filtros de Consulta
+              Filtros de asistencias
             </h4>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -176,6 +175,6 @@ export default function Index({ consultations }: { consultations: Consultation[]
           />
         </div>
       </ContentLayout>
-    </AppLayout>
+    // </AppLayout>
   );
 }

@@ -28,6 +28,7 @@ class UpdatePatientRequest extends FormRequest
             'phone' => 'nullable|string|max:15',
             'birthdate' => 'nullable|date',
             'identification' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
         ];
     }
 
@@ -55,6 +56,9 @@ class UpdatePatientRequest extends FormRequest
             'identification.required' => 'El campo identificación es obligatorio.',
             'identification.string' => 'La identificación debe ser un texto.',
             'identification.max' => 'La identificación no puede exceder los 255 caracteres.',
+
+            'address.string' => 'La dirección debe ser un texto.',
+            'address.max' => 'La dirección no puede exceder los 255 caracteres.',
         ];
     }
 }

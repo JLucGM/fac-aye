@@ -39,9 +39,9 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
   }));
 
   const statusOptions = [
-    { value: 'earring', label: 'Pendiente' },
-    { value: 'completed', label: 'Completado' },
-    { value: 'cancelled', label: 'Cancelado' },
+    { value: 'pendiente', label: 'Pendiente' },
+    { value: 'completado', label: 'Completado' },
+    { value: 'cancelado', label: 'Cancelado' },
   ];
 
   // Al cambiar el paciente, filtra y carga consultas no pagadas
@@ -51,7 +51,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
       const filtered = consultations.filter(
         c =>
           c.patient_id === selectedOption.value &&
-          c.payment_status !== "paid"
+          c.payment_status !== "pagado"
       );
       setPendingConsultations(filtered);
 
@@ -88,7 +88,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
   useEffect(() => {
     if (data.patient_id) {
       const filtered = consultations.filter(
-        c => c.patient_id === data.patient_id && c.payment_status !== "paid"
+        c => c.patient_id === data.patient_id && c.payment_status !== "pagado"
       );
       setPendingConsultations(filtered);
     }

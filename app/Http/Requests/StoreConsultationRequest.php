@@ -26,14 +26,16 @@ class StoreConsultationRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'service_id' => 'required|exists:services,id',
             'notes' => 'nullable|string|max:1000',
-            'status' => 'required|in:scheduled,completed,cancelled',
-            'payment_status' => 'required|in:pending,paid,refunded',
+            'status' => 'required|in:programado,completado,cancelado',
+            // 'payment_status' => 'required|in:pendiente,pagado,reembolsado',
             'scheduled_at' => 'nullable|date',
             // 'completed_at' => 'nullable|date|after_or_equal:scheduled_at',
             'amount' => 'nullable|numeric|min:0',
-            'consultation_type' => 'required|in:domiciliary,office',
-            'payment_method_id' => 'required|integer|exists:payment_methods,id',
-            'reference' => 'nullable|string',
+            'consultation_type' => 'required|in:domiciliaria,consultorio',
+
+
+            // 'payment_method_id' => 'required|integer|exists:payment_methods,id',
+            // 'reference' => 'nullable|string',
             // 'paid_at' => 'required|date',
         ];
     }
@@ -72,11 +74,11 @@ class StoreConsultationRequest extends FormRequest
             'consultation_type.required' => 'El campo tipo de consulta es obligatorio.',
             'consultation_type.in' => 'El tipo de consulta debe ser uno de los siguientes: domiciliaria, consultorio.',
 
-            'payment_method_id.required' => 'El campo método de pago es obligatorio.',
-            'payment_method_id.integer' => 'El método de pago debe ser un número entero.',
-            'payment_method_id.exists' => 'El método de pago seleccionado no existe.',
+            // 'payment_method_id.required' => 'El campo método de pago es obligatorio.',
+            // 'payment_method_id.integer' => 'El método de pago debe ser un número entero.',
+            // 'payment_method_id.exists' => 'El método de pago seleccionado no existe.',
 
-            'reference.string' => 'La referencia debe ser un texto.',
+            // 'reference.string' => 'La referencia debe ser un texto.',
         ];
     }
 }

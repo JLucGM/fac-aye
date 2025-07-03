@@ -1,57 +1,47 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
 import { Consultation, CreateConsultationFormData, Patient, PaymentMethod, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import ConsultationsForm from './ConsultationsForm';
 import Heading from '@/components/heading';
-import { Label } from '@/components/ui/label';
-import Select from 'react-select';
-import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
-import ServicesTable from './ServicesTable';
-
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
-        title: 'Listado de Consultas',
+        title: 'Listado de Asistencias',
         href: '/consultations',
     },
     {
-        title: 'Crear Consulta',
+        title: 'Crear Asistencia',
         href: '#',
     },
 ];
 
-export default function Create({ patients, users, services, paymentMethods }: {
+export default function Create({ patients, users, services }: {
     patients: Patient[],
     users: User[],
     services: Service[],
-    paymentMethods: PaymentMethod[],
+    // paymentMethods: PaymentMethod[],
 }) {
-console.log(services)
     const { data, setData, errors, post } = useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,
         service_id: [],
-        status: 'scheduled',
+        status: 'programado', // Cambia a 'programado' si es necesario
         scheduled_at: new Date().toISOString().slice(0, 19),
-        consultation_type: 'office', // Uncomment if you want to include consultation type
+        consultation_type: 'consultorio', // Uncomment if you want to include consultation type
         // completed_at: '',
         notes: '',
-        payment_status: 'pending',
+        payment_status: 'pendiente',
         amount: 0,
 
         // campo de pago
-        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
-        reference: '',
-        // paid_at: new Date().toISOString().split('T')[0],
+        // payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
+        // reference: '',
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -63,44 +53,43 @@ console.log(services)
                 // toast("Paciente creado con éxito.");
             },
             onError: (err) => {
-                console.error("Error al crear el paciente:", err);
-                // toast("Error al crear el paciente.");
+                console.error("Error al crear la Asistencia:", err);
+                // toast("Error al crear la asistencia.");
             },
         });
     };
 
-    const paymentMethodOptions = paymentMethods.map(method => ({
-        value: method.id,
-        label: method.name
-    }));
+    // const paymentMethodOptions = paymentMethods.map(method => ({
+    //     value: method.id,
+    //     label: method.name
+    // }));
 
-        const selectedServices = services.filter(service => data.service_id.includes(service.id));
-
+    // const selectedServices = services.filter(service => data.service_id.includes(service.id));
+        
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Crear Consulta" />
-
-            <ContentLayout>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+        
+        <ContentLayout breadcrumbs={breadcrumbs}>
+                <Head title="Crear Asistencia" />
                 <Heading
-                    title="Crear consulta"
-                    description="Aquí puedes crear una nueva consulta para un paciente."
+                    title="Crear asistencia"
+                    description="Aquí puedes crear una nueva asistencia para un paciente."
                 />
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="col-span-full md:col-span-2">
-                            <h1 className='text-xl'>Información de la Consulta</h1>
-                            <ConsultationsForm
-                                data={data}
-                                patients={patients}
-                                users={users}
-                                services={services}
-                                setData={setData}
-                                errors={errors}
-                            />
-                        </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <h1 className='text-xl col-span-full'>Información de la Asistencia</h1>
+                        <ConsultationsForm
+                            data={data}
+                            patients={patients}
+                            users={users}
+                            services={services}
+                            setData={setData}
+                            errors={errors}
+                        />
+                    </div>
 
-                        <div className="">
+                    {/* <div className="">
                             <h1 className='text-xl'>Información de Pago</h1>
                             <div>
                                 <Label htmlFor="payment_method_id" className="my-2 block font-semibold text-gray-700">Método de Pago</Label>
@@ -128,12 +117,11 @@ console.log(services)
                                 />
                                 <InputError message={errors.reference} className="mt-2" />
                             </div>
-                        </div>
-                    </div>
+                        </div> */}
 
-                     {/* Aquí se muestra la tabla de servicios seleccionados */}
-                    <h2 className='text-xl mt-4'>Servicios Seleccionados</h2>
-                    <ServicesTable services={selectedServices} />
+                    {/* Aquí se muestra la tabla de servicios seleccionados */}
+                    {/* <h2 className='text-xl mt-4'>Servicios Seleccionados</h2>
+                    <ServicesTable services={selectedServices} /> */}
 
                     <Button
                         variant={"default"}
@@ -142,6 +130,5 @@ console.log(services)
                     </Button>
                 </form>
             </ContentLayout>
-        </AppLayout>
     );
 }

@@ -1,8 +1,7 @@
 import { DataTable } from '@/components/data-table';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
@@ -19,11 +18,11 @@ import {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
-        title: 'patients',
+        title: 'Listado de Pacientes',
         href: '/patients',
     },
     {
@@ -87,10 +86,10 @@ export default function Show({ patient }: { patient: Patient }) {
     const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pending').length;
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Ver Paciente" />
+        // <AppLayout breadcrumbs={breadcrumbs}>
 
-            <ContentLayout>
+            <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Ver Paciente" />
                 <Heading
                     title={`${patient.name} ${patient.lastname}`}
                     description="Detalles del paciente"
@@ -112,6 +111,7 @@ export default function Show({ patient }: { patient: Patient }) {
                         <p><strong>Teléfono:</strong> {patient.phone}</p>
                         <p><strong>Fecha de Nacimiento:</strong> {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-ES') : 'Fecha no disponible'}</p>
                         <p><strong>Edad:</strong> {calculateAge(patient.birthdate)}</p>
+                        <p><strong>Dirección:</strong> {patient.address || 'No disponible'}</p>
                     </div>
 
                     <div className="flex flex-col">
@@ -226,6 +226,6 @@ export default function Show({ patient }: { patient: Patient }) {
                     </div>
                 </div>
             </ContentLayout>
-        </AppLayout>
+        // </AppLayout>
     );
 }

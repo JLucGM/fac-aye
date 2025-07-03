@@ -1,14 +1,12 @@
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
-import { Role, type BreadcrumbItem } from '@/types';
+import {ContentLayout} from '@/layouts/content-layout';
+import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import RolesForm from './UsersForm';
 import Heading from '@/components/heading';
 import UsersForm from './UsersForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Inicio', href: '/dashboard' },
     { title: 'Lista de usuarios', href: '/user' },
     { title: 'Editar usuario', href: '#' },
 ];
@@ -31,7 +29,7 @@ export default function Edit({ user }: { user: any; }) {
 
         put(routeFn('user.update', user), {
             onSuccess: () => {
-                console.log('Usuario actualizado con éxito:', data);
+                // console.log('Usuario actualizado con éxito:', data);
             },
             onError: (err) => {
                 console.error('Error al actualizar el Usuario:', err);
@@ -40,27 +38,24 @@ export default function Edit({ user }: { user: any; }) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Editar Usuario" />
+            <Heading
+                title="Editar Usuario"
+                description="Aquí puedes editar un usuario existente."
+            />
 
-            <ContentLayout>
-                <Heading
-                    title="Editar Usuario"
-                    description="Aquí puedes editar un usuario existente."
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <UsersForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
-                
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <UsersForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button variant="default">
-                        Actualizar usuario
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button variant="default">
+                    Actualizar usuario
+                </Button>
+            </form>
+        </ContentLayout>
     );
 }

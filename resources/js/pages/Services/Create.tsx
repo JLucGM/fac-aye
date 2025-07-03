@@ -1,24 +1,21 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import ServicesForm from './ServicesForm';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
-        title: 'Services',
+        title: 'Listado de Servicios',
         href: '/services',
     },
     {
-        title: 'Create',
+        title: 'Crear Servicio',
         href: '/services/create',
     },
 ];
@@ -45,29 +42,29 @@ export default function Create() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Crear Servicio" />
+        // <AppLayout breadcrumbs={breadcrumbs}>
 
-            <ContentLayout>
-                <Heading
-                    title="Crear Servicio"
-                    description="Aquí puedes crear un nuevo servicio."
+        <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Crear Servicio" />
+            <Heading
+                title="Crear Servicio"
+                description="Aquí puedes crear un nuevo servicio."
+            />
+
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <ServicesForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
 
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <ServicesForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
-
-                    <Button
-                        variant={"default"}
-                    >
-                        Crear Servicio
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button
+                    variant={"default"}
+                >
+                    Crear Servicio
+                </Button>
+            </form>
+        </ContentLayout>
+        // </AppLayout>
     );
 }

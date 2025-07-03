@@ -26,7 +26,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::with('paymentMethod', 'consultations.patient')->get();
+        $payments = Payment::with('paymentMethod', 'consultations.patient','consultations.services')->get();
         return Inertia::render('Payments/Index', compact('payments'));
     }
 
@@ -66,7 +66,7 @@ class PaymentController extends Controller
             foreach ($request->consultation_ids as $consultationId) {
                 $consultation = Consultation::find($consultationId);
                 if ($consultation) {
-                    $consultation->update(['payment_status' => 'paid']);
+                    $consultation->update(['payment_status' => 'pagado']);
                 }
             }
         });
@@ -118,8 +118,7 @@ class PaymentController extends Controller
 
     public function accounts_receivable_index()
     {
-        // $payments = Payment::with('paymentMethod', 'consultations.patient')->where('status', 'pending')->get();
-$payments = Consultation::with('patient', 'user')->where('payment_status', 'pending')->get();
+        $payments = Consultation::with('patient', 'user')->where('payment_status', 'pendiente')->get();
         // dd($payments);
         return Inertia::render('Payments/AccountsReceivable', compact('payments'));
     }

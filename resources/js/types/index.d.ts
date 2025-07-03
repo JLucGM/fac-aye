@@ -55,6 +55,7 @@ export interface Patient {
     lastname?: string;
     slug: string;
     email: string;
+    address?: string; 
     identification: string;
     phone?: string;
     birthdate?: string; // ISO date string or null
@@ -91,6 +92,8 @@ export interface PaymentMethod {
 
 export interface Payment {
     id: number;
+    patient_id: number | null; // FK to Patient, can be null if not associated
+    consultation_ids: number[]; // Array of Consultation IDs (many-to-many relationship)
     amount: number; // decimal amount
     status: 'pendiente' | 'completado' | 'fallido'; // payment status
     reference: string; // transaction id or reference
@@ -108,12 +111,12 @@ export interface Payment {
 export interface Consultation {
     id: number;
     user_id: number; // FK to User (doctor/professional)
-    status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+    status: 'programado' | 'confirmado' | 'completado' | 'cancelado' | ''; // Allow empty string for form initial state
     scheduled_at: string; // ISO date string
-    consultation_type: 'domiciliary' | 'office';
+    consultation_type: 'domiciliaria' | 'consultorio';
     amount: number;
     notes?: string;
-    payment_status: "pending" | 'paid' | 'refunded';
+    payment_status: "pendiente" | 'pagado' | 'reembolsado';
     patient_id: number; // FK to Patient
     created_at: string;
     updated_at: string;
@@ -177,13 +180,13 @@ export interface CreateConsultationFormData {
     user_id: number;
     patient_id?: number;
     service_id: number[]; // Array of service IDs for the many-to-many relationship
-    status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | ''; // Allow empty string for form initial state
+    status: 'programado' | 'confirmado' | 'completado' | 'cancelado' | ''; // Allow empty string for form initial state
     scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;
-    payment_status: 'pending' | 'paid' | 'refunded' | ''; // Allow empty string for form initial state
+    payment_status: 'pendiente' | 'pagado' | 'reembolsado' | ''; // Allow empty string for form initial state
     amount: number;
-    consultation_type: 'domiciliary' | 'office' | ''; // Allow empty string for form initial state
+    consultation_type: 'domiciliaria' | 'consultorio' | ''; // Allow empty string for form initial state
     [key: string]: any; // Add this index signature
 }
 
@@ -194,6 +197,7 @@ export interface CreatePatientFormData {
     phone: string;
     birthdate: string;
     identification: string;
+    address: string;
 
     [key: string]: any; // Allows for dynamic access if setData uses string keys
 }
@@ -203,7 +207,7 @@ export interface CreatePaymentFormData {
     consultation_ids: number[]; // Assuming this will store an array of consultation IDs
     payment_method_id: number | null;
     amount: number;
-    status: 'pending' | 'completed' | 'failed' | 'earring' | ''; // Correcting status values, including 'earring'
+    status: 'pendiente' | 'completado' | 'fallido' | 'reembolsado' ; // Correcting status values, including 'reembolsado'
     reference: string;
     notes: string;
     // paid_at: string;

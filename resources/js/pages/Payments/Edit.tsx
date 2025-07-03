@@ -1,6 +1,5 @@
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
-import { type BreadcrumbItem } from '@/types';
+import { ContentLayout } from '@/layouts/content-layout';
+import { Consultation, Patient, Payment, PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentsForm from './PaymentsForm';
@@ -8,7 +7,7 @@ import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -21,7 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Edit({ payment, paymentMethods, patients, consultations }: { payment: any, paymentMethods: any[], patients: any[], consultations: any[] }) {
+export default function Edit({ payment, paymentMethods, patients, consultations }: { payment: Payment, paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
     const { data, setData, errors, put, recentlySuccessful } = useForm({
         patient_id: payment.patient_id || null, // Agrega esta línea para inicializar patient_id
         consultation_ids: payment.consultation_ids || [], // Asegúrate de que sea un array
@@ -33,12 +32,12 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
         // paid_at: payment.paid_at,
     });
 
-        const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         put(route('payments.update', payment.id), { // Asegúrate de que la ruta sea correcta
             onSuccess: () => {
-                console.log("Pago actualizado con éxito");
+                // console.log("Pago actualizado con éxito");
                 // Aquí puedes mostrar un mensaje de éxito
             },
             onError: (err) => {
@@ -49,29 +48,26 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Editar Pago" />
-
-            <ContentLayout>
-                <Heading
-                    title="Editar Pago"
-                    description="Aquí puedes editar un pago existente."
+            <Heading
+                title="Editar Pago"
+                description="Aquí puedes editar un pago existente."
+            />
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <PaymentsForm
+                    data={data}
+                    patients={patients}
+                    paymentMethods={paymentMethods}
+                    consultations={consultations}
+                    setData={setData}
+                    errors={errors}
                 />
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <PaymentsForm
-                        data={data}
-                        patients={patients}
-                        paymentMethods={paymentMethods}
-                        consultations={consultations}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button variant={"default"}>
-                        Actualizar Pago
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button variant={"default"}>
+                    Actualizar Pago
+                </Button>
+            </form>
+        </ContentLayout>
     );
 }

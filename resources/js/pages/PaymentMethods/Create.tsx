@@ -1,9 +1,7 @@
-import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import PaymentMethodsForm from './PaymentMethodsForm';
 import Heading from '@/components/heading';
 
@@ -33,7 +31,7 @@ export default function Create() {
         e.preventDefault();
         post(route('payment-methods.store'), {
             onSuccess: () => {
-                console.log("Metodo de pago creado con éxito:");
+                // console.log("Metodo de pago creado con éxito:");
                 // toast("Metodo de pago creado con éxito.");
             },
             onError: (err) => {
@@ -44,10 +42,10 @@ export default function Create() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Crear Método de Pago" />
+        // <AppLayout breadcrumbs={breadcrumbs}>
 
-            <ContentLayout>
+            <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Crear Método de Pago" />
                 <Heading
                     title="Crear Método de Pago"
                     description="Aquí puedes crear un nuevo método de pago."
@@ -66,6 +64,6 @@ export default function Create() {
                     </Button>
                 </form>
             </ContentLayout>
-        </AppLayout>
+        // </AppLayout>
     );
 }

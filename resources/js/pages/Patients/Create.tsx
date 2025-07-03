@@ -1,15 +1,13 @@
-import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import PatientsForm from './PatientsForm';
 import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -30,6 +28,7 @@ export default function Create() {
         phone: '',
         birthdate: '',
         identification: '',
+        address: '',
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,28 +46,28 @@ export default function Create() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Crear Paciente" />
-
-            <ContentLayout>
-                <Heading
-                    title="Crear Paciente"
-                    description="Aquí puedes crear un nuevo paciente."
+            <Heading
+                title="Crear Paciente"
+                description="Aquí puedes crear un nuevo paciente."
+            />
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <PatientsForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <PatientsForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button
-                        variant={"default"}
-                    >
-                        Crear Paciente
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button
+                    variant={"default"}
+                >
+                    Crear Paciente
+                </Button>
+            </form>
+        </ContentLayout>
+        // </AppLayout>
     );
 }

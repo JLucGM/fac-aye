@@ -13,13 +13,37 @@ class ServiceSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['evaluacion', 'evaluacion-seguro', 'evaluacion-tarifa-especial', 'fisioterapia', 'fisioterapia-seguro', 'fisioterapia-tarifa-especial', 'funcional-1', 'funcional-2', 'funcional-3', 'k-tape', 'k-tape-gym', 'k-tape-terapeutico', 'masaje-descarga', 'masaje-gym', 'masaje-terapeutico'] as $slug) {
-            Service::create([
-                'name' => ucfirst(str_replace('-', ' ', $slug)),
-                'slug' => $slug,
-                'price' => 10
-            ]);
+        // foreach (['evaluacion', 'Rehabilitacion/Fisioterapia', 'fisioterapia-seguro', 'fisioterapia-tarifa-especial', 'funcional-1', 'funcional-2', 'funcional-3', 'k-tape', 'k-tape-gym', 'k-tape-terapeutico', 'masaje-descarga', 'masaje-gym', 'masaje-terapeutico'] as $slug) {
+        //     Service::create([
+        //         'name' => ucfirst(str_replace('-', ' ', $slug)),
+        //         'slug' => $slug,
+        //         'price' => 10
+        //     ]);
+        // }
+
+        $settings = [
+            [
+                'name' => 'Evaluación',
+                'price' => 40,
+            ],
+            [
+                'name' => 'Fisioterapia/ Rehabilitación',
+                'price' => 30,
+            ],
+            [
+                'name' => 'Masoterapia',
+                'price' => 40,
+            ],
+            [
+                'name' => 'K-Tape',
+                'price' => 30,
+            ],
+        ];
+
+        foreach ($settings as $settingsData) {
+            Service::create($settingsData);
         }
+
         // Service::create(
         //     ['name' => 'Evaluación', 'slug' => 'evaluacion','price' => 10],
         //     ['name' => 'Evaluación seguro', 'slug' => 'evaluacion-seguro','price' => 10],

@@ -13,9 +13,10 @@ type ServicesFormProps = {
         phone?: string;
         birthdate?: string;
         identification?: string; // Optional field for identification errors
-
+        address?: string; // Optional field for address errors
     };
 };
+
 export default function PatientsForm({ data, setData, errors }: ServicesFormProps) {
     return (
         <>
@@ -82,6 +83,19 @@ export default function PatientsForm({ data, setData, errors }: ServicesFormProp
                     onChange={(e) => setData('phone', e.target.value)}
                 />
                 <InputError message={errors.phone} className="mt-2" />
+            </div>
+
+            <div>
+                <Label className="my-2 block font-semibold text-gray-700" htmlFor="address">Dirección</Label>
+                <Input
+                    id="address"
+                    type="text"
+                    name="address"
+                    value={data.address}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('address', e.target.value)}
+                />
+                <InputError message={errors.address} className="mt-2" />
             </div>
 
             <div>

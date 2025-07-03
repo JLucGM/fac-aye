@@ -17,12 +17,26 @@ export const columns: ColumnDef<Payment>[] = [
   //   accessorKey: "id",
   //   header: "ID",
   // },
-
   {
     accessorKey: "created_at",
-    header: "Fecha Programada",
+    header: "Creado",
     cell: ({ row }) => {
       return new Date(row.original.created_at).toLocaleString();
+    },
+  },
+  {
+    accessorKey: "reference",
+    header: "Referencia",
+  },
+  {
+    accessorKey: "payment_method_id",
+    header: "Método de pago",
+    cell: ({ row }) => {
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {row.original.payment_method?.name}
+        </p>
+      )
     },
   },
   {
@@ -41,24 +55,28 @@ export const columns: ColumnDef<Payment>[] = [
       return <p className="text-sm text-gray-500">Sin paciente</p>;
     },
   },
-
   {
-    accessorKey: "reference",
-    header: "Referencia",
-  },
-  {
-    accessorKey: "payment_method_id",
-    header: "Método de pago",
+    accessorKey: "services",
+    header: "Servicios",
     cell: ({ row }) => {
-      return (
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.payment_method?.name}
-        </p>
-      )
+      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
+      if (consultations.length > 0) {
+        const services = consultations[0].services || []; // Obtener los servicios de la primera consulta
+        return (
+          <div>
+            {services.map(service => (
+              <p key={service.id} className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                {service.name} - $ {service.price}
+              </p>
+            ))}
+          </div>
+        );
+      }
+      return <p className="text-sm text-gray-500">Sin servicios</p>;
     },
-
-  },
+  },  
   {
+
     accessorKey: "amount",
     header: "Monto",
   },

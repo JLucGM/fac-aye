@@ -1,5 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { Service, ServiceFormData, type BreadcrumbItem } from '@/types'; // Import ServiceFormData
 import { Head, useForm } from '@inertiajs/react';
 import ServicesForm from './ServicesForm';
@@ -8,15 +7,15 @@ import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
-        title: 'Services',
+        title: 'Listado de Servicios',
         href: '/services',
     },
     {
-        title: 'Edit Service', // Updated title for clarity
+        title: 'Editar Servicio', // Updated title for clarity
         href: '#',
     },
 ];
@@ -33,7 +32,7 @@ export default function Edit({ service }: { service: Service }) {
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Submitting updated service data:", data); // Verifies that data is updating
+        // console.log("Submitting updated service data:", data); // Verifies that data is updating
 
         // FIX: Address 'Argument of type 'Router' is not assignable to parameter of type 'string'.'
         // This workaround helps TypeScript understand the global 'route' function (from Ziggy.js)
@@ -42,7 +41,7 @@ export default function Edit({ service }: { service: Service }) {
 
         put(routeFn('services.update', service), { // Use routeFn and pass service.id
             onSuccess: () => {
-                console.log("Servicio actualizado con éxito:", data);
+                // console.log("Servicio actualizado con éxito:", data);
                 // toast("Servicio actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
@@ -53,26 +52,26 @@ export default function Edit({ service }: { service: Service }) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Editar Servicio" /> {/* Updated Head title */}
-
-            <ContentLayout>
-                <Heading
-                    title="Editar Servicio"
-                    description="Aquí puedes editar un servicio existente."
+            <Heading
+                title="Editar Servicio"
+                description="Aquí puedes editar un servicio existente."
+            />
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <ServicesForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <ServicesForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button variant={"default"}>
-                        Actualizar Servicio
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button variant={"default"}>
+                    Actualizar Servicio
+                </Button>
+            </form>
+        </ContentLayout>
+        // </AppLayout>
     );
 }

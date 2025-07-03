@@ -1,19 +1,14 @@
 import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { Consultation, Patient, PaymentMethod, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import ConsultationsForm from './ConsultationsForm';
 import Heading from '@/components/heading';
-import { Label } from '@/components/ui/label';
-import Select from 'react-select';
-import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Download, Timer } from 'lucide-react';
-import ServicesTable from './ServicesTable';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Inicio', href: '/dashboard' },
     { title: 'Consultations', href: '/consultations' },
     { title: 'Editar Consulta', href: '#' },
 ];
@@ -32,12 +27,10 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-    console.log('Edit Consultation Page Loaded', consultation);
     // Extraer datos de pago de manera segura
     const payment = consultation.payment && consultation.payment.length > 0 ? consultation.payment[0] : {
         payment_method_id: null,
         reference: '',
-        // paid_at: ''
     };
 
     const { data, setData, errors, put } = useForm({
@@ -50,10 +43,10 @@ export default function Edit({ consultation, patients, users, services, paymentM
         payment_status: consultation.payment_status || '',
         consultation_type: consultation.consultation_type || '',
         amount: consultation.amount || 0,
+
         // Datos de pago
-        payment_method_id: payment.payment_method_id,
-        reference: payment.reference,
-        // paid_at: payment.paid_at ? new Date(payment.paid_at).toISOString().split('T')[0] : '',
+        // payment_method_id: payment.payment_method_id,
+        // reference: payment.reference,
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -67,18 +60,17 @@ export default function Edit({ consultation, patients, users, services, paymentM
         window.open(route('consultationpdf', consultation.id), '_blank'); // Abre en una nueva pestaña
     };
 
-    const paymentMethodOptions = paymentMethods.map(method => ({
-        value: method.id,
-        label: method.name
-    }));
+    // const paymentMethodOptions = paymentMethods.map(method => ({
+    //     value: method.id,
+    //     label: method.name
+    // }));
 
-    const selectedServices = services.filter(service => data.service_id.includes(service.id));
-
+    // const selectedServices = services.filter(service => data.service_id.includes(service.id));
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Editar Consulta" />
-            <ContentLayout>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
+                <Head title="Editar Consulta" />
 
                 <Heading
                     title="Editar consulta"
@@ -91,8 +83,8 @@ export default function Edit({ consultation, patients, users, services, paymentM
                 </Heading>
 
                 <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="col-span-full md:col-span-2">
+                    <div className="grid grid-cols-1 gap-8">
+                        <div className="col-span-full">
 
                             <ConsultationsForm
                                 data={data}
@@ -104,10 +96,10 @@ export default function Edit({ consultation, patients, users, services, paymentM
                             />
 
                         </div>
-                        <div className="">
+
+                        {/* <div className="">
                             <h2 className="text-lg font-semibold">Información de Pago</h2>
 
-                            {/* Método de Pago */}
                             <div>
                                 <Label htmlFor="payment_method_id">Método de Pago</Label>
                                 <Select
@@ -125,7 +117,6 @@ export default function Edit({ consultation, patients, users, services, paymentM
                                 )}
                             </div>
 
-                            {/* Referencia */}
                             <div>
                                 <Label htmlFor="reference" className="my-2 block font-semibold text-gray-700">Referencia/Número de Transacción  (Opcional)</Label>
                                 <Input
@@ -141,16 +132,14 @@ export default function Edit({ consultation, patients, users, services, paymentM
                                 )}
                             </div>
 
-                        </div>
+                        </div> */}
                     </div>
-                    {/* Aquí se muestra la tabla de servicios seleccionados */}
-                    {/* <h2 className='text-xl mt-4'>Servicios Seleccionados</h2> */}
-                    <ServicesTable services={selectedServices} />
+                    
+                    {/* <ServicesTable services={selectedServices} /> */}
                     <Button type="submit" variant="default">
                         Actualizar Consulta
                     </Button>
                 </form>
             </ContentLayout>
-        </AppLayout>
     );
 }

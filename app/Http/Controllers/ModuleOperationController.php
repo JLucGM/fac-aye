@@ -53,9 +53,7 @@ class ModuleOperationController extends Controller
             'notes' => 'nullable|string',
             'payment_status' => 'required|string',
             'amount' => 'required|numeric',
-            'payment_method_id' => 'required|integer|exists:payment_methods,id',
-            'reference' => 'nullable|string',
-            // 'paid_at' => 'required|date',
+            'address' => 'nullable|string|max:255',
         ]);
 
         // Crear o encontrar el paciente
@@ -67,6 +65,7 @@ class ModuleOperationController extends Controller
                 'email' => $validatedData['email'],
                 'phone' => $validatedData['phone'],
                 'birthdate' => $validatedData['birthdate'],
+                'address' => $validatedData['address'] ?? null,
             ]
         );
 
@@ -91,18 +90,18 @@ class ModuleOperationController extends Controller
         }
 
         // Crear el pago sin el campo consultation_id
-        $payment = Payment::create([
-            'payment_method_id' => $validatedData['payment_method_id'],
-            'amount' => $validatedData['amount'],
-            'status' => $validatedData['payment_status'],
-            'reference' => $validatedData['reference'],
-            // 'paid_at' => $validatedData['paid_at'],
-            // No se incluye consultation_id
-        ]);
+        // $payment = Payment::create([
+        //     'payment_method_id' => $validatedData['payment_method_id'],
+        //     'amount' => $validatedData['amount'],
+        //     'status' => $validatedData['payment_status'],
+        //     'reference' => $validatedData['reference'],
+        //     // 'paid_at' => $validatedData['paid_at'],
+        //     // No se incluye consultation_id
+        // ]);
 
         // $payment->consultations()->attach($consultation->id);
 
-        $payment->consultations()->sync($consultation->id);
+        // $payment->consultations()->sync($consultation->id);
 
         //     // Actualizar el estado de las consultas
         //     foreach ($request->consultation_ids as $consultationId) {

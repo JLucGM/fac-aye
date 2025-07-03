@@ -29,7 +29,7 @@ class UpdateConsultationRequest extends FormRequest
             'scheduled_at' => 'nullable|date',
             // 'completed_at' => 'nullable|date_format:Y-m-d H:i:s',
             'notes' => 'nullable|string|max:1000',
-            'payment_status' => 'required|in:pending,paid,refunded',
+            // 'payment_status' => 'required|in:pending,paid,refunded',
             'amount' => 'nullable|numeric|min:0',
             'consultation_type' => 'required|in:domiciliary,office',
         ];
@@ -50,7 +50,7 @@ class UpdateConsultationRequest extends FormRequest
             'status.required' => 'El campo estado es obligatorio.',
             'status.in' => 'El estado debe ser uno de los siguientes: programado, completado, cancelado.',
 
-            'scheduled_at.date' => 'La fecha programada debe ser una fecha válida.',
+            // 'scheduled_at.date' => 'La fecha programada debe ser una fecha válida.',
 
             'notes.string' => 'Las notas deben ser un texto.',
             'notes.max' => 'Las notas no pueden exceder los 1000 caracteres.',

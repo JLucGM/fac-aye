@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { Payment, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
@@ -20,47 +20,43 @@ import { columnsAccountsReceivable } from './columnsAccount';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Inicio',
     href: '/dashboard',
   },
   {
-    title: 'Pagos',
+    title: 'Lista de Pagos',
     href: '/payments',
   },
   {
-    title: 'Cuentas por pagar',
+    title: 'Cuentas por cobrar',
     href: '/payments/accounts-receivable',
   },
 ];
 
 export default function AccountsReceivable({ payments }: { payments: Payment[] }) {
-  console.log(payments)
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Cuentas por pagar" />
+    <ContentLayout breadcrumbs={breadcrumbs}>
+      <Head title="Cuentas por cobrar" />
+      <div className="flex justify-between items-center">
 
-      <ContentLayout>
-        <div className="flex justify-between items-center">
-          
-          <Heading
-            title="Cuentas por pagar"
-            description="Gestión de todas las cuentas por pagar"
-          />
-
-          <Button asChild>
-            <Link href={route('payments.create')}>
-              Registrar Pago
-            </Link>
-          </Button>
-        </div>
-
-        <DataTable
-          columns={columnsAccountsReceivable}
-          data={payments}
+        <Heading
+          title="Cuentas por cobrar"
+          description="Gestión de todas las cuentas por cobrar"
         />
 
-      </ContentLayout>
-    </AppLayout>
+        <Button asChild>
+          <Link href={route('payments.create')}>
+            Registrar Pago
+          </Link>
+        </Button>
+      </div>
+
+      <DataTable
+        columns={columnsAccountsReceivable}
+        data={payments}
+      />
+
+    </ContentLayout>
   );
 }

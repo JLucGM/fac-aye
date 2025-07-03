@@ -1,5 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -30,6 +29,7 @@ export default function Edit({ patient }: { patient: Patient }) {
         phone: patient.phone ?? '',       // Fix: Provide an empty string if phone is undefined
         birthdate: patient.birthdate ? patient.birthdate.split('T')[0] : '', // Extract only the date part
         identification: patient.identification,
+        address: patient.address ?? '', // Fix: Provide an empty string if address is undefined
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,7 +39,7 @@ export default function Edit({ patient }: { patient: Patient }) {
 
         put(routeFn('patients.update', patient), {
             onSuccess: () => {
-                console.log("Paciente actualizado con éxito:");
+                // console.log("Paciente actualizado con éxito:");
                 // toast("Paciente actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
@@ -50,26 +50,26 @@ export default function Edit({ patient }: { patient: Patient }) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Editar Paciente" /> {/* Updated Head title */}
-
-            <ContentLayout>
-                <Heading
-                    title="Editar Paciente" // Updated heading title for clarity
-                    description="Aquí puedes editar la información de un paciente existente."
+            <Heading
+                title="Editar Paciente" // Updated heading title for clarity
+                description="Aquí puedes editar la información de un paciente existente."
+            />
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <PatientsForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <PatientsForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button variant={"default"}>
-                        Actualizar Paciente
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button variant={"default"}>
+                    Actualizar Paciente
+                </Button>
+            </form>
+        </ContentLayout>
+        // </AppLayout>
     );
 }

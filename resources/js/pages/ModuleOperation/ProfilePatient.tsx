@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { DataTable } from '@/components/data-table';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -79,11 +79,11 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
     ];
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        // <AppLayout breadcrumbs={breadcrumbs}>
+
+            <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Perfil del Paciente" />
 
-            <ContentLayout>
-                
                 <Heading
                     title="Búsqueda rápida paciente"
                     description="Aquí puedes buscar un paciente por nombre, correo o identificación y ver sus consultas."
@@ -137,6 +137,6 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
                     )
                 )}
             </ContentLayout>
-        </AppLayout>
+        // </AppLayout>
     );
 }

@@ -1,19 +1,15 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { Consultation, PaymentMethod, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import PatientsForm from '../Patients/PatientsForm';
 import ConsultationsForm from '../Consultations/ConsultationsForm';
-import Select from 'react-select';
-import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
+import { add } from 'date-fns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -22,10 +18,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({ users, services, paymentMethods }: {
+export default function Index({ users, services }: {
     users: User[],
     services: Service[],
-    paymentMethods: PaymentMethod[],
+    // paymentMethods: PaymentMethod[],
 }) {
 
     const { data, setData, errors, post } = useForm({
@@ -36,17 +32,20 @@ export default function Index({ users, services, paymentMethods }: {
         phone: '',
         birthdate: '',
         identification: '',
-
+        address: '', // Asegúrate de que este campo esté incluido si es necesario
+        
+        // datos de la asistencia
         user_id: users[0].id,
         service_id: [],
-        status: 'scheduled' as 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | '', // Asegúrate de que este valor sea uno de los permitidos
+        status: 'programado' as 'programado' | 'confirmado' | 'completado' | 'cancelado' | '', // Asegúrate de que este valor sea uno de los permitidos
         scheduled_at: new Date().toISOString().slice(0, 19),
-        consultation_type: 'office' as 'office' | 'domiciliary' | '', // Asegúrate de que este valor sea uno de los permitidos
+        consultation_type: 'consultorio' as 'consultorio' | 'domiciliaria' | '', // Asegúrate de que este valor sea uno de los permitidos
         notes: '',
-        payment_status: 'pending' as 'pending' | 'paid' | 'refunded' | '', // Asegúrate de que este valor sea uno de los permitidos
+        payment_status: 'pendiente', // Asegúrate de que este valor sea uno de los permitidos
         amount: 0,
-        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null,
-        reference: '',
+
+        // payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null,
+        // reference: '',
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,22 +60,23 @@ export default function Index({ users, services, paymentMethods }: {
         });
     };
 
-    const paymentMethodOptions = paymentMethods.map(method => ({
-        value: method.id,
-        label: method.name
-    }));
+    // const paymentMethodOptions = paymentMethods.map(method => ({
+    //     value: method.id,
+    //     label: method.name
+    // }));
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Primera Visita" />
+        // <AppLayout breadcrumbs={breadcrumbs}>
 
-            <ContentLayout>
-                <Heading
-                    title="Primera visita"
-                    description="Gestión de primera visita"
-                />
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <div className="grid grid-cols-2 gap-4">
+        <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Primera Visita" />
+            <Heading
+                title="Primera visita"
+                description="Gestión de primera visita"
+            />
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="">
                         <h1 className='text-xl col-span-full'>Información del Paciente</h1>
                         <PatientsForm
                             data={data}
@@ -84,21 +84,20 @@ export default function Index({ users, services, paymentMethods }: {
                             errors={errors}
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="">
-                            <h1 className='text-xl'>Información de la Consulta</h1>
 
-                            <ConsultationsForm
-                                data={data}
-                                users={users}
-                                patients={[]}
-                                services={services}
-                                setData={setData}
-                                errors={errors}
-                            />
-                        </div>
+                    <div className="">
+                        <h1 className='text-xl'>Información de la Consulta</h1>
 
-                        <div className="">
+                        <ConsultationsForm
+                            data={data}
+                            users={users}
+                            patients={[]}
+                            services={services}
+                            setData={setData}
+                            errors={errors}
+                        />
+
+                        {/* <div className="">
 
                             <h1 className='text-xl'>Información de Pago</h1>
                             <div>
@@ -127,14 +126,15 @@ export default function Index({ users, services, paymentMethods }: {
                                 />
                                 <InputError message={errors.reference} className="mt-2" />
                             </div>
-                        </div>
+                        </div> */}
                     </div>
+                </div>
 
-                    <Button variant={"default"}>
-                        Crear Primera Visita
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button variant={"default"}>
+                    Crear Primera Visita
+                </Button>
+            </form>
+        </ContentLayout>
+        // </AppLayout>
     );
 }

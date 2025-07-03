@@ -1,16 +1,13 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
 import { Consultation, CreatePaymentFormData, Patient, Payment, PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
+import {ContentLayout} from '@/layouts/content-layout';
 import PaymentsForm from './PaymentsForm';
 import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -30,7 +27,7 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
         consultation_ids: [],
         payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
         amount: 0,
-        status: 'earring',
+        status: 'pendiente', // Cambia a 'pendiente' para el estado inicial
         reference: '',
         notes: '',
         // paid_at: new Date().toISOString().split('T')[0],
@@ -53,10 +50,8 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+            <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Crear Pago" />
-
-            <ContentLayout>
                 <Heading
                     title="Crear Pago"
                     description="Aquí puedes crear un nuevo pago para un paciente."
@@ -76,6 +71,5 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
                     </Button>
                 </form>
             </ContentLayout>
-        </AppLayout>
     );
 }

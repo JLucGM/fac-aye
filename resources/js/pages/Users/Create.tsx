@@ -1,16 +1,13 @@
-import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
-import RolesForm from './UsersForm';
+import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
 import UsersForm from './UsersForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -39,7 +36,6 @@ export default function Create() {
         e.preventDefault();
         post(route('user.store'), {
             onSuccess: () => {
-                console.log("Usuario creado con éxito:", data);
                 // toast("Usuario creado con éxito.");
             },
             onError: (err) => {
@@ -50,29 +46,27 @@ export default function Create() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Crear Usuario" />
 
-            <ContentLayout>
-                <Heading
-                    title="Crear Usuario"
-                    description="Aquí puedes crear un nuevo usuario."
+        <ContentLayout breadcrumbs={breadcrumbs}>
+            <Head title="Crear Usuario" />
+            <Heading
+                title="Crear Usuario"
+                description="Aquí puedes crear un nuevo usuario."
+            />
+
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <UsersForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
 
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <UsersForm
-                        data={data}
-                        setData={setData}
-                        errors={errors}
-                    />
-
-                    <Button
-                        variant={"default"}
-                    >
-                        Crear Rol
-                    </Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button
+                    variant={"default"}
+                >
+                    Crear Rol
+                </Button>
+            </form>
+        </ContentLayout>
     );
 }

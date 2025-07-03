@@ -27,7 +27,7 @@ class ClosuresController extends Controller
         // Cargar la vista del PDF
         $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth'))->setPaper('a4', 'landscape');
         // // Devolver el PDF para abrir en una nueva pestaña
-        return $pdf->stream($fechaHoy->format('d-m-Y') .'_cierre_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
+        return $pdf->stream($fechaHoy->format('d-m-Y') . '_cierre_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
     }
 
     public function pagosDelDia()
@@ -46,7 +46,7 @@ class ClosuresController extends Controller
         // Cargar la vista del PDF
         $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagos', 'fechaHoy', 'settings', 'auth', 'totalAmount'))->setPaper('a4', 'landscape');
         // // Devolver el PDF para abrir en una nueva pestaña
-        return $pdf->stream( $fechaHoy->format('d-m-Y') .'_pagos_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
+        return $pdf->stream($fechaHoy->format('d-m-Y') . '_pagos_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
     }
 
     public function consultationpdf(Consultation $consultation)
@@ -64,5 +64,44 @@ class ClosuresController extends Controller
 
         // Devolver el PDF para abrir en una nueva pestaña
         return $pdf->stream('comprobante_asistencia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
+    }
+
+    public function cierrePorRango(Request $request)
+    {
+        $startDate = $request->input('start');
+        $endDate = $request->input('end');
+        $auth = Auth::user();
+        $fechaHoy = Carbon::today();
+
+        $consultas = Consultation::with('patient', 'services', 'user')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+        // dd('consultas', $consultas);
+        $settings = Setting::with('media')->first()->get();
+
+        $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'startDate', 'endDate', 'settings', 'auth','fechaHoy'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->stream($startDate.'_to_'.$endDate.'_cierre_rango.pdf', ['Attachment' => 0]);
+    }
+
+    public function pagosPorRango(Request $request)
+    {
+        $startDate = $request->input('start');
+        $endDate = $request->input('end');
+        $auth = Auth::user();
+        $fechaHoy = Carbon::today();
+
+        $pagos = Payment::with('paymentMethod', 'consultations.patient')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+        // dd('pagos', $pagos);
+        $settings = Setting::with('media')->first()->get();
+        $totalAmount = $pagos->sum('amount');
+
+        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagos', 'startDate', 'endDate', 'settings', 'auth', 'totalAmount', 'fechaHoy'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->stream($startDate.'_to_'.$endDate.'_pagos_rango.pdf', ['Attachment' => 0]);
     }
 }

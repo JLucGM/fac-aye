@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ClosuresController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\ModuleAdministrativeController;
+use App\Http\Controllers\ModuleAssistanceController;
 use App\Http\Controllers\ModuleoperationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
@@ -37,15 +39,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('first-visit', [ModuleOperationController::class, 'first_visit_index'])->name('module-operation.first_visit_index');
     Route::post('first-visit-store', [ModuleOperationController::class, 'first_visit_store'])->name('module-operation.first_visit_store');
     Route::get('profile-patient-index', [ModuleOperationController::class, 'profile_patient_index'])->name('module-operation.profile_patient_index');
-    
+
+    Route::get('module-administrative', [ModuleAdministrativeController::class, 'index'])->name('module-administrative.index');
+
+    Route::get('module-assistance', [ModuleAssistanceController::class, 'index'])->name('module-assistance.index');
+
+
     Route::get('accounts-receivable', [PaymentController::class, 'accounts_receivable_index'])->name('module-operation.accounts_receivable_index');
 
+    Route::get('/cierre-del-dia', [ClosuresController::class, 'cierreDelDia'])->name('cierre.del.dia');
+    Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
+    Route::get('/cierre/por/rango', [ClosuresController::class, 'cierrePorRango'])->name('cierre.por.rango');
+Route::get('/pagos/por/rango', [ClosuresController::class, 'pagosPorRango'])->name('pagos.por.rango');
 
-Route::get('/cierre-del-dia', [ClosuresController::class, 'cierreDelDia'])->name('cierre.del.dia');
-Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
-Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');
 
-
+    Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');
 
     // Route::get('services', [ServiceController::class, 'index'])->name('services.index');
     // Route::get('services/create', [ServiceController::class, 'create'])->name('services.create');
@@ -56,5 +64,5 @@ Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'cons
 
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

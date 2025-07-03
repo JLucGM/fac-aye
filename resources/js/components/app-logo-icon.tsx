@@ -6,6 +6,6 @@ export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
             const logoUrl = typeof logo === 'string' ? logo : '/path/to/default-logo.png'; // URL de un logo por defecto
 
     return (
-        <img src={logoUrl} alt="Logo" className="h-20 w-auto" />
+        <img src={logoUrl} alt="FisioArebolledo" className="h-20 w-auto" />
     );
 }
