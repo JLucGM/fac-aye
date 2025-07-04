@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Consultation;
+use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
@@ -31,8 +32,9 @@ class ModuleOperationController extends Controller
         $users = User::all();
         $services = Service::all();
         $paymentMethods = PaymentMethod::where('active', 1)->get();
+        $doctors = Doctor::all();
 
-        return Inertia::render('ModuleOperation/FirstVisit', compact('users', 'services', 'paymentMethods'));
+        return Inertia::render('ModuleOperation/FirstVisit', compact('users', 'services', 'paymentMethods', 'doctors'));
     }
 
     public function first_visit_store(Request $request)
@@ -54,6 +56,7 @@ class ModuleOperationController extends Controller
             'payment_status' => 'required|string',
             'amount' => 'required|numeric',
             'address' => 'nullable|string|max:255',
+            'doctor_id' => 'nullable|integer|exists:doctors,id', // Asegúrate de que el doctor sea opcional
         ]);
 
         // Crear o encontrar el paciente
@@ -66,6 +69,7 @@ class ModuleOperationController extends Controller
                 'phone' => $validatedData['phone'],
                 'birthdate' => $validatedData['birthdate'],
                 'address' => $validatedData['address'] ?? null,
+                'doctor_id' => $validatedData['doctor_id'] ?? null, // Asocia el doctor si se proporciona
             ]
         );
 

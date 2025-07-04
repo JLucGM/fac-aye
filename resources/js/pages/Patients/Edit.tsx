@@ -1,5 +1,5 @@
 import { ContentLayout } from '@/layouts/content-layout';
-import { Patient, type BreadcrumbItem } from '@/types';
+import { Doctor, Patient, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PatientsForm from './PatientsForm';
@@ -20,7 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Edit({ patient }: { patient: Patient }) {
+export default function Edit({ patient, doctors }: { patient: Patient, doctors: Doctor[] }) {
     // console.log("Edit patient page loaded with patient data:", patient);
     const { data, setData, errors, put, recentlySuccessful } = useForm({
         name: patient.name,
@@ -30,6 +30,7 @@ export default function Edit({ patient }: { patient: Patient }) {
         birthdate: patient.birthdate ? patient.birthdate.split('T')[0] : '', // Extract only the date part
         identification: patient.identification,
         address: patient.address ?? '', // Fix: Provide an empty string if address is undefined
+        doctor_id: patient.doctor_id ?? null, // Uncomment if you want to include doctor_id
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,6 +62,7 @@ export default function Edit({ patient }: { patient: Patient }) {
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <PatientsForm
                     data={data}
+                    doctors={doctors} // Pass the fetched doctors array
                     setData={setData}
                     errors={errors}
                 />

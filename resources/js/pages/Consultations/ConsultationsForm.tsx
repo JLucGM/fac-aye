@@ -20,7 +20,7 @@ type ConsultationsFormProps = {
         status?: string;
         scheduled_at?: string;
         notes?: string;
-        // payment_status?: string;
+        payment_status?: string;
         consultation_type?: string;
         amount?: string;
     };
@@ -41,11 +41,12 @@ export default function ConsultationsForm({ data, patients = [], users, services
         { value: 'completado', label: 'Completado' },
         { value: 'cancelado', label: 'Cancelado' },
     ];
-    // const paymentStatusOptions = [
-    //     { value: 'pendiente', label: 'Pendiente' },
-    //     { value: 'pagado', label: 'Pagado' },
-    //     { value: 'reembolsado', label: 'Reembolsado' },
-    // ];
+
+    const paymentStatusOptions = [
+        { value: 'pendiente', label: 'Pendiente' },
+        // { value: 'pagado', label: 'Pagado' },
+        { value: 'reembolsado', label: 'Reembolsado' },
+    ];
 
     const consultationTypeOptions = [
         { value: 'domiciliaria', label: 'Domiciliaria' },
@@ -132,7 +133,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <InputError message={errors.status} />
             </div>
 
-            {/* <div>
+            <div>
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
@@ -144,7 +145,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     className="rounded-md"
                 />
                 <InputError message={errors.payment_status} />
-            </div> */}
+            </div>
 
             <div>
                 <Label htmlFor="scheduled_at" className="my-2 block font-semibold text-gray-700">Fecha programada</Label>

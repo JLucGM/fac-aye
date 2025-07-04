@@ -1,9 +1,9 @@
-import { Doctor, type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import PatientsForm from './PatientsForm';
 import Heading from '@/components/heading';
+import DoctorsForm from './DoctorsForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -11,58 +11,63 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Pacientes',
-        href: '/patients',
+        title: 'Listado de Doctores',
+        href: '/doctors',
     },
     {
-        title: 'Crear Paciente',
+        title: 'Crear Doctor',
         href: '#',
     },
 ];
 
-export default function Create({ doctors }: { doctors: Doctor[] }) {
+export default function Create() {
     const { data, setData, errors, post } = useForm({
         name: '',
         lastname: '',
         email: '',
         phone: '',
-        birthdate: '',
         identification: '',
-        address: '',
-        doctor_id: doctors.length > 0 ? doctors[0].id : null, // Default to the first doctor if available
+        specialty: '',
+
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        post(route('patients.store'), {
+        post(route('doctors.store'), {
             onSuccess: () => {
-                // Manejo de éxito
+                // console.log("Paciente creado con éxito:", data);
+                // toast("Paciente creado con éxito.");
             },
             onError: (err) => {
-                console.error("Error al crear el paciente:", err);
+                console.error("Error al crear el doctor:", err);
+                // toast("Error al crear el doctor.");
             },
         });
     };
 
     return (
+        // <AppLayout breadcrumbs={breadcrumbs}>
+
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Crear Paciente" />
+            <Head title="Crear Doctor" />
             <Heading
-                title="Crear Paciente"
-                description="Aquí puedes crear un nuevo paciente."
+                title="Crear Doctor"
+                description="Aquí puedes crear un nuevo doctor."
             />
             <form className="flex flex-col gap-4" onSubmit={submit}>
-                <PatientsForm
+                <DoctorsForm
                     data={data}
                     setData={setData}
                     errors={errors}
-                    doctors={doctors} // Pasar la lista de doctores
                 />
 
-                <Button variant={"default"}>
-                    Crear Paciente
+                <Button
+                    variant={"default"}
+                >
+                    Crear Doctor
                 </Button>
             </form>
         </ContentLayout>
+        // </AppLayout>
     );
 }

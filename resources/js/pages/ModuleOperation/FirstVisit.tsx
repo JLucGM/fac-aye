@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, PaymentMethod, Service, User, type BreadcrumbItem } from '@/types';
+import { Consultation, Doctor, PaymentMethod, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import PatientsForm from '../Patients/PatientsForm';
 import ConsultationsForm from '../Consultations/ConsultationsForm';
@@ -18,10 +18,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({ users, services }: {
+export default function Index({ users, services, doctors }: {
     users: User[],
     services: Service[],
-    // paymentMethods: PaymentMethod[],
+    doctors: Doctor[],
 }) {
 
     const { data, setData, errors, post } = useForm({
@@ -33,6 +33,7 @@ export default function Index({ users, services }: {
         birthdate: '',
         identification: '',
         address: '', // Asegúrate de que este campo esté incluido si es necesario
+        doctor_id: doctors.length > 0 ? doctors[0].id : null, // Default to the first doctor if available
         
         // datos de la asistencia
         user_id: users[0].id,
@@ -80,6 +81,7 @@ export default function Index({ users, services }: {
                         <h1 className='text-xl col-span-full'>Información del Paciente</h1>
                         <PatientsForm
                             data={data}
+                            doctors={doctors}
                             setData={setData}
                             errors={errors}
                         />

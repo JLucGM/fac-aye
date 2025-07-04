@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\Doctor;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use Illuminate\Routing\Controller;
@@ -31,7 +32,8 @@ class PatientController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Patients/Create');
+        $doctors = Doctor::all();
+        return Inertia::render('Patients/Create', compact('doctors'));
     }
 
     /**
@@ -49,7 +51,7 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        $patient->load('consultations','consultations.services','consultations.payment');
+        $patient->load('consultations','consultations.services','consultations.payment', 'doctor');
 
         return Inertia::render('Patients/Show', compact('patient'));
     }
@@ -59,7 +61,8 @@ class PatientController extends Controller
      */
     public function edit(Patient $patient)
     {
-        return Inertia::render('Patients/Edit', compact('patient'));
+        $doctors = Doctor::all();
+        return Inertia::render('Patients/Edit', compact('patient', 'doctors'));
     }
 
     /**

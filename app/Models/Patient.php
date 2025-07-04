@@ -21,6 +21,7 @@ class Patient extends Model
         'identification',
         'phone',
         'birthdate',
+        'doctor_id',
     ];
     protected $casts = [
         'birthdate' => 'date',
@@ -41,6 +42,11 @@ class Patient extends Model
     public function consultations()
     {
         return $this->hasMany(Consultation::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
     }
     // public function payments()
     // {

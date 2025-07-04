@@ -14,7 +14,11 @@ import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Password settings',
+        title: 'Inicio',
+        href: '/dashboard',
+    },
+    {
+        title: 'Configuración de contraseña',
         href: '/settings/password',
     },
 ];

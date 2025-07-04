@@ -61,9 +61,22 @@ export interface Patient {
     birthdate?: string; // ISO date string or null
     created_at: string;
     updated_at: string;
+    doctor_id?: number | null; // FK to Doctor, can be null if not associated
     // Relationships
     consultations?: Consultation[]; // A Patient can have many Consultations
     payments?: Payment[]; // A Patient can have many Payments (based on Patient model's hasMany)
+    doctor?: Doctor; // A Patient can belong to one Doctor (based on Patient model's belongsTo)
+}
+
+export interface Doctor{
+    id: number;
+    name: string;
+    lastname: string;
+    slug: string;
+    email: string;
+    phone?: string;
+    identification?: string;
+    specialty?: string;
 }
 
 export interface Service {
@@ -198,9 +211,22 @@ export interface CreatePatientFormData {
     birthdate: string;
     identification: string;
     address: string;
+    // doctor_id: string;
 
     [key: string]: any; // Allows for dynamic access if setData uses string keys
 }
+
+export interface CreateDoctorFormData {
+    name: string;
+    lastname: string;
+    email: string;
+    phone?: string;
+    identification?: string;
+    specialty?: string; // Assuming this is a string, adjust if it's an object or array
+    
+    [key: string]: any; // Allows for dynamic access if setData uses string keys
+}
+
 
 export interface CreatePaymentFormData {
     patient_id: number | null;

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ClosuresController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\ModuleAdministrativeController;
 use App\Http\Controllers\ModuleAssistanceController;
 use App\Http\Controllers\ModuleoperationController;
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'services' => ServiceController::class,
         'roles' => RoleController::class,
         'user' => UserController::class,
+        'doctors' => DoctorController::class,
     ]);
 
     Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');

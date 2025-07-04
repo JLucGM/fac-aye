@@ -10,6 +10,10 @@ import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Inicio',
+        href: '/dashboard',
+    },
+    {
         title: 'Configuración de apariencia',
         href: '/settings/appearance',
     },

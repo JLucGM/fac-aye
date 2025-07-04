@@ -1,11 +1,10 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreatePatientFormData, Doctor } from "@/types";
-import Select from 'react-select'
+import { CreateDoctorFormData, CreatePatientFormData } from "@/types";
 
-type ServicesFormProps = {
-    data: CreatePatientFormData;
+type DoctorsFormProps = {
+    data: CreateDoctorFormData;
     setData: (key: string, value: any) => void;
     errors: {
         name?: string;
@@ -15,18 +14,11 @@ type ServicesFormProps = {
         birthdate?: string;
         identification?: string; // Optional field for identification errors
         address?: string; // Optional field for address errors
-        doctor_id?: string; // Optional field for doctor selection errors
+        specialty?: string; // Optional field for specialty errors
     };
-      doctors: Doctor[];
 };
 
-export default function PatientsForm({ data, setData, errors, doctors }: ServicesFormProps) {
-
-    const doctorOptions = doctors.map(doctor => ({
-        value: doctor.id,
-        label: `${doctor.name} ${doctor.lastname}` // Asegúrate de que estos campos existan en tu objeto Doctor
-    }));
-
+export default function DoctorsForm({ data, setData, errors }: DoctorsFormProps) {
     return (
         <>
             <div>
@@ -93,47 +85,17 @@ export default function PatientsForm({ data, setData, errors, doctors }: Service
                 />
                 <InputError message={errors.phone} className="mt-2" />
             </div>
-
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="address">Dirección</Label>
+                <Label className="my-2 block font-semibold text-gray-700" htmlFor="specialty">Especialidad</Label>
                 <Input
-                    id="address"
+                    id="specialty"
                     type="text"
-                    name="address"
-                    value={data.address}
+                    name="specialty"
+                    value={data.specialty}
                     className="mt-1 block w-full"
-                    onChange={(e) => setData('address', e.target.value)}
+                    onChange={(e) => setData('specialty', e.target.value)}
                 />
-                <InputError message={errors.address} className="mt-2" />
-            </div>
-
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="birthdate">Fecha de nacimiento</Label>
-                <Input
-                    id="birthdate"
-                    type="date"
-                    name="birthdate"
-                    value={data.birthdate}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData('birthdate', e.target.value)}
-                />
-                <InputError message={errors.birthdate} className="mt-2" />
-            </div>
-
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="doctor_id">Medico tratante</Label>
-                <Select
-                    id="doctor_id"
-                    options={doctorOptions}
-                    value={doctorOptions.find(option => option.value === data.doctor_id) || null}
-                    onChange={(selectedOption) =>
-                        setData('doctor_id', selectedOption ? selectedOption.value : null)
-                    }
-                    isSearchable
-                    placeholder="Selecciona un doctor..."
-                    className="rounded-md"
-                />
-                <InputError message={errors.doctor_id} className="mt-2" />
+                <InputError message={errors.specialty} className="mt-2" />
             </div>
 
         </>
