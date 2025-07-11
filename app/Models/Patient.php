@@ -48,6 +48,12 @@ class Patient extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
+
+     public function subscriptions()
+    {
+        return $this->hasMany(PatientSubscription::class);
+    }
+    
     // public function payments()
     // {
     //     return $this->hasMany(Payment::class);

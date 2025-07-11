@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Doctor;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class DoctorController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.doctor.index')->only('index');
+        $this->middleware('can:admin.doctor.create')->only('create', 'store');
+        $this->middleware('can:admin.doctor.edit')->only('edit', 'update');
+        $this->middleware('can:admin.doctor.delete')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */

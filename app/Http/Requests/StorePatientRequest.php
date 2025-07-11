@@ -30,6 +30,8 @@ class StorePatientRequest extends FormRequest
             'identification' => 'required|string|max:255|unique:patients,identification',
             'address' => 'nullable|string|max:255',
             'doctor_id' => 'nullable|exists:doctors,id',
+                    'subscription_id' => 'nullable|exists:subscriptions,id'
+
         ];
     }
 
@@ -63,6 +65,8 @@ class StorePatientRequest extends FormRequest
             'address.max' => 'La dirección no puede exceder los 255 caracteres.',
 
             'doctor_id.exists' => 'El doctor seleccionado no existe.',
+
+            'subscription_id.exists' => 'La suscripción seleccionada no existe.',
         ];
     }
 }

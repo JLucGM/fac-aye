@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Service;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,8 +34,9 @@ class ModuleOperationController extends Controller
         $services = Service::all();
         $paymentMethods = PaymentMethod::where('active', 1)->get();
         $doctors = Doctor::all();
+        $subscriptions = Subscription::all();
 
-        return Inertia::render('ModuleOperation/FirstVisit', compact('users', 'services', 'paymentMethods', 'doctors'));
+        return Inertia::render('ModuleOperation/FirstVisit', compact('users', 'services', 'paymentMethods', 'doctors', 'subscriptions'));
     }
 
     public function first_visit_store(Request $request)
@@ -57,6 +59,7 @@ class ModuleOperationController extends Controller
             'amount' => 'required|numeric',
             'address' => 'nullable|string|max:255',
             'doctor_id' => 'nullable|integer|exists:doctors,id', // Asegúrate de que el doctor sea opcional
+            'subscription_id' => 'nullable|integer|exists:subscriptions,id', // Validar la suscripción si se proporciona
         ]);
 
         // Crear o encontrar el paciente
@@ -73,6 +76,45 @@ class ModuleOperationController extends Controller
             ]
         );
 
+        // Inicializar patient_subscription_id
+        $patientSubscriptionId = null;
+
+        // Si viene subscription_id, manejamos la suscripción
+        if ($request->filled('subscription_id')) {
+            $subscription = Subscription::findOrFail($request->subscription_id);
+
+            // Buscar si ya tiene una suscripción ACTIVA del mismo tipo
+            $activeSubscription = $patient->subscriptions()
+                ->where('subscription_id', $subscription->id)
+                ->where('status', 'active')
+                ->first();
+
+            if ($activeSubscription) {
+                // Si existe: consumir 1 consulta
+                $activeSubscription->update([
+                    'consultations_used' => $activeSubscription->consultations_used + 1,
+                    'consultations_remaining' => $activeSubscription->consultations_remaining - 1,
+                    'status' => ($activeSubscription->consultations_remaining - 1) > 0 ? 'active' : 'inactive'
+                ]);
+
+                // Asignar el ID de la suscripción activa a la consulta
+                $patientSubscriptionId = $activeSubscription->id;
+            } else {
+                // Si no existe: crear nueva suscripción consumiendo 1 consulta
+                $newSubscription = $patient->subscriptions()->create([
+                    'subscription_id' => $subscription->id,
+                    'start_date' => now(),
+                    'end_date' => $this->calculateEndDate($subscription->type),
+                    'consultations_used' => 1, // Consume 1 consulta inmediatamente
+                    'consultations_remaining' => $subscription->consultations_allowed - 1, // Total permitido menos 1
+                    'status' => ($subscription->consultations_allowed - 1) > 0 ? 'active' : 'inactive'
+                ]);
+
+                // Asignar el ID de la nueva suscripción a la consulta
+                $patientSubscriptionId = $newSubscription->id;
+            }
+        }
+
         // Crear la consulta
         $consultation = Consultation::create([
             'user_id' => $validatedData['user_id'],
@@ -83,6 +125,7 @@ class ModuleOperationController extends Controller
             'notes' => $validatedData['notes'],
             'payment_status' => $validatedData['payment_status'],
             'amount' => $validatedData['amount'],
+            'patient_subscription_id' => $patientSubscriptionId, // Asigna el ID de la suscripción
         ]);
 
         // Asociar los servicios seleccionados
@@ -93,31 +136,10 @@ class ModuleOperationController extends Controller
             $consultation->services()->attach($request->service_id);
         }
 
-        // Crear el pago sin el campo consultation_id
-        // $payment = Payment::create([
-        //     'payment_method_id' => $validatedData['payment_method_id'],
-        //     'amount' => $validatedData['amount'],
-        //     'status' => $validatedData['payment_status'],
-        //     'reference' => $validatedData['reference'],
-        //     // 'paid_at' => $validatedData['paid_at'],
-        //     // No se incluye consultation_id
-        // ]);
-
-        // $payment->consultations()->attach($consultation->id);
-
-        // $payment->consultations()->sync($consultation->id);
-
-        //     // Actualizar el estado de las consultas
-        //     foreach ($request->consultation_ids as $consultationId) {
-        //         $consultation = Consultation::find($consultationId);
-        //         if ($consultation) {
-        //             $consultation->update(['payment_status' => 'paid']);
-        //         }
-        //     }
-
         // Redirigir o renderizar la vista después de crear los registros
         return redirect()->route('consultations.edit', $consultation->id);
     }
+
 
     public function profile_patient_index()
     {
@@ -126,7 +148,14 @@ class ModuleOperationController extends Controller
         return Inertia::render('ModuleOperation/ProfilePatient', compact('patients'));
     }
 
-    
-
-
+    // Método auxiliar para calcular la fecha de fin
+    protected function calculateEndDate(string $subscriptionType): \DateTime
+    {
+        return match ($subscriptionType) {
+            'semanal' => now()->addWeek(),
+            'mensual' => now()->addMonth(),
+            'anual' => now()->addYear(),
+            default => now()->addMonth(), // Valor por defecto
+        };
+    }
 }

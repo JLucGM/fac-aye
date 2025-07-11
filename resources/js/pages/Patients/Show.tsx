@@ -1,7 +1,7 @@
 import { DataTable } from '@/components/data-table';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import {ContentLayout} from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
@@ -15,6 +15,7 @@ import {
     CollapsibleTrigger,
     CollapsibleContent,
 } from "@/components/ui/collapsible"; // Asegúrate de importar los componentes de colapso
+import { subscriptionColumns } from './subscriptionColumns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -47,22 +48,35 @@ const calculateAge = (birthdate: string | undefined): number | string => {
 
 const calculateTotalDebt = (consultations: Consultation[]): number => {
     return consultations
-        .filter(consultation => consultation.payment_status === 'pending')
+        .filter(consultation => consultation.payment_status === 'pendiente')
         .reduce((total, consultation) => total + (typeof consultation.amount === 'string' ? parseFloat(consultation.amount) : consultation.amount), 0);
 };
 
-export default function Show({ patient }: { patient: Patient }) {
+export default function Show({ patient, subscriptions }: { patient: Patient, subscriptions: any[] }) {
     const [paymentStatus, setPaymentStatus] = useState<string>('all');
     const [consultationType, setConsultationType] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
     const [isFiltersOpen, setIsFiltersOpen] = useState(false); // Estado para controlar el colapso
+    const [filterBySubscription, setFilterBySubscription] = useState<boolean>(false); // Nuevo estado para filtrar por suscripción
 
     const consultations = patient.consultations || [];
+
+    // Determinar si hay una suscripción activa
+    const activeSubscription = subscriptions.find(subscription =>
+        subscription.status === 'active' &&
+        new Date(subscription.start_date) <= new Date() &&
+        new Date(subscription.end_date) >= new Date()
+    );
 
     const filteredConsultations = consultations.filter(consultation => {
         const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
         const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
+
+        let subscriptionMatch = true;
+        if (filterBySubscription) {
+            subscriptionMatch = consultation.patient_subscription_id !== null; // Filtrar solo consultas con suscripción
+        }
 
         let dateMatch = true;
         if (startDate || endDate) {
@@ -78,154 +92,182 @@ export default function Show({ patient }: { patient: Patient }) {
             }
         }
 
-        return paymentMatch && typeMatch && dateMatch;
+        return paymentMatch && typeMatch && subscriptionMatch && dateMatch;
     });
 
     const totalConsultations = filteredConsultations.length;
-    const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'paid').length;
-    const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pending').length;
-
+    const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pagado').length;
+    const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pendiente').length;
+    console.log(filteredConsultations)
     return (
-        // <AppLayout breadcrumbs={breadcrumbs}>
-
-            <ContentLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Ver Paciente" />
-                <Heading
-                    title={`${patient.name} ${patient.lastname}`}
-                    description="Detalles del paciente"
+            <Heading
+                title={`${patient.name} ${patient.lastname}`}
+                description="Detalles del paciente"
+            >
+                <Button asChild>
+                    <Link className="btn btn-primary" href={route('patients.edit', [patient])}>
+                        <PenBox />
+                        Actualizar paciente
+                    </Link>
+                </Button>
+            </Heading>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mt-4">
+                    <h2 className="text-xl font-bold">Información del Paciente</h2>
+                    <p>Nombre: {patient.name} {patient.lastname}</p>
+                    <p>Email: {patient.email}</p>
+                    <p>Identificación: {patient.identification}</p>
+                    <p>Teléfono: {patient.phone}</p>
+                    <p>Fecha de Nacimiento: {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-ES') : 'Fecha no disponible'}</p>
+                    <p>Edad: {calculateAge(patient.birthdate)}</p>
+                    <p>Dirección: {patient.address || 'No disponible'}</p>
+                </div>
+
+                <div className="flex flex-col">
+                    <h2 className="text-xl font-bold">Información general de asistencia</h2>
+                    <p>Total de Asistencias: {totalConsultations}</p>
+                    <p>Asistencias Pagadas: {paidConsultations}</p>
+                    <p>Asistencias Pendientes: {pendingConsultations}</p>
+                    <p>Total de Deuda: ${calculateTotalDebt(consultations).toFixed(2)}</p>
+                </div>
+
+                <div className="mt-4">
+                    <h2 className="text-xl font-bold">Información del suscripción</h2>
+                                        <p>Suscripción Activa: {activeSubscription ? 'Sí' : 'No'}</p>
+                    {activeSubscription && (
+                        <>
+                            <p>Inicio del periodo: {new Date(activeSubscription.start_date).toLocaleDateString('es-ES')}</p>
+                            <p>Final del periodo: {new Date(activeSubscription.end_date).toLocaleDateString('es-ES')}</p>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-4 space-y-4">
+                <h2 className="text-xl font-bold">Filtros de Consultas</h2>
+
+                <Collapsible
+                    open={isFiltersOpen}
+                    onOpenChange={setIsFiltersOpen}
+                    className="w-full space-y-2"
                 >
-                    <Button asChild>
-                        <Link className="btn btn-primary" href={route('patients.edit', [patient])}>
-                            <PenBox />
-                            Actualizar paciente
-                        </Link>
-                    </Button>
-                </Heading>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="mt-4">
-                        <h2>Información del Paciente</h2>
-                        <p><strong>Nombre:</strong> {patient.name} {patient.lastname}</p>
-                        <p><strong>Email:</strong> {patient.email}</p>
-                        <p><strong>Identificación:</strong> {patient.identification}</p>
-                        <p><strong>Teléfono:</strong> {patient.phone}</p>
-                        <p><strong>Fecha de Nacimiento:</strong> {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-ES') : 'Fecha no disponible'}</p>
-                        <p><strong>Edad:</strong> {calculateAge(patient.birthdate)}</p>
-                        <p><strong>Dirección:</strong> {patient.address || 'No disponible'}</p>
+                    <div className="flex items-center justify-between space-x-4 px-4 bg-gray-100 p-3 rounded-md">
+                        <h4 className="text-sm font-semibold">
+                            Filtros de Consulta
+                        </h4>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                                {isFiltersOpen ? (
+                                    <>
+                                        Ocultar filtros
+                                        <ChevronsUp className="h-4 w-4 mr-2" />
+                                    </>
+                                ) : (
+                                    <>
+                                        Mostrar filtros
+                                        <ChevronsDown className="h-4 w-4 mr-2" />
+                                    </>
+                                )}
+                            </Button>
+                        </CollapsibleTrigger>
                     </div>
 
-                    <div className="flex flex-col">
-                        <p><strong>Total de Consultas:</strong> {totalConsultations}</p>
-                        <p><strong>Consultas Pagadas:</strong> {paidConsultations}</p>
-                        <p><strong>Consultas Pendientes:</strong> {pendingConsultations}</p>
-                        <p><strong>Total de Deuda:</strong> ${calculateTotalDebt(consultations).toFixed(2)}</p>
-                    </div>
-                </div>
-
-                <div className="mt-4 space-y-4">
-                    <h2 className="text-xl font-bold">Filtros de Consultas</h2>
-
-                    <Collapsible
-                        open={isFiltersOpen}
-                        onOpenChange={setIsFiltersOpen}
-                        className="w-full space-y-2"
-                    >
-                        <div className="flex items-center justify-between space-x-4 px-4 bg-gray-100 p-3 rounded-md">
-                            <h4 className="text-sm font-semibold">
-                                Filtros de Consulta
-                            </h4>
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                    {isFiltersOpen ? (
-                                        <>
-                                            Ocultar filtros
-                                            <ChevronsUp className="h-4 w-4 mr-2" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            Mostrar filtros
-                                            <ChevronsDown className="h-4 w-4 mr-2" />
-                                        </>
-                                    )}
-                                </Button>
-                            </CollapsibleTrigger>
-                        </div>
-
-                        <CollapsibleContent>
-                            <div className="flex flex-wrap gap-4 items-center">
-                                <div className="flex items-center space-x-2">
-                                    <Label htmlFor="paymentStatus" className="whitespace-nowrap">Estado de pago:</Label>
-                                    <select
-                                        id="paymentStatus"
-                                        value={paymentStatus}
-                                        onChange={(e) => setPaymentStatus(e.target.value)}
-                                        className="border rounded p-2"
-                                    >
-                                        <option value="all">Todos</option>
-                                        <option value="paid">Pagadas</option>
-                                        <option value="pending">Pendientes</option>
-                                    </select>
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                    <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de consulta:</Label>
-                                    <select
-                                        id="consultationType"
-                                        value={consultationType}
-                                        onChange={(e) => setConsultationType(e.target.value)}
-                                        className="border rounded p-2"
-                                    >
-                                        <option value="all">Todos</option>
-                                        <option value="domiciliary">Domicilio</option>
-                                        <option value="office">Oficina</option>
-                                    </select>
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                    <Label htmlFor="startDate">Desde:</Label>
-                                    <Input
-                                        id="startDate"
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                    <Label htmlFor="endDate">Hasta:</Label>
-                                    <Input
-                                        id="endDate"
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        min={startDate}
-                                    />
-                                </div>
-
-                                <Button
-                                    onClick={() => {
-                                        setPaymentStatus('all');
-                                        setConsultationType('all');
-                                        setStartDate('');
-                                        setEndDate('');
-                                    }}
-                                    variant={'outline'}
+                    <CollapsibleContent>
+                        <div className="flex flex-wrap gap-4 items-center">
+                            <div className="flex items-center space-x-2">
+                                <Label htmlFor="paymentStatus" className="whitespace-nowrap">Estado de pago:</Label>
+                                <select
+                                    id="paymentStatus"
+                                    value={paymentStatus}
+                                    onChange={(e) => setPaymentStatus(e.target.value)}
+                                    className="border rounded p-2"
                                 >
-                                    Limpiar filtros
-                                </Button>
+                                    <option value="all">Todos</option>
+                                    <option value="pagado">Pagadas</option>
+                                    <option value="pendiente">Pendientes</option>
+                                </select>
                             </div>
-                        </CollapsibleContent>
-                    </Collapsible>
 
-                    <div className="mt-4">
-                        <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
-                        <DataTable
-                            columns={consultationColumns}
-                            data={filteredConsultations}
-                        />
-                    </div>
+                            <div className="flex items-center space-x-2">
+                                <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de consulta:</Label>
+                                <select
+                                    id="consultationType"
+                                    value={consultationType}
+                                    onChange={(e) => setConsultationType(e.target.value)}
+                                    className="border rounded p-2"
+                                >
+                                    <option value="all">Todos</option>
+                                    <option value="domiciliaria">Domiciliaria</option>
+                                    <option value="consultorio">Consultorio</option>
+                                </select>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Label htmlFor="filterBySubscription" className="whitespace-nowrap">Filtrar por Suscripción:</Label>
+                                <input
+                                    type="checkbox"
+                                    id="filterBySubscription"
+                                    checked={filterBySubscription}
+                                    onChange={(e) => setFilterBySubscription(e.target.checked)}
+                                />
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Label htmlFor="startDate">Desde:</Label>
+                                <Input
+                                    id="startDate"
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Label htmlFor="endDate">Hasta:</Label>
+                                <Input
+                                    id="endDate"
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    min={startDate}
+                                />
+                            </div>
+
+                            <Button
+                                onClick={() => {
+                                    setPaymentStatus('all');
+                                    setConsultationType('all');
+                                    setStartDate('');
+                                    setEndDate('');
+                                    setFilterBySubscription(false); // Limpiar el filtro de suscripción
+                                }}
+                                variant={'outline'}
+                            >
+                                Limpiar filtros
+                            </Button>
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
+
+                <div className="mt-4">
+                    <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
+                    <DataTable
+                        columns={consultationColumns}
+                        data={filteredConsultations}
+                    />
                 </div>
-            </ContentLayout>
-        // </AppLayout>
+            </div>
+
+            <div className="mt-4">
+                <h2 className="text-xl font-bold mb-2">Suscripciones</h2>
+                <DataTable
+                    columns={subscriptionColumns}
+                    data={subscriptions}
+                />
+            </div>
+        </ContentLayout>
     );
 }

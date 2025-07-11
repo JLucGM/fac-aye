@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('notes')->nullable(); // Notas adicionales sobre la consulta
             $table->string('payment_status')->default('pendiente'); // pendiente, paid, refunded
             $table->foreignId('patient_id')->constrained()->onDelete('cascade'); // ID del paciente
+            $table->foreignId('patient_subscription_id')->nullable()->constrained('patient_subscriptions')->onDelete('set null');
             $table->timestamps();
         });
     }

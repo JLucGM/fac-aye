@@ -1,4 +1,4 @@
-import { Doctor, type BreadcrumbItem } from '@/types';
+import { Doctor, Subscription, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
@@ -20,7 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Create({ doctors }: { doctors: Doctor[] }) {
+export default function Create({ doctors, subscriptions }: { doctors: Doctor[], subscriptions: Subscription[] }) {
     const { data, setData, errors, post } = useForm({
         name: '',
         lastname: '',
@@ -29,11 +29,13 @@ export default function Create({ doctors }: { doctors: Doctor[] }) {
         birthdate: '',
         identification: '',
         address: '',
-        doctor_id: doctors.length > 0 ? doctors[0].id : null, // Default to the first doctor if available
+        doctor_id: doctors.length > 0 ? doctors[0].id : null,
+        subscription_id: '', // Inicializa el campo de suscripción
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log(data); // Para depuración, puedes ver los datos que se envían
         post(route('patients.store'), {
             onSuccess: () => {
                 // Manejo de éxito
@@ -56,7 +58,8 @@ export default function Create({ doctors }: { doctors: Doctor[] }) {
                     data={data}
                     setData={setData}
                     errors={errors}
-                    doctors={doctors} // Pasar la lista de doctores
+                    doctors={doctors}
+                    subscriptions={subscriptions} // Pasar la lista de suscripciones
                 />
 
                 <Button variant={"default"}>

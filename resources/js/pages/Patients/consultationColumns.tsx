@@ -45,6 +45,16 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     header: "Monto",
   },
   {
+    id: "subscriptionInfo",
+    header: "Suscripción",
+    cell: ({ row }) => {
+      const subscription = row.original.subscription; // Accede a la suscripción
+      return subscription 
+        ? `${subscription.id}`
+        : 'Sin suscripción';
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       return (

@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, Doctor, PaymentMethod, Service, User, type BreadcrumbItem } from '@/types';
+import { Consultation, Doctor, PaymentMethod, Service, Subscription, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import PatientsForm from '../Patients/PatientsForm';
 import ConsultationsForm from '../Consultations/ConsultationsForm';
@@ -18,11 +18,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({ users, services, doctors }: {
+export default function Index({ users, services, doctors, subscriptions }: {
     users: User[],
     services: Service[],
     doctors: Doctor[],
+    subscriptions: Subscription[],
 }) {
+
+    console.log(subscriptions)
 
     const { data, setData, errors, post } = useForm({
         // datos del paciente
@@ -34,19 +37,24 @@ export default function Index({ users, services, doctors }: {
         identification: '',
         address: '', // Asegúrate de que este campo esté incluido si es necesario
         doctor_id: doctors.length > 0 ? doctors[0].id : null, // Default to the first doctor if available
-        
+
         // datos de la asistencia
         user_id: users[0].id,
         service_id: [],
-        status: 'programado' as 'programado' | 'confirmado' | 'completado' | 'cancelado' | '', // Asegúrate de que este valor sea uno de los permitidos
+        status: 'programado', // Asegúrate de que este valor sea uno de los permitidos
         scheduled_at: new Date().toISOString().slice(0, 19),
-        consultation_type: 'consultorio' as 'consultorio' | 'domiciliaria' | '', // Asegúrate de que este valor sea uno de los permitidos
+        consultation_type: 'consultorio', // Asegúrate de que este valor sea uno de los permitidos
         notes: '',
         payment_status: 'pendiente', // Asegúrate de que este valor sea uno de los permitidos
         amount: 0,
 
+        // datos de pago
         // payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null,
         // reference: '',
+
+        // datos de la suscripción
+        subscription_id: '', // Inicializa el campo de suscripción
+
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -81,6 +89,7 @@ export default function Index({ users, services, doctors }: {
                         <h1 className='text-xl col-span-full'>Información del Paciente</h1>
                         <PatientsForm
                             data={data}
+                            subscriptions={subscriptions}
                             doctors={doctors}
                             setData={setData}
                             errors={errors}

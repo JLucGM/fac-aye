@@ -13,6 +13,7 @@ class Consultation extends Model
     protected $fillable = [
         'user_id',
         'patient_id',
+        'patient_subscription_id',
         'status',
         'scheduled_at',
         'notes',
@@ -45,11 +46,15 @@ class Consultation extends Model
     {
         return $this->belongsToMany(Service::class, 'consultation_service');
     }
-    
+
     public function payment()
     {
         return $this->belongsToMany(Payment::class, 'consultation_payment');
     }
 
-    
+    public function subscription()
+{
+    return $this->belongsTo(PatientSubscription::class, 'patient_subscription_id');
+}
+
 };

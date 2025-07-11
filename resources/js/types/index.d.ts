@@ -62,11 +62,13 @@ export interface Patient {
     created_at: string;
     updated_at: string;
     doctor_id?: number | null; // FK to Doctor, can be null if not associated
-    // Relationships
-    consultations?: Consultation[]; // A Patient can have many Consultations
-    payments?: Payment[]; // A Patient can have many Payments (based on Patient model's hasMany)
+    // subscription_id?: number | null; // FK to Subscription, can be null if not associated
+    subscriptions?: PatientSubscription[]; // Asegúrate de que esta propiedad esté definida
     doctor?: Doctor; // A Patient can belong to one Doctor (based on Patient model's belongsTo)
+    consultations?: Consultation[]; // A Patient can have many Consultations
+    subscription?: PatientSubscription; // A Patient can have one Subscription (based on Patient model's
 }
+
 
 export interface Doctor{
     id: number;
@@ -121,16 +123,42 @@ export interface Payment {
     patient?: Patient; // A Payment belongs to one Patient (based on Payment model's belongsTo)
 }
 
+export interface Subscription {
+    id: number;
+    name: string;
+    slug: string;
+    description?: string;
+    price: number;
+    type: string;
+    consultations_allowed: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface PatientSubscription {
+    id: number;
+    patient_id: number;
+    subscription_id: number;
+    start_date: string; // ISO date string
+    end_date: string; // ISO date string
+    consultations_used: number;
+    consultations_remaining: number;
+    status: string;
+    subscription: Subscription; // Asegúrate de que esta relación esté definida
+}
+
+
 export interface Consultation {
     id: number;
     user_id: number; // FK to User (doctor/professional)
-    status: 'programado' | 'confirmado' | 'completado' | 'cancelado' | ''; // Allow empty string for form initial state
+    status: 'programado' | 'confirmado' | 'completado' | 'cancelado'; // Allow empty string for form initial state
     scheduled_at: string; // ISO date string
     consultation_type: 'domiciliaria' | 'consultorio';
     amount: number;
     notes?: string;
     payment_status: "pendiente" | 'pagado' | 'reembolsado';
     patient_id: number; // FK to Patient
+    patient_subscription_id: number; 
     created_at: string;
     updated_at: string;
     // Relationships
@@ -138,6 +166,7 @@ export interface Consultation {
     user?: User; // A Consultation belongs to one User
     services?: Service[]; // A Consultation can have many Services (many-to-many)
     payments?: Payment[]; // A Consultation can have many Payments (many-to-many)
+    subscription?: Subscription[];
 }
 
 export interface Role {
@@ -193,7 +222,7 @@ export interface CreateConsultationFormData {
     user_id: number;
     patient_id?: number;
     service_id: number[]; // Array of service IDs for the many-to-many relationship
-    status: 'programado' | 'confirmado' | 'completado' | 'cancelado' | ''; // Allow empty string for form initial state
+    status: 'programado' | 'confirmado' | 'completado' | 'cancelado'; // Allow empty string for form initial state
     scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;
@@ -270,6 +299,18 @@ export interface ServiceFormData {
     description: string; // La descripción del servicio. Aunque en el backend pueda ser opcional,
     // en el formulario lo manejamos como un string (posiblemente vacío).
     price: number; // El precio del servicio
+    [key: string]: any; // Una firma de índice que permite que la interfaz sea más flexible,
+    // útil cuando se trabaja con funciones como `setData` que pueden acceder
+    // a las propiedades mediante claves de cadena.
+}
+
+export interface SuscriptionFormData {
+    name: string; // El nombre de la suscripción
+    description: string; // La descripción de la suscripción. Aunque en el backend pueda ser opcional,
+    // en el formulario lo manejamos como un string (posiblemente vacío).
+    price: number; // El precio de la suscripción
+    type: 'semanal' | 'mensual' | 'anual'; // El tipo de suscripción
+    consultations_allowed: number; // El número de consultas permitidas
     [key: string]: any; // Una firma de índice que permite que la interfaz sea más flexible,
     // útil cuando se trabaja con funciones como `setData` que pueden acceder
     // a las propiedades mediante claves de cadena.

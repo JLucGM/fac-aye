@@ -53,6 +53,32 @@ class ConsultationController extends Controller
         $validatedData = $request->validated();
         unset($validatedData['service_id']); // Eliminar service_id del array de datos
 
+        // Buscar el paciente
+        $patient = Patient::find($validatedData['patient_id']); // Asegúrate de que el patient_id esté en los datos validados
+
+        // Buscar suscripción activa del paciente (si existe)
+        $activeSubscription = $patient->subscriptions()
+            ->where('status', 'active')
+            ->first();
+
+        // Si existe suscripción activa, actualizarla
+        if ($activeSubscription) {
+            // Incrementar consultas usadas
+            $activeSubscription->consultations_used += 1;
+            // Decrementar consultas restantes
+            $activeSubscription->consultations_remaining -= 1;
+            // Actualizar la suscripción
+            $activeSubscription->save();
+
+            // Marcar como inactiva si no quedan consultas
+            if ($activeSubscription->consultations_remaining <= 0) {
+                $activeSubscription->update(['status' => 'inactive']);
+            }
+
+            // Asignar el ID de la suscripción activa a la consulta
+            $validatedData['patient_subscription_id'] = $activeSubscription->id;
+        }
+
         // Crear la consulta
         $consultation = Consultation::create($validatedData);
 
@@ -81,6 +107,7 @@ class ConsultationController extends Controller
 
         return redirect()->route('consultations.edit', $consultation->id);
     }
+
 
     /**
      * Display the specified resource.

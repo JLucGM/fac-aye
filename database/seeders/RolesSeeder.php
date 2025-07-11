@@ -54,6 +54,16 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'admin.role.create', 'description' => 'Crear roles'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.role.edit', 'description' => 'Editar roles'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.role.delete', 'description' => 'Eliminar roles'])->syncRoles([$rolSuperAdmin]);
+        
+        Permission::create(['name' => 'admin.doctor.index', 'description' => 'Ver lista de doctors'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.doctor.create', 'description' => 'Crear doctors'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.doctor.edit', 'description' => 'Editar doctors'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.doctor.delete', 'description' => 'Eliminar doctors'])->syncRoles([$rolSuperAdmin]);
+        
+        Permission::create(['name' => 'admin.subscription.index', 'description' => 'Ver lista de subscripciones'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.subscription.create', 'description' => 'Crear subscripciones'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.subscription.edit', 'description' => 'Editar subscripciones'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.subscription.delete', 'description' => 'Eliminar subscripciones'])->syncRoles([$rolSuperAdmin]);
 
         Permission::create(['name' => 'admin.settings.index', 'description' => 'Ver lista de settings'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.settings.create', 'description' => 'Crear settings'])->syncRoles([$rolSuperAdmin]);

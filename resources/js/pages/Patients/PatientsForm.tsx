@@ -1,7 +1,7 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreatePatientFormData, Doctor } from "@/types";
+import { CreatePatientFormData, Doctor, Subscription } from "@/types";
 import Select from 'react-select'
 
 type ServicesFormProps = {
@@ -16,15 +16,25 @@ type ServicesFormProps = {
         identification?: string; // Optional field for identification errors
         address?: string; // Optional field for address errors
         doctor_id?: string; // Optional field for doctor selection errors
+        subscription_id?: string; // Optional field for subscription selection errors
+        patientSubscription?: string; // Optional field for patient subscription errors     
     };
-      doctors: Doctor[];
+    doctors: Doctor[];
+    subscriptions: Subscription[]; // Agregar las suscripciones
+    // patientSubscription?: PatientSubscription; // Suscripción actual del paciente
+
 };
 
-export default function PatientsForm({ data, setData, errors, doctors }: ServicesFormProps) {
+export default function PatientsForm({ data, setData, errors, doctors, subscriptions }: ServicesFormProps) {
 
     const doctorOptions = doctors.map(doctor => ({
         value: doctor.id,
         label: `${doctor.name} ${doctor.lastname}` // Asegúrate de que estos campos existan en tu objeto Doctor
+    }));
+
+    const subscriptionOptions = subscriptions.map(subscription => ({
+        value: subscription.id,
+        label: subscription.name // Asegúrate de que el campo 'name' exista
     }));
 
     return (
@@ -67,7 +77,7 @@ export default function PatientsForm({ data, setData, errors, doctors }: Service
                 />
                 <InputError message={errors.lastname} className="mt-2" />
             </div>
-            
+
             <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="email">Email</Label>
                 <Input
@@ -135,6 +145,29 @@ export default function PatientsForm({ data, setData, errors, doctors }: Service
                 />
                 <InputError message={errors.doctor_id} className="mt-2" />
             </div>
+
+            <div className="mt-4">
+                <Label htmlFor="subscription_id">Suscripción (Opcional)</Label>
+                <Select
+                    id="subscription_id"
+                    options={[
+                        { value: '', label: 'Sin suscripción' },  // Nueva opción explícita
+                        ...subscriptions.map(subscription => ({
+                            value: subscription.id,
+                            label: `${subscription.name} (${subscription.type})`
+                        }))
+                    ]}
+                    value={data.subscription_id
+                        ? { value: data.subscription_id, label: subscriptions.find(s => s.id === data.subscription_id)?.name || '' }
+                        : { value: '', label: 'Sin suscripción' }
+                    }
+                    onChange={(selected) => setData('subscription_id', selected?.value || null)}
+                    isClearable={false}  // Deshabilitamos clearable porque ya tenemos nuestra opción explícita
+                    className="mt-1"
+                />
+                <InputError message={errors.subscription_id} className="mt-2" />
+            </div>
+
 
         </>
     );

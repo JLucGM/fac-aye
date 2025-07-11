@@ -1,5 +1,5 @@
 import { ContentLayout } from '@/layouts/content-layout';
-import { Doctor, Patient, type BreadcrumbItem } from '@/types';
+import { Doctor, Patient, Subscription, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PatientsForm from './PatientsForm';
@@ -15,22 +15,25 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/patients',
     },
     {
-        title: 'Editar Paciente', // Updated title for clarity
+        title: 'Editar Paciente',
         href: '#',
     },
 ];
 
-export default function Edit({ patient, doctors }: { patient: Patient, doctors: Doctor[] }) {
-    // console.log("Edit patient page loaded with patient data:", patient);
-    const { data, setData, errors, put, recentlySuccessful } = useForm({
+export default function Edit({ patient, doctors, subscriptions }: { patient: Patient, doctors: Doctor[], subscriptions: Subscription[] }) {
+    // Obtener la última suscripción activa
+    const activeSubscription = patient.subscriptions.find(sub => sub.status === 'active');
+
+    const { data, setData, errors, put } = useForm({
         name: patient.name,
-        lastname: patient.lastname ?? '', // Fix: Provide an empty string if lastname is undefined
+        lastname: patient.lastname ?? '',
         email: patient.email,
-        phone: patient.phone ?? '',       // Fix: Provide an empty string if phone is undefined
-        birthdate: patient.birthdate ? patient.birthdate.split('T')[0] : '', // Extract only the date part
+        phone: patient.phone ?? '',
+        birthdate: patient.birthdate ? patient.birthdate.split('T')[0] : '',
         identification: patient.identification,
-        address: patient.address ?? '', // Fix: Provide an empty string if address is undefined
-        doctor_id: patient.doctor_id ?? null, // Uncomment if you want to include doctor_id
+        address: patient.address ?? '',
+        doctor_id: patient.doctor_id ?? null,
+        subscription_id: activeSubscription ? activeSubscription.subscription_id : null, // Obtener la última suscripción activa
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -51,20 +54,27 @@ export default function Edit({ patient, doctors }: { patient: Patient, doctors: 
     };
 
     return (
-        // <AppLayout breadcrumbs={breadcrumbs}>
-
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Editar Paciente" /> {/* Updated Head title */}
+            <Head title="Editar Paciente" />
             <Heading
-                title="Editar Paciente" // Updated heading title for clarity
-                description="Aquí puedes editar la información de un paciente existente."
+                title="Editar Paciente"
+                description="Aquí puedes editar un paciente existente."
             />
+            {errors && Object.keys(errors).length > 0 && (
+    <div className="text-red-500">
+        {Object.keys(errors).map((key) => (
+            <p key={key}>{errors[key]}</p>
+        ))}
+    </div>
+)}
+
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <PatientsForm
                     data={data}
-                    doctors={doctors} // Pass the fetched doctors array
                     setData={setData}
                     errors={errors}
+                    doctors={doctors}
+                    subscriptions={subscriptions} // Pasar la lista de suscripciones
                 />
 
                 <Button variant={"default"}>
@@ -72,6 +82,5 @@ export default function Edit({ patient, doctors }: { patient: Patient, doctors: 
                 </Button>
             </form>
         </ContentLayout>
-        // </AppLayout>
     );
 }
