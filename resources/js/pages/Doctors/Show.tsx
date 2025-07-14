@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import {ContentLayout} from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, PenBox } from 'lucide-react';
 import React, { useState } from 'react';
 import { format, parseISO } from 'date-fns';
@@ -15,6 +14,7 @@ import {
     CollapsibleTrigger,
     CollapsibleContent,
 } from "@/components/ui/collapsible"; // Asegúrate de importar los componentes de colapso
+import { consultationColumns } from '../Patients/consultationColumns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -47,7 +47,7 @@ const calculateAge = (birthdate: string | undefined): number | string => {
 
 const calculateTotalDebt = (consultations: Consultation[]): number => {
     return consultations
-        .filter(consultation => consultation.payment_status === 'pending')
+        .filter(consultation => consultation.payment_status === 'pendiente')
         .reduce((total, consultation) => total + (typeof consultation.amount === 'string' ? parseFloat(consultation.amount) : consultation.amount), 0);
 };
 
@@ -82,8 +82,8 @@ export default function Show({ patient }: { patient: Patient }) {
     });
 
     const totalConsultations = filteredConsultations.length;
-    const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'paid').length;
-    const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pending').length;
+    const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pagado').length;
+    const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pendiente').length;
 
     return (
         // <AppLayout breadcrumbs={breadcrumbs}>

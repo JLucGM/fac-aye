@@ -81,6 +81,13 @@ export default function Dashboard() {
                         Modulo administrativo
                     </Link>
 
+                    <Link
+                        className={'h-24 font-bold text-xl ' + buttonVariants({ variant: "outline" })}
+                        href={route('module-operation-system.index')}
+                    >
+                        Modulo operativo del sistema
+                    </Link>
+
                     {/* <Link
                             className={buttonVariants({ variant: "outline" })}
                             href={route('payments.index')}

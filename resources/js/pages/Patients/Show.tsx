@@ -2,7 +2,7 @@ import { DataTable } from '@/components/data-table';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Patient, type BreadcrumbItem, Consultation } from '@/types';
+import { Patient, type BreadcrumbItem, Consultation, Subscription, PatientSubscription } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, PenBox } from 'lucide-react';
@@ -52,7 +52,8 @@ const calculateTotalDebt = (consultations: Consultation[]): number => {
         .reduce((total, consultation) => total + (typeof consultation.amount === 'string' ? parseFloat(consultation.amount) : consultation.amount), 0);
 };
 
-export default function Show({ patient, subscriptions }: { patient: Patient, subscriptions: any[] }) {
+export default function Show({ patient, subscriptions }: { patient: Patient, subscriptions: PatientSubscription[] }) {
+    console.log(patient)
     const [paymentStatus, setPaymentStatus] = useState<string>('all');
     const [consultationType, setConsultationType] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>('');
@@ -98,7 +99,7 @@ export default function Show({ patient, subscriptions }: { patient: Patient, sub
     const totalConsultations = filteredConsultations.length;
     const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pagado').length;
     const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pendiente').length;
-    console.log(filteredConsultations)
+
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Ver Paciente" />

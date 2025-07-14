@@ -27,6 +27,7 @@ export default function Create({ patients, users, services }: {
     services: Service[],
     // paymentMethods: PaymentMethod[],
 }) {
+    console.log(patients)
     const { data, setData, errors, post } = useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,

@@ -24,48 +24,35 @@ class UpdateConsultationRequest extends FormRequest
         return [
             'user_id' => 'required|exists:users,id',
             'patient_id' => 'required|exists:patients,id',
-            // 'service_id' => 'required|exists:services,id',
-            'status' => 'required|in:scheduled,completed,cancelled',
+            'service_id' => 'required|array', // Asegúrate de que sea un array
+            'service_id.*' => 'exists:services,id', // Cada ID en el array debe existir en la tabla de servicios
+            'status' => 'required|in:programado,completado,cancelado',
             'scheduled_at' => 'nullable|date',
-            // 'completed_at' => 'nullable|date_format:Y-m-d H:i:s',
             'notes' => 'nullable|string|max:1000',
-            // 'payment_status' => 'required|in:pending,paid,refunded',
             'amount' => 'nullable|numeric|min:0',
-            'consultation_type' => 'required|in:domiciliary,office',
+            'consultation_type' => 'required|in:domiciliaria,consultorio',
         ];
     }
 
     public function messages(): array
-    {
-        return [
-            'user_id.required' => 'El campo tratante es obligatorio.',
-            'user_id.exists' => 'El tratante seleccionado no existe.',
+{
+    return [
+        'user_id.required' => 'El campo tratante es obligatorio.',
+        'user_id.exists' => 'El tratante seleccionado no existe.',
+        'patient_id.required' => 'El campo paciente es obligatorio.',
+        'patient_id.exists' => 'El paciente seleccionado no existe.',
+        'service_id.required' => 'El campo servicio es obligatorio.',
+        'service_id.array' => 'El campo servicio debe ser un array.',
+        'service_id.*.exists' => 'Uno o más servicios seleccionados no existen.',
+        'status.required' => 'El campo estado es obligatorio.',
+        'status.in' => 'El estado debe ser uno de los siguientes: programado, completado, cancelado.',
+        'notes.string' => 'Las notas deben ser un texto.',
+        'notes.max' => 'Las notas no pueden exceder los 1000 caracteres.',
+        'amount.numeric' => 'El monto debe ser un número.',
+        'amount.min' => 'El monto no puede ser menor que 0.',
+        'consultation_type.required' => 'El campo tipo de consulta es obligatorio.',
+        'consultation_type.in' => 'El tipo de consulta debe ser uno de los siguientes: domiciliaria, consultorio.',
+    ];
+}
 
-            'patient_id.required' => 'El campo paciente es obligatorio.',
-            'patient_id.exists' => 'El paciente seleccionado no existe.',
-
-            // 'service_id.required' => 'El campo servicio es obligatorio.',
-            // 'service_id.exists' => 'El servicio seleccionado no existe.',
-
-            'status.required' => 'El campo estado es obligatorio.',
-            'status.in' => 'El estado debe ser uno de los siguientes: programado, completado, cancelado.',
-
-            // 'scheduled_at.date' => 'La fecha programada debe ser una fecha válida.',
-
-            'notes.string' => 'Las notas deben ser un texto.',
-            'notes.max' => 'Las notas no pueden exceder los 1000 caracteres.',
-
-            'payment_status.required' => 'El campo estado de pago es obligatorio.',
-            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, pagado, reembolsado.',
-
-            'amount.numeric' => 'El monto debe ser un número.',
-            'amount.min' => 'El monto no puede ser menor que 0.',
-
-            'consultation_type.required' => 'El campo tipo de consulta es obligatorio.',
-            'consultation_type.in' => 'El tipo de consulta debe ser uno de los siguientes: domiciliaria, consultorio.',
-
-            // Si decides habilitar las siguientes reglas, puedes agregar sus mensajes aquí:
-            // 'completed_at.date_format' => 'La fecha de finalización debe tener el formato Y-m-d H:i:s.',
-        ];
-    }
 }

@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import {ContentLayout} from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { PaymentMethod, Role, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
@@ -23,28 +23,24 @@ export default function Index({ roles }: { roles: Role[] }) {
 
     // console.log('paymentMethods', paymentMethods);
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Index" />
+            <Heading
+                title="roles"
+                description="Manage your roles"
+            >
+                <Button asChild>
+                    <Link className="btn btn-primary" href={route('roles.create')}>
+                        Create roles
+                    </Link>
+                </Button>
+            </Heading>
 
-            <ContentLayout>
-                <Heading
-                    title="roles"
-                    description="Manage your roles"
-                >
-                    <Button asChild>
-                        <Link className="btn btn-primary" href={route('roles.create')}>
-                            Create roles
-                        </Link>
-                    </Button>
-                </Heading>
+            <DataTable
+                columns={columns}
+                data={roles}
+            />
 
-                <DataTable
-                    columns={columns}
-                    data={roles}
-                />
-
-            </ContentLayout>
-
-        </AppLayout>
+        </ContentLayout>
     );
 }

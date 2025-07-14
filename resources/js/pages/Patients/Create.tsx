@@ -30,12 +30,12 @@ export default function Create({ doctors, subscriptions }: { doctors: Doctor[], 
         identification: '',
         address: '',
         doctor_id: doctors.length > 0 ? doctors[0].id : null,
-        subscription_id: '', // Inicializa el campo de suscripción
+        subscription_id: '', // Inicializa el campo de Funcionales
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data); // Para depuración, puedes ver los datos que se envían
+        // console.log(data); // Para depuración, puedes ver los datos que se envían
         post(route('patients.store'), {
             onSuccess: () => {
                 // Manejo de éxito

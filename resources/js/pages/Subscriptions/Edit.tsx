@@ -11,11 +11,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Suscripciones',
+        title: 'Listado de Funcionales',
         href: '/subscriptions',
     },
     {
-        title: 'Editar Suscripción',
+        title: 'Editar Funcional',
         href: '#',
     },
 ];
@@ -40,17 +40,17 @@ export default function Edit({ subscription }: { subscription: Subscription }) {
                 // Manejo de éxito
             },
             onError: (err) => {
-                console.error("Error al actualizar la suscripción:", err);
+                console.error("Error al actualizar la Funcional:", err);
             },
         });
     };
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Editar Suscripción" />
+            <Head title="Editar Funcional" />
             <Heading
-                title="Editar Suscripción"
-                description="Aquí puedes editar una suscripción existente."
+                title="Editar Funcional"
+                description="Aquí puedes editar una Funcional existente."
             />
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <SuscriptionsForm
@@ -60,7 +60,7 @@ export default function Edit({ subscription }: { subscription: Subscription }) {
                 />
 
                 <Button variant={"default"}>
-                    Actualizar Servicio
+                    Actualizar Funcionales
                 </Button>
             </form>
         </ContentLayout>

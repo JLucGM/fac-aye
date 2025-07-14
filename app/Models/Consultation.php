@@ -16,6 +16,7 @@ class Consultation extends Model
         'patient_subscription_id',
         'status',
         'scheduled_at',
+        'services',
         'notes',
         'payment_status',
         'amount',
@@ -42,10 +43,10 @@ class Consultation extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function services()
-    {
-        return $this->belongsToMany(Service::class, 'consultation_service');
-    }
+    // public function services()
+    // {
+    //     return $this->belongsToMany(Service::class, 'consultation_service');
+    // }
 
     public function payment()
     {

@@ -1,7 +1,7 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreateConsultationFormData, Patient, Service, User } from "@/types";
+import { CreateConsultationFormData, Patient, Service, Subscription, User } from "@/types";
 import Select from 'react-select';
 import { useEffect } from 'react';
 import { DateTimePicker } from "@/components/DateTimePicker";
@@ -27,9 +27,9 @@ type ConsultationsFormProps = {
 };
 
 export default function ConsultationsForm({ data, patients = [], users, services, setData, errors }: ConsultationsFormProps) {
-    // Convert numerical IDs to strings for react-select options.
-    // This ensures consistency for react-select's internal handling of values.
-    const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname + ' ( C.I:' + user.identification + ')' }));
+    const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname }));
+    const currentPatient = data.patient || patients.find(p => p.id === data.patient_id);
+    const hasActiveSubscription = currentPatient?.subscriptions?.some((sub: Subscription) => sub.status === 'active');
     const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
         value: String(patient.id),
         label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
@@ -44,7 +44,6 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
     const paymentStatusOptions = [
         { value: 'pendiente', label: 'Pendiente' },
-        // { value: 'pagado', label: 'Pagado' },
         { value: 'reembolsado', label: 'Reembolsado' },
     ];
 
@@ -53,18 +52,24 @@ export default function ConsultationsForm({ data, patients = [], users, services
         { value: 'consultorio', label: 'Consultorio' },
     ];
 
-    // Calculate the total amount based on selected services whenever service_id or services change
     useEffect(() => {
-        const totalAmount = data.service_id.reduce((total, serviceId) => {
-            // Find the service by its ID (serviceId is a number here, consistent with data.service_id)
-            const service = services.find(s => s.id === serviceId);
-            // Add the service price to the total, ensuring price is parsed as a float
-            return total + (service ? parseFloat(String(service.price)) : 0); // Ensure service.price is treated as a string before parseFloat
-        }, 0);
-        setData('amount', totalAmount);
-    }, [data.service_id, services, setData]);
+        if (hasActiveSubscription) {
+            setData('amount', 0);
+        } else {
+            const totalAmount = data.service_id.reduce((total, serviceId) => {
+                const service = services.find(s => s.id === serviceId);
+                return total + (service ? parseFloat(String(service.price)) : 0);
+            }, 0);
+            setData('amount', totalAmount);
+        }
+    }, [data.service_id, hasActiveSubscription, services, setData]);
 
-    const selectedServices = services.filter(service => data.service_id.includes(service.id));
+    const selectedServices = services
+        .filter(service => data.service_id.includes(service.id))
+        .map(service => ({
+            ...service,
+            price: hasActiveSubscription ? 0 : service.price
+        }));
 
     return (
         <>
@@ -73,13 +78,8 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <Select
                     id="user_id"
                     options={userOptions}
-                    // Find the selected option by comparing against the string representation of data.user_id
                     value={userOptions.find(option => option.value === String(data.user_id)) || null}
-                    onChange={(selectedOption) =>
-                        // Convert the selected option's value (which is a string) back to a number.
-                        // If no option is selected (selectedOption is null), set data.user_id to null.
-                        setData('user_id', selectedOption ? Number(selectedOption.value) : null)
-                    }
+                    onChange={(selectedOption) => setData('user_id', selectedOption ? Number(selectedOption.value) : null)}
                     isSearchable
                     placeholder="Select User..."
                     className="rounded-md"
@@ -94,9 +94,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                         id="patient_id"
                         options={patientOptions}
                         value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
-                        onChange={(selectedOption) =>
-                            setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
-                        }
+                        onChange={(selectedOption) => setData('patient_id', selectedOption ? Number(selectedOption.value) : null)}
                         isSearchable
                         placeholder="Select Patient..."
                         className="rounded-md"
@@ -161,28 +159,14 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <Select
                     id="service_id"
                     options={serviceOptions}
-                    isMulti // Enable multi-selection for services
-                    // Filter selected options by converting data.service_id (array of numbers) to an array of strings for comparison
+                    isMulti
                     value={serviceOptions.filter(option => data.service_id.map(String).includes(option.value))}
-                    onChange={(selectedOptions) =>
-                        // Map the selected options' values (strings) back to numbers
-                        setData('service_id', (selectedOptions || []).map(option => Number(option.value)))
-                    }
+                    onChange={(selectedOptions) => setData('service_id', (selectedOptions || []).map(option => Number(option.value)))}
                     isSearchable
                     placeholder="Select Services..."
                     className="rounded-md"
                 />
                 <InputError message={errors.service_id} />
-            </div>
-
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700">Total Amount</Label>
-                <Input
-                    type="text"
-                    value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`}
-                    readOnly
-                    className="rounded-md bg-gray-200"
-                />
             </div>
 
             <div className="col-span-full">
@@ -198,6 +182,16 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <ServicesTable className="col-span-full" services={selectedServices} />
+
+            <div>
+                <Label className="my-2 block font-semibold text-gray-700">Total</Label>
+                <Input
+                    type="text"
+                    value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`}
+                    readOnly
+                    className="rounded-md bg-gray-200"
+                />
+            </div>
         </>
     );
 }

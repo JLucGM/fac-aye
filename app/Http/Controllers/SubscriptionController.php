@@ -21,7 +21,7 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
-        $subscriptions = Subscription::all();
+        $subscriptions = Subscription::with('patients')->get();
         return Inertia::render('Subscriptions/Index', compact('subscriptions'));
     }
     /**

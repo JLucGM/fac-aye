@@ -8,7 +8,7 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
     },
     {
         accessorKey: "subscription_id",
-        header: "ID de Suscripción",
+        header: "Suscripción",
     },
     {
         accessorKey: "start_date",

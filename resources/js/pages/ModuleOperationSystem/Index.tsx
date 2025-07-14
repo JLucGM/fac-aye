@@ -12,7 +12,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Módulo Operativo',
+        title: 'Módulo Operativo  del Sistema',
         href: '/module-operation',
     },
 ];
@@ -24,10 +24,10 @@ export default function Index({ }: {}) {
         // <AppLayout breadcrumbs={breadcrumbs}>
         
         <ContentLayout breadcrumbs={breadcrumbs}>
-                <Head title="Módulo Operativo" />
+                <Head title="Módulo Operativo del Sistema" />
                 <Heading
                     title="Módulo Operativo"
-                    description="Gestiona las operaciones del módulo."
+                    description="Gestiona las operaciones del módulo de sistema."
                 >
                     {/* <Button asChild>
                         <Link className="btn btn-primary" href={route('consultations.create')}>
@@ -40,31 +40,37 @@ export default function Index({ }: {}) {
 
                     <Link
                         className={buttonVariants({ variant: "link" })}
-                        href={route('module-operation.first_visit_index')}
+                        href={route('patients.index')}
                     >
-                        Primera visita
+                        Pacientes
+                    </Link>
+                    <Link
+                        className={buttonVariants({ variant: "link" })}
+                        href={route('payment-methods.index')}
+                    >
+                        Métodos de pago
                     </Link>
 
                     <Link
                         className={buttonVariants({ variant: "link" })}
-                        href={route('consultations.create')}
-                    >
-                        Registro de asistencia
-                    </Link>
-
-                    <Link
-                        className={buttonVariants({ variant: "link" })}
-                        href={route('module-operation.profile_patient_index')}
-                    >
-                        Consulta de paciente
-                    </Link>
-
-                    {/* <Link
-                        className={buttonVariants({ variant: "link" })}
-                        href={route('services.index')}
+                        href={route('services.create')}
                     >
                         Servicios
-                    </Link> */}
+                    </Link>
+
+                    <Link
+                        className={buttonVariants({ variant: "link" })}
+                        href={route('doctors.index')}
+                    >
+                        Médico tratantes
+                    </Link>
+
+                    <Link
+                        className={buttonVariants({ variant: "link" })}
+                        href={route('subscriptions.index')}
+                    >
+                        Funcionales
+                    </Link>
                 </div>
 
             </ContentLayout>

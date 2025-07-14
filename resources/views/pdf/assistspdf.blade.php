@@ -28,6 +28,7 @@
             border-color: white;
             /* Elimina el borde de la tabla */
         }
+
         .m-0 {
             margin: 0;
         }
@@ -101,6 +102,11 @@
             <p> <strong>Teléfono:</strong> {{ $consultation->patient->phone }}</p>
             <p> <strong>Dirección:</strong> {{ $consultation->patient->address }}</p>
             <p> <strong>Fecha de Visita:</strong> {{ $consultation->created_at }}</p>
+            @if ($consultation->patient->subscriptions->isNotEmpty())
+            <p><strong>Nro. de Suscripción:</strong> {{ $consultation->patient->subscriptions->first()->id }}</p>
+            @else
+            <p>Sin suscripción</p>
+            @endif
         </div>
 
         <!-- <h4>Información de la Consulta</h4>
@@ -126,15 +132,17 @@
         <h4>Servicios Realizados</h4>
         <table>
             <tr>
-                <!-- <th>ID</th> -->
                 <th>Nombre del Servicio</th>
                 <th>Precio</th>
             </tr>
-            @foreach ($consultation->services as $service)
+            @php
+            // Analiza la cadena JSON de servicios
+            $services = json_decode($consultation->services, true);
+            @endphp
+            @foreach ($services as $service)
             <tr>
-                <!-- <td>{{ $service->id }}</td> -->
-                <td>{{ $service->name }}</td>
-                <td>{{ $service->price }}</td>
+                <td>{{ $service['name'] }}</td>
+                <td>{{ $service['price'] }}</td>
             </tr>
             @endforeach
             <tr>
@@ -143,6 +151,7 @@
             </tr>
         </table>
     </div>
+
     <p>
         <strong>Nota:</strong> Este comprobante es válido como constancia de asistencia a la consulta médica. Por favor, guárdelo para sus registros.
     </p>

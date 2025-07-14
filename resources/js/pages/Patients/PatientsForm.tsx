@@ -40,7 +40,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
     return (
         <>
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="identification">Cédula de identidad</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="identification">Cédula de identidad</Label>
                 <Input
                     id="identification"
                     type="text"
@@ -53,7 +53,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="name">Nombre</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="name">Nombre</Label>
                 <Input
                     id="name"
                     type="text"
@@ -66,7 +66,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="lastname">Apellido</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="lastname">Apellido</Label>
                 <Input
                     id="lastname"
                     type="text"
@@ -79,7 +79,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="email">Email</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="email">Email</Label>
                 <Input
                     id="email"
                     type="email"
@@ -92,7 +92,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="phone">Teléfono</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="phone">Teléfono</Label>
                 <Input
                     id="phone"
                     type="text"
@@ -105,7 +105,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="address">Dirección</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="address">Dirección</Label>
                 <Input
                     id="address"
                     type="text"
@@ -118,7 +118,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="birthdate">Fecha de nacimiento</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="birthdate">Fecha de nacimiento</Label>
                 <Input
                     id="birthdate"
                     type="date"
@@ -131,7 +131,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="doctor_id">Medico tratante</Label>
+                <Label className=" block font-semibold text-gray-700" htmlFor="doctor_id">Médico tratante</Label>
                 <Select
                     id="doctor_id"
                     options={doctorOptions}
@@ -147,11 +147,11 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div className="mt-4">
-                <Label htmlFor="subscription_id">Suscripción (Opcional)</Label>
+                <Label htmlFor="subscription_id">Funcionales (Opcional)</Label>
                 <Select
                     id="subscription_id"
                     options={[
-                        { value: '', label: 'Sin suscripción' },  // Nueva opción explícita
+                        { value: '', label: 'Sin Funcionales' },  // Nueva opción explícita
                         ...subscriptions.map(subscription => ({
                             value: subscription.id,
                             label: `${subscription.name} (${subscription.type})`
@@ -159,7 +159,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
                     ]}
                     value={data.subscription_id
                         ? { value: data.subscription_id, label: subscriptions.find(s => s.id === data.subscription_id)?.name || '' }
-                        : { value: '', label: 'Sin suscripción' }
+                        : { value: '', label: 'Sin Funcionales' }
                     }
                     onChange={(selected) => setData('subscription_id', selected?.value || null)}
                     isClearable={false}  // Deshabilitamos clearable porque ya tenemos nuestra opción explícita

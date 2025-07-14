@@ -11,11 +11,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de suscripciones',
+        title: 'Listado de Funcionales',
         href: '/subscriptions',
     },
     {
-        title: 'Crear Suscripción',
+        title: 'Crear Funcional',
         href: '/subscriptions/create',
     },
 ];
@@ -36,17 +36,17 @@ export default function Create() {
                 // console.log("Suscripción creada con éxito:", data);
             },
             onError: (err) => {
-                console.error("Error al crear la suscripción:", err);
+                console.error("Error al crear la Funcional:", err);
             },
         });
     };
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Crear Suscripción" />
+            <Head title="Crear Funcional" />
             <Heading
-                title="Crear Suscripción"
-                description="Aquí puedes crear una nueva suscripción."
+                title="Crear Funcional"
+                description="Aquí puedes crear una nueva Funcional."
             />
 
             <form className="flex flex-col gap-4" onSubmit={submit}>
@@ -57,7 +57,7 @@ export default function Create() {
                 />
 
                 <Button variant={"default"}>
-                    Crear Suscripción
+                    Crear Funcional
                 </Button>
             </form>
         </ContentLayout>

@@ -130,6 +130,7 @@ export interface Subscription {
     description?: string;
     price: number;
     type: string;
+    status: 'active' | 'inactive',
     consultations_allowed: number;
     created_at: string;
     updated_at: string;

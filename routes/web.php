@@ -7,6 +7,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\ModuleAdministrativeController;
 use App\Http\Controllers\ModuleAssistanceController;
 use App\Http\Controllers\ModuleoperationController;
+use App\Http\Controllers\ModuleOperationSystemController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
@@ -48,13 +49,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('module-assistance', [ModuleAssistanceController::class, 'index'])->name('module-assistance.index');
 
+    Route::get('module-operation-system', [ModuleOperationSystemController::class, 'index'])->name('module-operation-system.index');
 
     Route::get('accounts-receivable', [PaymentController::class, 'accounts_receivable_index'])->name('module-operation.accounts_receivable_index');
 
     Route::get('/cierre-del-dia', [ClosuresController::class, 'cierreDelDia'])->name('cierre.del.dia');
     Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
     Route::get('/cierre/por/rango', [ClosuresController::class, 'cierrePorRango'])->name('cierre.por.rango');
-Route::get('/pagos/por/rango', [ClosuresController::class, 'pagosPorRango'])->name('pagos.por.rango');
+    Route::get('/pagos/por/rango', [ClosuresController::class, 'pagosPorRango'])->name('pagos.por.rango');
 
 
     Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');

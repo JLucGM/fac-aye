@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Consultation } from "@/types"; // Asegúrate de que la ruta sea correcta
+import { Consultation, Service } from "@/types"; // Asegúrate de que la ruta sea correcta
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "@inertiajs/react";
@@ -28,10 +28,16 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     id: "services",
     header: "Servicios",
     cell: ({ row }) => {
-      const services = row.original.services || [];
+      const servicesData = row.original.services;
+
+      // Verifica si servicesData es un arreglo o una cadena
+      const services = Array.isArray(servicesData)
+        ? servicesData
+        : JSON.parse(servicesData || '[]');
+
       return (
         <ul>
-          {services.map(service => (
+          {services.map((service: Service) => (  // Especifica el tipo Service aquí
             <li key={service.id}>
               {service.name} - ${service.price}
             </li>
@@ -48,9 +54,9 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     id: "subscriptionInfo",
     header: "Suscripción",
     cell: ({ row }) => {
-      const subscription = row.original.subscription; // Accede a la suscripción
-      return subscription 
-        ? `${subscription.id}`
+      const subscriptions = row.original.subscription; // Accede a las suscripciones
+      return subscriptions && subscriptions.length > 0
+        ? `${subscriptions[0].id}` // Accede a la primera suscripción
         : 'Sin suscripción';
     },
   },
@@ -61,33 +67,6 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
         <Link className={buttonVariants({ variant: 'outline' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
           Editar
         </Link>
-        // <DropdownMenu>
-        //   <DropdownMenuTrigger asChild>
-        //     <Button variant="ghost" className="h-8 w-8 p-0">
-        //       <span className="sr-only">Open menu</span>
-        //       <MoreHorizontal className="h-4 w-4" />
-        //     </Button>
-        //   </DropdownMenuTrigger>
-        //   <DropdownMenuContent align="end">
-        //     {/*<DropdownMenuLabel>Actions</DropdownMenuLabel>
-        //      <DropdownMenuItem
-        //       onClick={() => navigator.clipboard.writeText(Consultation.id)}
-        //     >
-        //       Copy Consultation ID
-        //     </DropdownMenuItem> 
-        //     <DropdownMenuSeparator />*/}
-        //     <DropdownMenuItem>
-        //       <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
-        //         Editar
-        //       </Link>
-        //     </DropdownMenuItem>
-        //     {/* <DropdownMenuItem>
-        //       <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.destroy', [row.original.id])} method="delete">
-        //         Eliminar
-        //       </Link>
-        //     </DropdownMenuItem> */}
-        //   </DropdownMenuContent>
-        // </DropdownMenu>
       )
     },
   },

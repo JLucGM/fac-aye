@@ -56,10 +56,11 @@ class ClosuresController extends Controller
         $auth = Auth::user();
 
         // Obtener la consulta específica
-        $consultation = Consultation::with('patient', 'services')->findOrFail($consultation->id);
+        $consultation = Consultation::with('patient.subscriptions')->findOrFail($consultation->id);
         $settings = Setting::with('media')->first()->get();
         // return $consultas;
         // Cargar la vista del PDF
+        // dd($consultation);
         $pdf = Pdf::loadView('pdf.assistspdf', compact('consultation', 'fechaHoy', 'settings', 'auth'))->setPaper('a4');
 
         // Devolver el PDF para abrir en una nueva pestaña

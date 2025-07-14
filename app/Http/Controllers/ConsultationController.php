@@ -36,7 +36,7 @@ class ConsultationController extends Controller
      */
     public function create()
     {
-        $patients = Patient::all();
+        $patients = Patient::with('subscriptions')->get();
         $users = User::all();
         $services = Service::all(); // Assuming you have a Service model
         $paymentMethods = PaymentMethod::where('active', 1)->get();
@@ -82,32 +82,41 @@ class ConsultationController extends Controller
         // Crear la consulta
         $consultation = Consultation::create($validatedData);
 
-        // Asociar los servicios seleccionados
+        // Obtener los servicios seleccionados
+        $servicesData = [];
         if (is_array($request->service_id)) {
-            $consultation->services()->attach($request->service_id);
+            foreach ($request->service_id as $serviceId) {
+                $service = Service::find($serviceId);
+                if ($service) {
+                    // Si el paciente tiene una suscripción activa, establecer el precio a 0
+                    $price = $activeSubscription ? 0 : $service->price;
+                    $servicesData[] = [
+                        'id' => $service->id,
+                        'name' => $service->name,
+                        'price' => $price,
+                    ];
+                }
+            }
         } else {
             // Si solo hay un servicio, puedes usar attach directamente
-            $consultation->services()->attach($request->service_id);
+            $service = Service::find($request->service_id);
+            if ($service) {
+                // Si el paciente tiene una suscripción activa, establecer el precio a 0
+                $price = $activeSubscription ? 0 : $service->price;
+                $servicesData[] = [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'price' => $price,
+                ];
+            }
         }
 
-        // Verificar el estado del pago
-        // if ($validatedData['payment_status'] !== 'pending') {
-        //     // Solo crear el pago si el estado no es "pending"
-        //     $payment = Payment::create([
-        //         'payment_method_id' => $validatedData['payment_method_id'],
-        //         'amount' => $validatedData['amount'],
-        //         'status' => $validatedData['payment_status'],
-        //         'reference' => $validatedData['reference'],
-        //         // 'paid_at' => $validatedData['paid_at'], // Si necesitas esta línea, asegúrate de que el campo exista en el formulario
-        //     ]);
-
-        //     // Asociar el pago a la consulta
-        //     $payment->consultations()->sync($consultation->id);
-        // }
+        // Almacenar la información de los servicios en el campo 'services'
+        $consultation->services = json_encode($servicesData);
+        $consultation->save();
 
         return redirect()->route('consultations.edit', $consultation->id);
     }
-
 
     /**
      * Display the specified resource.
@@ -121,52 +130,57 @@ class ConsultationController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Consultation $consultation)
-    {
-        $consultation->load('services', 'patient', 'user', 'payment'); // Cargar los servicios relacionados
-        $patients = Patient::all();
-        $users = User::all();
-        $services = Service::all();
-        // $paymentMethods = PaymentMethod::where('active', 1)->get();
+{
+    // Cargar los datos relacionados, incluyendo las suscripciones del paciente
+    $consultation->load('patient.subscriptions', 'user', 'payment'); // Cargar las suscripciones del paciente
+    $consultation->services = json_decode($consultation->services, true); // Decodificar el JSON a un array
+    $patients = Patient::all();
+    $users = User::all();
+    $services = Service::all();
+// dd($consultation);
+    return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services'));
+}
 
-        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services'));
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateConsultationRequest $request, Consultation $consultation)
     {
-        // Extraer los datos validados, excluyendo service_id
+        // Extraer los datos validados
         $data = $request->validated();
-        unset($data['service_id']); // Eliminar service_id de los datos que se van a actualizar
 
         // Actualizar la consulta con los datos validados
         $consultation->update($data);
 
-        // Sincronizar los servicios
-        $consultation->services()->sync($request->input('service_id'));
+        // Obtener los servicios seleccionados
+        $servicesData = [];
+        if (is_array($request->service_id)) {
+            foreach ($request->service_id as $serviceId) {
+                $service = Service::find($serviceId);
+                if ($service) {
+                    $servicesData[] = [
+                        'id' => $service->id,
+                        'name' => $service->name,
+                        'price' => $service->price,
+                    ];
+                }
+            }
+        } else {
+            // Si solo hay un servicio, puedes usar attach directamente
+            $service = Service::find($request->service_id);
+            if ($service) {
+                $servicesData[] = [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'price' => $service->price,
+                ];
+            }
+        }
 
-        // Manejar la actualización del pago
-        // if ($request->payment_method_id) {
-        //     $paymentData = [
-        //         'amount' => $data['amount'], // Asegúrate de que el monto sea correcto
-        //         'status' => $request->payment_status, // O el estado que desees
-        //         'reference' => $request->reference,
-        //         // 'paid_at' => $request->paid_at,
-        //         'payment_method_id' => $request->payment_method_id,
-        //     ];
-
-        //     // Verificar si ya existe un pago asociado
-        //     $payment = $consultation->payment()->first(); // Obtener el primer pago asociado
-
-        //     if ($payment) {
-        //         // Actualizar el pago existente
-        //         $payment->update($paymentData);
-        //     } else {
-        //         // Si no existe un pago, crear uno nuevo
-        //         $consultation->payment()->create($paymentData);
-        //     }
-        // }
+        // Almacenar la información de los servicios en el campo 'services'
+        $consultation->services = json_encode($servicesData);
+        $consultation->save();
 
         // Redirigir a la lista de consultas con un mensaje de éxito
         return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');

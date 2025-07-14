@@ -120,8 +120,10 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        $patient->load('consultations', 'consultations.subscription', 'consultations.services', 'consultations.payment', 'doctor');
+        $patient->load('consultations', 'consultations.subscription', 'consultations.payment', 'doctor');
         $subscriptions = $patient->subscriptions()->get();
+
+        // dd($patient);
         return Inertia::render('Patients/Show', compact('patient', 'subscriptions'));
     }
 

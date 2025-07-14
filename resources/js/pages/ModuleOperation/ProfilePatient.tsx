@@ -41,7 +41,7 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
     // Calcular totales
     const calculateTotals = (consultations: Consultation[]): { totalConsultations: number; paidConsultations: number; pendingConsultations: number } => {
         const totalConsultations = consultations.length;
-        const paidConsultations = consultations.filter(c => c.payment_status === 'paid').length;
+        const paidConsultations = consultations.filter(c => c.payment_status === 'pagado').length;
         const pendingConsultations = totalConsultations - paidConsultations;
 
         return { totalConsultations, paidConsultations, pendingConsultations };

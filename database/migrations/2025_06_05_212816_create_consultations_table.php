@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('status')->default('pendiente'); // pendiente, confirmed, completed, cancelled
             $table->dateTime('scheduled_at')->nullable(); // Fecha y hora programada
             $table->string('consultation_type')->default('domiciliary'); // domiciliary, office
+            $table->text('services')->nullable(); // domiciliary, office
             $table->decimal('amount', 10, 2)->default(0.00); // Monto del servicio de consulta
             $table->text('notes')->nullable(); // Notas adicionales sobre la consulta
             $table->string('payment_status')->default('pendiente'); // pendiente, paid, refunded

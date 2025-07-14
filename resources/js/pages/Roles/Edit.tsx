@@ -1,10 +1,9 @@
-import AppLayout from '@/layouts/app-layout';
-import ContentLayout from '@/layouts/content-layout';
 import { Role, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import RolesForm from './RolesForm';
 import Heading from '@/components/heading';
+import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -33,26 +32,23 @@ export default function Edit({ role, permissions, assignedPermissions }: { role:
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Editar Rol" />
+            <Heading
+                title="Editar Rol"
+                description="Aquí puedes editar un rol existente."
+            />
 
-            <ContentLayout>
-                <Heading
-                    title="Editar Rol"
-                    description="Aquí puedes editar un rol existente."
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <RolesForm
+                    data={data}
+                    permissions={permissions}
+                    setData={setData}
+                    errors={errors}
                 />
-                
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <RolesForm
-                        data={data}
-                        permissions={permissions}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button variant="default">Actualizar rol</Button>
-                </form>
-            </ContentLayout>
-        </AppLayout>
+                <Button variant="default">Actualizar rol</Button>
+            </form>
+        </ContentLayout>
     );
 }

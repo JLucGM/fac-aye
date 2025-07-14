@@ -1,11 +1,10 @@
-import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import ContentLayout from '@/layouts/content-layout';
 import RolesForm from './RolesForm';
 import Heading from '@/components/heading';
+import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -43,10 +42,8 @@ export default function Create({permissions}:any) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+            <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Crear Rol" />
-
-            <ContentLayout>
                 <Heading
                     title="Crear Rol"
                     description="Aquí puedes crear un nuevo rol."
@@ -67,6 +64,5 @@ export default function Create({permissions}:any) {
                     </Button>
                 </form>
             </ContentLayout>
-        </AppLayout>
     );
 }

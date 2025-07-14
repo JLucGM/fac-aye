@@ -78,6 +78,7 @@ class ModuleOperationController extends Controller
 
         // Inicializar patient_subscription_id
         $patientSubscriptionId = null;
+        $totalAmount = 0; // Inicializa el monto total
 
         // Si viene subscription_id, manejamos la suscripción
         if ($request->filled('subscription_id')) {
@@ -99,6 +100,9 @@ class ModuleOperationController extends Controller
 
                 // Asignar el ID de la suscripción activa a la consulta
                 $patientSubscriptionId = $activeSubscription->id;
+
+                // Establecer el monto total en 0
+                $totalAmount = 0;
             } else {
                 // Si no existe: crear nueva suscripción consumiendo 1 consulta
                 $newSubscription = $patient->subscriptions()->create([
@@ -112,6 +116,20 @@ class ModuleOperationController extends Controller
 
                 // Asignar el ID de la nueva suscripción a la consulta
                 $patientSubscriptionId = $newSubscription->id;
+
+                // Establecer el monto total en 0
+                $totalAmount = 0;
+            }
+        } else {
+            // Si no hay suscripción, calcular el monto total basado en los servicios seleccionados
+            $totalAmount = 0; // Inicializa el monto total
+            if (is_array($request->service_id)) {
+                foreach ($request->service_id as $serviceId) {
+                    $service = Service::find($serviceId);
+                    if ($service) {
+                        $totalAmount += $service->price; // Sumar el precio del servicio
+                    }
+                }
             }
         }
 
@@ -124,17 +142,28 @@ class ModuleOperationController extends Controller
             'consultation_type' => $validatedData['consultation_type'],
             'notes' => $validatedData['notes'],
             'payment_status' => $validatedData['payment_status'],
-            'amount' => $validatedData['amount'],
+            'amount' => $totalAmount, // Establecer el monto total
             'patient_subscription_id' => $patientSubscriptionId, // Asigna el ID de la suscripción
         ]);
 
-        // Asociar los servicios seleccionados
+        // Obtener los servicios seleccionados
+        $servicesData = [];
         if (is_array($request->service_id)) {
-            $consultation->services()->attach($request->service_id);
-        } else {
-            // Si solo hay un servicio, puedes usar attach directamente
-            $consultation->services()->attach($request->service_id);
+            foreach ($request->service_id as $serviceId) {
+                $service = Service::find($serviceId);
+                if ($service) {
+                    $servicesData[] = [
+                        'id' => $service->id,
+                        'name' => $service->name,
+                        'price' => $totalAmount === 0 ? 0 : $service->price, // Establecer el precio a 0 si el total es 0
+                    ];
+                }
+            }
         }
+
+        // Almacenar la información de los servicios en el campo 'services'
+        $consultation->services = json_encode($servicesData);
+        $consultation->save();
 
         // Redirigir o renderizar la vista después de crear los registros
         return redirect()->route('consultations.edit', $consultation->id);

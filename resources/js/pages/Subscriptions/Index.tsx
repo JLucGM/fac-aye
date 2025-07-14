@@ -12,7 +12,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Servicios',
+        title: 'Listado de Funcionales',
         href: '/subscriptions',
     },
 ];
@@ -24,14 +24,14 @@ export default function Index({ subscriptions }: { subscriptions: Subscription[]
         // <AppLayout breadcrumbs={breadcrumbs}>
 
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Suscripciones" />
+            <Head title="Listado de Funcionales" />
             <Heading
-                title="Suscripciones"
-                description="Administra tus suscripciones aquí."
+                title="Funcionales"
+                description="Administra tus Funcionales aquí."
             >
                 <Button asChild>
                     <Link className="btn btn-primary" href={route('subscriptions.create')}>
-                        Crear suscripción
+                        Crear Funcional
                     </Link>
                 </Button>
             </Heading>

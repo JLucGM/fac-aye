@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Edit({ patient, doctors, subscriptions }: { patient: Patient, doctors: Doctor[], subscriptions: Subscription[] }) {
     // Obtener la última suscripción activa
-    const activeSubscription = patient.subscriptions.find(sub => sub.status === 'active');
+    const activeSubscription = patient.subscriptions?.find(sub => sub.status === 'active') || null;
 
     const { data, setData, errors, put } = useForm({
         name: patient.name,
@@ -60,13 +60,13 @@ export default function Edit({ patient, doctors, subscriptions }: { patient: Pat
                 title="Editar Paciente"
                 description="Aquí puedes editar un paciente existente."
             />
-            {errors && Object.keys(errors).length > 0 && (
-    <div className="text-red-500">
-        {Object.keys(errors).map((key) => (
-            <p key={key}>{errors[key]}</p>
-        ))}
-    </div>
-)}
+            {/* {errors && Object.keys(errors).length > 0 && (
+                <div className="text-red-500">
+                    {Object.keys(errors).map((key) => (
+                        <p key={key}>{errors[key]}</p>
+                    ))}
+                </div>
+            )} */}
 
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <PatientsForm
