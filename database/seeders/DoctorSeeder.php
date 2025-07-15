@@ -16,6 +16,14 @@ class DoctorSeeder extends Seeder
 
         $doctors = [
             [
+                'name' => 'Barbra',
+                'lastname' => 'Gouirand',
+            ],
+            [
+                'name' => 'Patricia',
+                'lastname' => 'Unknown',
+            ],
+            [
                 'name' => 'Gustavo',
                 'lastname' => 'Garcia',
             ],

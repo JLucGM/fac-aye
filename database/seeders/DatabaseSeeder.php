@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ServiceSeeder::class);
         $this->call(PaymentMethodSeeder::class);
         $this->call(DoctorSeeder::class);
+        $this->call(SubscriptionSeeder::class);
+        
         // User::factory(10)->create();
         Patient::factory()
             ->count(5)

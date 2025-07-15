@@ -39,7 +39,8 @@ type Settings = {
     email: string;
     instagram: string;
     media: MediaItem[]; // Asegúrate de que media sea un array de MediaItem
-    logo: File[] | string | null; 
+    logo: File[] | string | null;
+    signature: File[] | string | null;
 };
 
 type FormData = {
@@ -50,12 +51,13 @@ type FormData = {
     email: string;
     instagram: string;
     logo: File[] | string | null; // Permite múltiples tipos
+    signature: File[] | string | null;
 };
 
 export default function Index({ settings }: { settings: Settings }) {
     const logo = settings.media.find((mediaItem: MediaItem) => mediaItem.collection_name === 'logo');
+    const signature = settings.media.find((mediaItem: MediaItem) => mediaItem.collection_name === 'signature');
 
-    console.log({ logo });
     const { data, setData, errors, post, reset, processing, recentlySuccessful } = useForm<FormData>({
         name: settings.name,
         rif: settings.rif,
@@ -64,6 +66,7 @@ export default function Index({ settings }: { settings: Settings }) {
         email: settings.email,
         instagram: settings.instagram,
         logo: settings.logo || null, // Inicializa como null o string vacío
+        signature: settings.logo || null, // Inicializa como null o string vacío
     });
 
     const submit: FormEventHandler = (e) => {
@@ -89,12 +92,12 @@ export default function Index({ settings }: { settings: Settings }) {
                         {logo && (
                             <div className="flex justify-center">
 
-                            <img
-                                src={logo.original_url} // URL del logo
-                                alt={logo.name} // Nombre del logo
-                                className="w-auto h-44 object-cover rounded-xl"
+                                <img
+                                    src={logo.original_url} // URL del logo
+                                    alt={logo.name} // Nombre del logo
+                                    className="w-auto h-44 object-cover rounded-xl"
                                 />
-                                </div>
+                            </div>
                         )}
 
                         <div>
@@ -114,6 +117,36 @@ export default function Index({ settings }: { settings: Settings }) {
                                 accept="image/*" // Solo acepta imágenes
                             />
                             <InputError message={errors.logo} className="mt-2" />
+                        </div>
+
+                        {signature && (
+                            <div className="flex justify-center">
+
+                                <img
+                                    src={signature.original_url} // URL del signature
+                                    alt={signature.name} // Nombre del signature
+                                    className="w-auto h-44 object-cover rounded-xl"
+                                />
+                            </div>
+                        )}
+
+                        <div>
+                            <Label htmlFor="signature">Firma</Label>
+                            <Input
+                                id="signature"
+                                type="file"
+                                name="signature"
+                                className="mt-1 block w-full"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files.length > 0) {
+                                        setData('signature', Array.from(e.target.files));
+                                    } else {
+                                        setData('signature', null);
+                                    }
+                                }}
+                                accept="image/*" // Solo acepta imágenes
+                            />
+                            <InputError message={errors.signature} className="mt-2" />
                         </div>
 
                         <div className="grid gap-2">

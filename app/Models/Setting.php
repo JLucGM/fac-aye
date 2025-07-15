@@ -26,5 +26,9 @@ class Setting extends Model implements HasMedia
         $this->addMediaConversion('logo')
               ->width(368)
               ->height(232);
+
+        $this->addMediaConversion('signature')
+              ->width(368)
+              ->height(232);
     }
 }

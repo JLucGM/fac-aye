@@ -23,9 +23,13 @@ class AppServiceProvider extends ServiceProvider
 public function boot(): void
 {
     Inertia::share('logo', function () {
-        $logo = Setting::with('media')->first()?->media->first();
-        return $logo?->original_url; // ✅ Asegúrate de devolver `string|null`, no un objeto
+        // Obtén la primera configuración y su colección de medios
+        $mediaItem = Setting::with('media')->first()?->media->firstWhere('collection_name', 'logo');
+        
+        // Devuelve la URL original del logo, o null si no existe
+        return $mediaItem?->getUrl(); // Asegúrate de usar getUrl() para obtener la URL de la imagen
     });
 }
+
 
 }

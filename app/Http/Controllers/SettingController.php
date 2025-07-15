@@ -46,6 +46,17 @@ class SettingController extends Controller
                 });
         }
 
+        if ($request->hasFile('signature')) {
+            // Eliminar la imagen anterior de la colección 'signature'
+            $settings->clearMediaCollection('signature');
+
+            // Agregar la nueva imagen a la colección 'signature'
+            $settings->addMultipleMediaFromRequest(['signature'])
+                ->each(function ($fileAdder) {
+                    $fileAdder->toMediaCollection('signature');
+                });
+        }
+
         return Inertia::render('settings/profile');
     }
 }
