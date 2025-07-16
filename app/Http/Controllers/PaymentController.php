@@ -26,7 +26,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::with('paymentMethod', 'consultations.patient','consultations.services')->get();
+        $payments = Payment::with('paymentMethod', 'consultations.patient')->get();
         return Inertia::render('Payments/Index', compact('payments'));
     }
 

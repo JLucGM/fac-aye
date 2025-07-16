@@ -56,25 +56,44 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "services",
-    header: "Servicios",
-    cell: ({ row }) => {
-      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
-      if (consultations.length > 0) {
-        const services = consultations[0].services || []; // Obtener los servicios de la primera consulta
+  accessorKey: "services",
+  header: "Servicios",
+  cell: ({ row }) => {
+    const consultations = row.original.consultations || []; // Asegúrate de que sea un array
+    if (consultations.length > 0) {
+      // Asegúrate de que services sea un array
+      let services = consultations[0]?.services;
+
+      // Si services es un string, parsealo
+      if (typeof services === 'string') {
+        try {
+          services = JSON.parse(services);
+        } catch (error) {
+          console.error("Error parsing services:", error);
+          services = []; // Si hay un error, asigna un array vacío
+        }
+      }
+
+      // Verifica que services sea un array
+      if (Array.isArray(services)) {
         return (
           <div>
-            {services.map(service => (
-              <p key={service.id} className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                {service.name} - $ {service.price}
-              </p>
-            ))}
+            {services.length > 0 ? (
+              services.map(service => (
+                <p key={service.id} className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                  {service.name} - $ {service.price}
+                </p>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">Sin servicios</p>
+            )}
           </div>
         );
       }
-      return <p className="text-sm text-gray-500">Sin servicios</p>;
-    },
-  },  
+    }
+    return <p className="text-sm text-gray-500">Sin consultas</p>;
+  },
+}, 
   {
 
     accessorKey: "amount",
