@@ -54,8 +54,12 @@ class Consultation extends Model
     }
 
     public function subscription()
-{
-    return $this->belongsTo(PatientSubscription::class, 'patient_subscription_id');
-}
+    {
+        return $this->belongsTo(PatientSubscription::class, 'patient_subscription_id');
+    }
 
+    public function medicalRecords() // Nueva relación para el historial
+    {
+        return $this->hasMany(MedicalRecord::class);
+    }
 };

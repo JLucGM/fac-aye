@@ -55,7 +55,7 @@ export interface Patient {
     lastname?: string;
     slug: string;
     email: string;
-    address?: string; 
+    address?: string;
     identification: string;
     phone?: string;
     birthdate?: string; // ISO date string or null
@@ -67,10 +67,11 @@ export interface Patient {
     doctor?: Doctor; // A Patient can belong to one Doctor (based on Patient model's belongsTo)
     consultations?: Consultation[]; // A Patient can have many Consultations
     subscription?: PatientSubscription; // A Patient can have one Subscription (based on Patient model's
+    medical_records?: MedicalRecord[];
 }
 
 
-export interface Doctor{
+export interface Doctor {
     id: number;
     name: string;
     lastname: string;
@@ -159,7 +160,7 @@ export interface Consultation {
     notes?: string;
     payment_status: "pendiente" | 'pagado' | 'reembolsado';
     patient_id: number; // FK to Patient
-    patient_subscription_id: number; 
+    patient_subscription_id: number;
     created_at: string;
     updated_at: string;
     // Relationships
@@ -253,7 +254,7 @@ export interface CreateDoctorFormData {
     phone?: string;
     identification?: string;
     specialty?: string; // Assuming this is a string, adjust if it's an object or array
-    
+
     [key: string]: any; // Allows for dynamic access if setData uses string keys
 }
 
@@ -263,7 +264,7 @@ export interface CreatePaymentFormData {
     consultation_ids: number[]; // Assuming this will store an array of consultation IDs
     payment_method_id: number | null;
     amount: number;
-    status: 'pendiente' | 'completado' | 'fallido' | 'reembolsado' ; // Correcting status values, including 'reembolsado'
+    status: 'pendiente' | 'completado' | 'fallido' | 'reembolsado'; // Correcting status values, including 'reembolsado'
     reference: string;
     notes: string;
     // paid_at: string;
@@ -315,4 +316,19 @@ export interface SuscriptionFormData {
     [key: string]: any; // Una firma de índice que permite que la interfaz sea más flexible,
     // útil cuando se trabaja con funciones como `setData` que pueden acceder
     // a las propiedades mediante claves de cadena.
+}
+
+// types.ts (ejemplo)
+export interface MedicalRecord {
+    id: number;
+    patient_id: number;
+    consultation_id: number | null; // Permitir null
+    title: string;
+    description: string | null;
+    // record_date: string; // Si lo usas en el frontend
+    type: 'consulta' | 'diagnostico' | 'tratamiento' | 'otro';
+    created_at: string;
+    updated_at: string;
+    anamnesis?: string | null; // Puede ser opcional y/o nulo
+    pain_behavior?: string | null; // Puede ser opcional y/o nulo
 }

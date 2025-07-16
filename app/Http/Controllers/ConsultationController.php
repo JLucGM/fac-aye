@@ -132,7 +132,7 @@ class ConsultationController extends Controller
     public function edit(Consultation $consultation)
 {
     // Cargar los datos relacionados, incluyendo las suscripciones del paciente
-    $consultation->load('patient.subscriptions', 'user', 'payment'); // Cargar las suscripciones del paciente
+    $consultation->load('patient.subscriptions', 'user', 'payment','medicalRecords'); // Cargar las suscripciones del paciente
     $consultation->services = json_decode($consultation->services, true); // Decodificar el JSON a un array
     $patients = Patient::all();
     $users = User::all();

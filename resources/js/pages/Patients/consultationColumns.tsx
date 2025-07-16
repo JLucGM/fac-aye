@@ -3,6 +3,7 @@ import { Consultation, Service } from "@/types"; // Asegúrate de que la ruta se
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "@inertiajs/react";
+import { Edit, MoreHorizontal } from "lucide-react";
 
 export const consultationColumns: ColumnDef<Consultation>[] = [
   {
@@ -64,9 +65,34 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     id: "actions",
     cell: ({ row }) => {
       return (
-        <Link className={buttonVariants({ variant: 'outline' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
-          Editar
-        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {/* <DropdownMenuItem>
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.show', [row.original.id])}>
+                <Eye /> Mostrar
+              </Link>
+            </DropdownMenuItem> */}
+            <DropdownMenuItem>
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])}>
+                <Edit /> Editar
+              </Link>
+            </DropdownMenuItem>
+            {/* <DropdownMenuItem>
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.destroy', [row.original.id])} method="delete">
+                <Trash /> Eliminar
+              </Link>
+            </DropdownMenuItem> */}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        // <Link className={buttonVariants({ variant: 'outline' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
+        //   Editar
+        // </Link>
       )
     },
   },

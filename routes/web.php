@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ClosuresController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ModuleAdministrativeController;
 use App\Http\Controllers\ModuleAssistanceController;
 use App\Http\Controllers\ModuleoperationController;
@@ -38,7 +39,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'user' => UserController::class,
         'doctors' => DoctorController::class,
         'subscriptions' => SubscriptionController::class,
+        'medical-records' => MedicalRecordController::class,
     ]);
+
+    // routes/web.php
+
 
     Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');
     Route::get('first-visit', [ModuleOperationController::class, 'first_visit_index'])->name('module-operation.first_visit_index');
