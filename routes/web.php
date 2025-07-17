@@ -8,7 +8,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ModuleAdministrativeController;
 use App\Http\Controllers\ModuleAssistanceController;
-use App\Http\Controllers\ModuleoperationController;
+use App\Http\Controllers\ModuleOperationController;
 use App\Http\Controllers\ModuleOperationSystemController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
