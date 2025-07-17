@@ -59,6 +59,10 @@ class Patient extends Model
         return $this->hasMany(MedicalRecord::class);
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 
     public function getFullNameAttribute()
     {

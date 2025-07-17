@@ -37,6 +37,13 @@ class Payment extends Model
         return $this->belongsTo(PaymentMethod::class);
     }
 
+    public function invoices()
+    {
+        return $this->belongsToMany(Invoice::class, 'invoice_payments')
+            ->withPivot('amount_applied') // Para acceder al campo amount_applied en la tabla pivote
+            ->withTimestamps();
+    }
+
     // public function patient()
     // {
     //     return $this->belongsTo(Patient::class);

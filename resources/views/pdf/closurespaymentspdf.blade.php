@@ -34,12 +34,14 @@
 
         /* Estilo para la tabla sin bordes */
         .no-border {
-            border: none; /* Elimina el borde de la tabla */
+            border: none;
+            /* Elimina el borde de la tabla */
         }
 
         .no-border th,
         .no-border td {
-            border: none; /* Elimina el borde de las celdas */
+            border: none;
+            /* Elimina el borde de las celdas */
         }
 
         /* Centrar el texto en la celda del título */
@@ -91,21 +93,26 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Monto</th>
                 <th>Estado</th>
                 <th>Referencia</th>
                 <th>Fecha de Pago</th>
                 <th>Método de Pago</th>
                 <th>Paciente Asignado</th>
+                <th>Monto</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($pagos as $pago)
             <tr>
                 <td>{{ $pago->id }}</td>
-                <td>{{ $pago->amount }}</td>
                 <td>{{ $pago->status }}</td>
-                <td>{{ $pago->reference }}</td>
+                <td>
+                    @if ($pago->reference)
+                    {{ $pago->reference }}
+                    @else
+                    Sin referencia
+                    @endif
+                </td>
                 <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
                 <td>{{ $pago->paymentMethod->name }}</td>
                 <td>
@@ -113,20 +120,21 @@
                     {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}<br>
                     @endforeach
                 </td>
+                <td>{{ $pago->amount }}</td>
             </tr>
             @endforeach
-        </tbody>
-    </table>
-
-    <!-- Mostrar la suma total -->
-    <table>
-        <tfoot>
             <tr>
                 <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
                 <td><strong>{{ $totalAmount }}</strong></td>
             </tr>
-        </tfoot>
+        </tbody>
     </table>
+
+    <!-- Mostrar la suma total -->
+    <!-- <table>
+        <tfoot>
+        </tfoot>
+    </table> -->
 
     <div class="footer">
         @foreach ($settings as $setting)

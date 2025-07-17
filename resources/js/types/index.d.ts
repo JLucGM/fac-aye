@@ -177,6 +177,35 @@ export interface Role {
     slug: string;
 }
 
+// types.ts
+export type Invoice = {
+    id: number;
+    invoice_number: string;
+    patient_id: number;
+    patient?: Patient; // Opcional, si precargas el paciente
+    invoice_date: string; // YYYY-MM-DD
+    due_date: string; // YYYY-MM-DD
+    subtotal: number;
+    tax_amount: number;
+    total_amount: number;
+    status: 'pending' | 'partially_paid' | 'paid' | 'cancelled';
+    notes: string;
+    created_at: string;
+    updated_at: string;
+    // Si precargas los ítems de la factura
+    items?: InvoiceItem[];
+};
+
+export type InvoiceItem = {
+    id: number;
+    invoice_id: number;
+    consultation_id?: number;
+    // description: string;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+};
+
 
 export interface ConsultationService {
     id: number;
@@ -270,6 +299,21 @@ export interface CreatePaymentFormData {
     // paid_at: string;
     [key: string]: any;
 }
+export type InvoiceItemFormData = {
+    // service_id: number | null; // <-- ELIMINADO
+    consultation_id: number | null; // Ahora será requerido si la factura es de consultas
+    // description: string;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+};
+export type CreateInvoiceFormData = {
+    patient_id: number | null;
+    invoice_date: string; // YYYY-MM-DD
+    due_date: string; // YYYY-MM-DD
+    notes: string;
+    items: InvoiceItemFormData[]; // Array de ítems de la factura
+};
 
 export interface CreatePaymentMethodFormData {
     name: string;

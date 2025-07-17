@@ -43,10 +43,10 @@ class Consultation extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    // public function services()
-    // {
-    //     return $this->belongsToMany(Service::class, 'consultation_service');
-    // }
+    public function invoiceItems()
+    {
+        return $this->hasMany(InvoiceItem::class);
+    }
 
     public function payment()
     {

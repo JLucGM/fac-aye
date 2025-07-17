@@ -21,9 +21,10 @@ class ClosuresController extends Controller
         $auth = Auth::user();
 
         // Obtener todas las consultas del día
-        $consultas = Consultation::with('patient', 'services', 'user')->whereDate('created_at', $fechaHoy)->get();
+        $consultas = Consultation::with('patient', 'user','subscription')->whereDate('created_at', $fechaHoy)->get();
         $settings = Setting::with('media')->first()->get();
         // return $auth;
+        // dd($consultas);
         // Cargar la vista del PDF
         $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth'))->setPaper('a4', 'landscape');
         // // Devolver el PDF para abrir en una nueva pestaña
@@ -74,9 +75,9 @@ class ClosuresController extends Controller
         $auth = Auth::user();
         $fechaHoy = Carbon::today();
 
-        $consultas = Consultation::with('patient', 'services', 'user')
+        $consultas = Consultation::with('patient', 'user')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderBy('scheduled_at', 'asc') // Ordenar por fecha de creación
+            ->orderBy('scheduled_at', 'asc') // Ordenar por fecha de creacións
             ->get();
 
         $settings = Setting::with('media')->first()->get();

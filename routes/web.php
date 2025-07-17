@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ClosuresController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ModuleAdministrativeController;
 use App\Http\Controllers\ModuleAssistanceController;
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'doctors' => DoctorController::class,
         'subscriptions' => SubscriptionController::class,
         'medical-records' => MedicalRecordController::class,
+        'invoices' => InvoiceController::class,
     ]);
 
     // routes/web.php
@@ -62,6 +64,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
     Route::get('/cierre/por/rango', [ClosuresController::class, 'cierrePorRango'])->name('cierre.por.rango');
     Route::get('/pagos/por/rango', [ClosuresController::class, 'pagosPorRango'])->name('pagos.por.rango');
+    
+Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'invoicePdf'])->name('invoices.pdf');
 
 
     Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');

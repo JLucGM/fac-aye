@@ -110,7 +110,7 @@
         <th>Fecha Programada</th>
         <th>Estado de pago</th>
         <th>Monto</th>
-        <th>Usuario Asignado</th> <!-- Nueva columna para el usuario -->
+        <th>Nro. de funcional</th> <!-- Nueva columna para el ID de suscripción -->
       </tr>
     </thead>
     <tbody>
@@ -127,9 +127,11 @@
         <td>{{ $consulta->payment_status }}</td>
         <td>{{ $consulta->amount }}</td>
         <td>
-          @foreach ($consulta->services as $service)
-          {{ $service->name }} ({{ $service->price }})<br>
-          @endforeach
+          @if ($consulta->subscription)
+            {{ $consulta->subscription->id }} <!-- Mostrar el ID de la suscripción -->
+          @else
+            Sin funcional
+          @endif
         </td>
       </tr>
       @endforeach
