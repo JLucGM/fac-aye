@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Models\PatientSubscription;
+use App\Models\Setting;
 use App\Models\Subscription;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -123,8 +124,10 @@ class PatientController extends Controller
         $patient->load('consultations', 'consultations.subscription', 'consultations.payment', 'doctor');
         $subscriptions = $patient->subscriptions()->get();
 
-        // dd($patient);
-        return Inertia::render('Patients/Show', compact('patient', 'subscriptions'));
+        $settings = Setting::with('media')->first()->get();
+        
+        // dd($settings);
+        return Inertia::render('Patients/Show', compact('patient', 'subscriptions','settings'));
     }
 
 

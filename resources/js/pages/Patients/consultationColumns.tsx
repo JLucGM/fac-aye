@@ -38,7 +38,7 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
 
       return (
         <ul>
-          {services.map((service: Service) => (  // Especifica el tipo Service aquí
+          {services.map((service: Service) => (
             <li key={service.id}>
               {service.name} - ${service.price}
             </li>
@@ -55,10 +55,10 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     id: "subscriptionInfo",
     header: "Suscripción",
     cell: ({ row }) => {
-      const subscriptions = row.original.subscription; // Accede a las suscripciones
-      return subscriptions && subscriptions.length > 0
-        ? `${subscriptions[0].id}` // Accede a la primera suscripción
-        : 'Sin suscripción';
+        const subscription = row.original.subscription; // Accede a la suscripción directamente
+        return subscription 
+            ? `ID: ${subscription.id}` 
+            : 'Sin suscripción';
     },
   },
   {
@@ -73,26 +73,13 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {/* <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.show', [row.original.id])}>
-                <Eye /> Mostrar
-              </Link>
-            </DropdownMenuItem> */}
             <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])}>
                 <Edit /> Editar
               </Link>
             </DropdownMenuItem>
-            {/* <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('patients.destroy', [row.original.id])} method="delete">
-                <Trash /> Eliminar
-              </Link>
-            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
-        // <Link className={buttonVariants({ variant: 'outline' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
-        //   Editar
-        // </Link>
       )
     },
   },

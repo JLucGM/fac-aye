@@ -6,7 +6,7 @@ import { Patient, type BreadcrumbItem, Consultation, Subscription, PatientSubscr
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, PenBox } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'; // Importamos useMemo
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,10 @@ import {
     Collapsible,
     CollapsibleTrigger,
     CollapsibleContent,
-} from "@/components/ui/collapsible"; // Asegúrate de importar los componentes de colapso
+} from "@/components/ui/collapsible";
 import { subscriptionColumns } from './subscriptionColumns';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import ConsultationPDF from '@/components/pdf/ConsultationPdf';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -32,6 +34,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+/**
+ * Calcula la edad del paciente a partir de su fecha de nacimiento.
+ * @param birthdate La fecha de nacimiento del paciente en formato string.
+ * @returns La edad del paciente como número, o 'Fecha no disponible' si no se proporciona.
+ */
 const calculateAge = (birthdate: string | undefined): number | string => {
     if (!birthdate) return 'Fecha no disponible';
     const birthDate = new Date(birthdate);
@@ -46,14 +53,19 @@ const calculateAge = (birthdate: string | undefined): number | string => {
     return age;
 };
 
+/**
+ * Calcula la deuda total de las consultas pendientes.
+ * @param consultations Un array de objetos Consultation.
+ * @returns La suma de los montos de las consultas con estado 'pendiente'.
+ */
 const calculateTotalDebt = (consultations: Consultation[]): number => {
     return consultations
         .filter(consultation => consultation.payment_status === 'pendiente')
         .reduce((total, consultation) => total + (typeof consultation.amount === 'string' ? parseFloat(consultation.amount) : consultation.amount), 0);
 };
 
-export default function Show({ patient, subscriptions }: { patient: Patient, subscriptions: PatientSubscription[] }) {
-    console.log(patient)
+export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
+
     const [paymentStatus, setPaymentStatus] = useState<string>('all');
     const [consultationType, setConsultationType] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>('');
@@ -70,31 +82,43 @@ export default function Show({ patient, subscriptions }: { patient: Patient, sub
         new Date(subscription.end_date) >= new Date()
     );
 
-    const filteredConsultations = consultations.filter(consultation => {
-        const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
-        const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
+    /**
+     * Filtra las consultas basándose en los criterios seleccionados por el usuario.
+     * Se usa useMemo para memorizar el resultado y evitar cálculos innecesarios.
+     */
+    const filteredConsultations = useMemo(() => {
+        return consultations.filter(consultation => {
+            const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
+            const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
 
-        let subscriptionMatch = true;
-        if (filterBySubscription) {
-            subscriptionMatch = consultation.patient_subscription_id !== null; // Filtrar solo consultas con suscripción
-        }
-
-        let dateMatch = true;
-        if (startDate || endDate) {
-            const consultationDate = parseISO(consultation.scheduled_at);
-            const formattedConsultationDate = format(consultationDate, 'yyyy-MM-dd');
-
-            if (startDate && endDate) {
-                dateMatch = formattedConsultationDate >= startDate && formattedConsultationDate <= endDate;
-            } else if (startDate) {
-                dateMatch = formattedConsultationDate >= startDate;
-            } else if (endDate) {
-                dateMatch = formattedConsultationDate <= endDate;
+            let subscriptionMatch = true;
+            if (filterBySubscription) {
+                // Filtrar solo consultas que tienen una suscripción asociada
+                subscriptionMatch = consultation.patient_subscription_id !== null;
             }
-        }
 
-        return paymentMatch && typeMatch && subscriptionMatch && dateMatch;
-    });
+            let dateMatch = true;
+            if (startDate || endDate) {
+                const consultationDate = parseISO(consultation.scheduled_at);
+                const formattedConsultationDate = format(consultationDate, 'yyyy-MM-dd');
+
+                if (startDate && endDate) {
+                    dateMatch = formattedConsultationDate >= startDate && formattedConsultationDate <= endDate;
+                } else if (startDate) {
+                    dateMatch = formattedConsultationDate >= startDate;
+                } else if (endDate) {
+                    dateMatch = formattedConsultationDate <= endDate;
+                }
+            }
+
+            return paymentMatch && typeMatch && subscriptionMatch && dateMatch;
+        });
+    }, [consultations, paymentStatus, consultationType, filterBySubscription, startDate, endDate]);
+
+    // Genera una clave única para forzar el re-renderizado del PDFDownloadLink
+    // Esto ayuda a solucionar el error "Eo is not a function" con @react-pdf/renderer
+    // cuando los datos del PDF cambian dinámicamente.
+    const pdfKey = JSON.stringify(filteredConsultations.map(c => c.id));
 
     const totalConsultations = filteredConsultations.length;
     const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pagado').length;
@@ -137,7 +161,7 @@ export default function Show({ patient, subscriptions }: { patient: Patient, sub
 
                 <div className="mt-4">
                     <h2 className="text-xl font-bold">Información del suscripción</h2>
-                                        <p>Suscripción Activa: {activeSubscription ? 'Sí' : 'No'}</p>
+                    <p>Suscripción Activa: {activeSubscription ? 'Sí' : 'No'}</p>
                     {activeSubscription && (
                         <>
                             <p>Inicio del periodo: {new Date(activeSubscription.start_date).toLocaleDateString('es-ES')}</p>
@@ -254,7 +278,19 @@ export default function Show({ patient, subscriptions }: { patient: Patient, sub
                 </Collapsible>
 
                 <div className="mt-4">
+                    <div className="flex justify-between">
+                        
                     <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
+                    <Button asChild>
+                        <PDFDownloadLink
+                            key={pdfKey} // Se añadió la clave para forzar el re-renderizado
+                            document={<ConsultationPDF consultations={filteredConsultations} patient={patient} settings={settings} />} // Se pasa el objeto patient
+                            fileName={`reporte_consultas_${patient.id}.pdf`}
+                            >
+                            {({ loading }) => (loading ? 'Cargando documento...' : 'PDF Informe de Asistencia')}
+                        </PDFDownloadLink>
+                    </Button>
+                            </div>
                     <DataTable
                         columns={consultationColumns}
                         data={filteredConsultations}
