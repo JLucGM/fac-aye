@@ -89,6 +89,7 @@
         </td>
         <td class="center">
           <h1>Reporte de Consultas</h1>
+          <p>Desde: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} Hasta: {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
         </td>
         <td>
           <!-- Mover la fecha aquí -->
@@ -102,7 +103,6 @@
   <table>
     <thead>
       <tr>
-        <th>ID</th>
         <th>Paciente</th>
         <th>Tratante</th>
         <th>Tipo de Consulta</th>
@@ -110,13 +110,12 @@
         <th>Fecha Programada</th>
         <th>Estado de pago</th>
         <th>Monto</th>
-        <th>Nro. de funcional</th> <!-- Nueva columna para el ID de suscripción -->
+        <th>Servicios</th> <!-- Cambiar el encabezado de la columna -->
       </tr>
     </thead>
     <tbody>
       @foreach ($consultas as $consulta)
       <tr>
-        <td>{{ $consulta->id }}</td>
         <td>{{ $consulta->patient->name }} {{ $consulta->patient->lastname }}</td>
         <td>
           {{ $consulta->user->name }} {{ $consulta->user->lastname }} <!-- Mostrar el usuario asignado -->
@@ -127,10 +126,16 @@
         <td>{{ $consulta->payment_status }}</td>
         <td>{{ $consulta->amount }}</td>
         <td>
-          @if ($consulta->subscription)
-            {{ $consulta->subscription->id }} <!-- Mostrar el ID de la suscripción -->
+          @if ($consulta->services)
+            @php
+              $services = json_decode($consulta->services);
+              $serviceNames = array_map(function($service) {
+                return $service->name;
+              }, $services);
+            @endphp
+            {{ implode(', ', $serviceNames) }} <!-- Mostrar los nombres de los servicios -->
           @else
-            Sin funcional
+            Sin servicios
           @endif
         </td>
       </tr>

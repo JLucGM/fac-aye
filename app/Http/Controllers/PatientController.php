@@ -121,8 +121,8 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        $patient->load('consultations', 'consultations.subscription', 'consultations.payment', 'doctor');
-        $subscriptions = $patient->subscriptions()->get();
+        $patient->load('consultations', 'consultations.subscription.subscription', 'consultations.payment', 'doctor');
+    $subscriptions = $patient->subscriptions()->with('subscription')->get();
 
         $settings = Setting::with('media')->first()->get();
         

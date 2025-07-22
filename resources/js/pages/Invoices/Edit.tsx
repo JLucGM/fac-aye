@@ -38,10 +38,9 @@ export default function Edit({ invoice, patients, consultations }: EditInvoicePr
         invoice_date: invoice.invoice_date,
         due_date: invoice.due_date,
         notes: invoice.notes ?? '', // Asegúrate de que notes no sea null
-        items: invoice.items.map(item => ({ // Mapea los ítems existentes
+        items: (invoice.items ?? []).map(item => ({
             id: item.id, // Es crucial incluir el ID del ítem para la actualización
-            consultation_id: item.consultation_id,
-            // description: item.description,
+            consultation_id: item.consultation_id ?? null, // Cambia undefined a null
             quantity: item.quantity,
             unit_price: item.unit_price,
             line_total: item.line_total,
@@ -77,7 +76,7 @@ export default function Edit({ invoice, patients, consultations }: EditInvoicePr
                     <Download className="mr-2 h-4 w-4" />
                     Descargar Factura PDF
                 </Button>
-                </Heading>
+            </Heading>
 
 
             <form className="flex flex-col gap-4" onSubmit={submit}>

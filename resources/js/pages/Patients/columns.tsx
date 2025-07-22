@@ -41,7 +41,7 @@ export const columns: ColumnDef<Patient>[] = [
   },
   {
     id: "subscriptionStatus",
-    header: "Estado de Suscripción",
+    header: "Estado de Funcional",
     cell: ({ row }) => {
       const subscriptions = row.original.subscriptions || [];
       const status: SubscriptionStatus = subscriptions.length > 0 
@@ -55,7 +55,7 @@ export const columns: ColumnDef<Patient>[] = [
       const textMap: Record<SubscriptionStatus, string> = {
         active: 'Activa',
         inactive: 'Inactiva',
-        none: 'Sin suscripción'
+        none: 'Sin Funcional'
       };
       return <Badge variant={variantMap[status]}>{textMap[status]}</Badge>;
     },

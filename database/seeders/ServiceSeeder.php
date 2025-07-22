@@ -38,6 +38,22 @@ class ServiceSeeder extends Seeder
                 'name' => 'K-Tape',
                 'price' => 30,
             ],
+            [
+                'name' => 'Evaluación Tarifa Especial',
+                'price' => 30,
+            ],
+            [
+                'name' => 'Fisioterapia/ Rehabilitación Tarifa Especial',
+                'price' => 25,
+            ],
+            [
+                'name' => 'Masoterapia Tarifa Especial',
+                'price' => 30,
+            ],
+            [
+                'name' => 'Cortesia',
+                'price' => 0,
+            ],
         ];
 
         foreach ($settings as $settingsData) {

@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Edit({ doctor }: { doctor: Doctor }) {
-    console.log("Edit doctor page loaded with doctor data:", doctor);
+    // console.log("Edit doctor page loaded with doctor data:", doctor);
     const { data, setData, errors, put, recentlySuccessful } = useForm({
         name: doctor.name,
         lastname: doctor.lastname ?? '', // Fix: Provide an empty string if lastname is undefined

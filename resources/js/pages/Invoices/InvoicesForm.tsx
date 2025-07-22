@@ -19,7 +19,7 @@ type InvoicesFormProps = {
         due_date?: string;
         notes?: string;
         'items.0.description'?: string;
-        // ... otros errores de ítems
+        [key: string]: string | undefined; // Permitir claves dinámicas
     };
     patients: Patient[];
     consultations: Consultation[];
@@ -53,7 +53,7 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
             {
                 // No se necesita 'id' para nuevos ítems hasta que se guarden
                 consultation_id: null,
-                description: '',
+                // description: '',
                 quantity: 1,
                 unit_price: 0,
                 line_total: 0,
@@ -82,7 +82,7 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
         if (key === 'consultation_id' && value) {
             const selectedConsultation = filteredConsultations.find(c => c.id === parseInt(value));
             if (selectedConsultation) {
-                newItems[index].description = `Consulta del ${selectedConsultation.scheduled_at}`;
+                // newItems[index].description = `Consulta del ${selectedConsultation.scheduled_at}`;
                 newItems[index].unit_price = selectedConsultation.amount;
                 newItems[index].line_total = newItems[index].quantity * selectedConsultation.amount;
             }
@@ -180,8 +180,9 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                             <SelectContent>
                                 {filteredConsultations.map((consultation) => (
                                     <SelectItem key={consultation.id} value={consultation.id.toString()}>
-                                        {consultation.scheduled_at} - {consultation.patient.name} {consultation.patient.lastname} (ID: {consultation.id}) - ${consultation.amount}
+                                        {consultation.scheduled_at} - {consultation.patient ? `${consultation.patient.name} ${consultation.patient.lastname}` : 'Paciente no disponible'} (ID: {consultation.id}) - ${consultation.amount}
                                     </SelectItem>
+
                                 ))}
                             </SelectContent>
                         </Select>

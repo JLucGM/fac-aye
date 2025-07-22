@@ -81,6 +81,8 @@
                 </td>
                 <td class="center">
                     <h1>Reporte de Pagos</h1>
+                              <p>Desde: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} Hasta: {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+
                 </td>
                 <td>
                     <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p>
@@ -92,20 +94,27 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
+                <th>Fecha de Pago</th>
+                <th>Paciente</th>
+                <th>Método de Pago</th>
                 <th>Estado</th>
                 <th>Referencia</th>
-                <th>Fecha de Pago</th>
-                <th>Método de Pago</th>
-                <th>Paciente Asignado</th>
                 <th>Monto</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($pagos as $pago)
             <tr>
-                <td>{{ $pago->id }}</td>
+                <!-- <td>{{ $pago->id }}</td> -->
+                <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
+                <td>
+                    @foreach ($pago->consultations as $consulta)
+                    {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}<br>
+                    @endforeach
+                </td>
                 <td>{{ $pago->status }}</td>
+                <td>{{ $pago->paymentMethod->name }}</td>
                 <td>
                     @if ($pago->reference)
                     {{ $pago->reference }}
@@ -113,18 +122,11 @@
                     Sin referencia
                     @endif
                 </td>
-                <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
-                <td>{{ $pago->paymentMethod->name }}</td>
-                <td>
-                    @foreach ($pago->consultations as $consulta)
-                    {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}<br>
-                    @endforeach
-                </td>
                 <td>{{ $pago->amount }}</td>
             </tr>
             @endforeach
             <tr>
-                <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
+                <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
                 <td><strong>{{ $totalAmount }}</strong></td>
             </tr>
         </tbody>

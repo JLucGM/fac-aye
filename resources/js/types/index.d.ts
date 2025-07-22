@@ -111,7 +111,7 @@ export interface Payment {
     patient_id: number | null; // FK to Patient, can be null if not associated
     consultation_ids: number[]; // Array of Consultation IDs (many-to-many relationship)
     amount: number; // decimal amount
-    status: 'pendiente' | 'completado' | 'fallido'; // payment status
+    status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado';
     reference: string; // transaction id or reference
     notes: string;
     // paid_at: string; // ISO date string or null
@@ -158,7 +158,7 @@ export interface Consultation {
     consultation_type: 'domiciliaria' | 'consultorio';
     amount: number;
     notes?: string;
-    payment_status: "pendiente" | 'pagado' | 'reembolsado';
+    payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
     patient_id: number; // FK to Patient
     patient_subscription_id: number;
     created_at: string;
@@ -168,7 +168,7 @@ export interface Consultation {
     user?: User; // A Consultation belongs to one User
     services?: Service[]; // A Consultation can have many Services (many-to-many)
     payments?: Payment[]; // A Consultation can have many Payments (many-to-many)
-    subscription?: Subscription[];
+    subscription?: Subscription;
 }
 
 export interface Role {
@@ -193,7 +193,7 @@ export type Invoice = {
     created_at: string;
     updated_at: string;
     // Si precargas los ítems de la factura
-    items?: InvoiceItem[];
+    items?: InvoiceItem[]; // Asegúrate de que esta propiedad esté definida como opcional
 };
 
 export type InvoiceItem = {
@@ -257,7 +257,7 @@ export interface CreateConsultationFormData {
     scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;
-    payment_status: 'pendiente' | 'pagado' | 'reembolsado' | ''; // Allow empty string for form initial state
+    payment_status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado'; // Allow empty string for form initial state
     amount: number;
     consultation_type: 'domiciliaria' | 'consultorio' | ''; // Allow empty string for form initial state
     [key: string]: any; // Add this index signature
@@ -293,7 +293,7 @@ export interface CreatePaymentFormData {
     consultation_ids: number[]; // Assuming this will store an array of consultation IDs
     payment_method_id: number | null;
     amount: number;
-    status: 'pendiente' | 'completado' | 'fallido' | 'reembolsado'; // Correcting status values, including 'reembolsado'
+    status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado'; // Correcting status values, including 'reembolsado'
     reference: string;
     notes: string;
     // paid_at: string;
@@ -301,6 +301,7 @@ export interface CreatePaymentFormData {
 }
 export type InvoiceItemFormData = {
     // service_id: number | null; // <-- ELIMINADO
+    id:string | null; // Para nuevos ítems, el ID puede ser null o un string vacío
     consultation_id: number | null; // Ahora será requerido si la factura es de consultas
     // description: string;
     quantity: number;

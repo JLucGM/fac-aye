@@ -19,7 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ invoices }: { invoices: any[] }) {
 
-    console.log('invoices', invoices);
+    // console.log('invoices', invoices);
     return (
         // <AppLayout breadcrumbs={breadcrumbs}>
 

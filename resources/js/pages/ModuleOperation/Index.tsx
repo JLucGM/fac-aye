@@ -1,9 +1,7 @@
 import Heading from '@/components/heading';
-import { Button, buttonVariants } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import { Consultation, type BreadcrumbItem } from '@/types';
+import { buttonVariants } from '@/components/ui/button';
+import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { DataTable } from '../../components/data-table';
 import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [

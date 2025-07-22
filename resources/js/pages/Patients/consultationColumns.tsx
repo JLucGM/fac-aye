@@ -53,12 +53,12 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
   },
   {
     id: "subscriptionInfo",
-    header: "Suscripción",
+    header: "Funcional",
     cell: ({ row }) => {
-        const subscription = row.original.subscription; // Accede a la suscripción directamente
-        return subscription 
-            ? `ID: ${subscription.id}` 
-            : 'Sin suscripción';
+      const subscription = row.original.subscription; // Accede a la funcional directamente
+      return subscription && subscription.name
+        ? subscription.name // Mostrar el nombre de la funcional
+        : 'Sin funcional';
     },
   },
   {

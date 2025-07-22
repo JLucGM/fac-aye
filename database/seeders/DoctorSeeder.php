@@ -20,10 +20,6 @@ class DoctorSeeder extends Seeder
                 'lastname' => 'Gouirand',
             ],
             [
-                'name' => 'Patricia',
-                'lastname' => 'Unknown',
-            ],
-            [
                 'name' => 'Gustavo',
                 'lastname' => 'Garcia',
             ],
@@ -70,7 +66,7 @@ class DoctorSeeder extends Seeder
             [
                 'name' => 'Carlos Eduardo',
                 'lastname' => 'Marquez',
-            ],            
+            ],
         ];
 
         foreach ($doctors as $doctorsData) {

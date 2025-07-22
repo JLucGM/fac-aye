@@ -59,7 +59,7 @@ export default function SuscriptionsForm({ data, setData, errors }: Suscriptions
             </div>
 
             <div>
-                <Label htmlFor="type">Tipo de Suscripción</Label>
+                <Label htmlFor="type">Tipo de Funcional</Label>
                 <select
                     id="type"
                     name="type"

@@ -123,7 +123,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
     const totalConsultations = filteredConsultations.length;
     const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pagado').length;
     const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pendiente').length;
-
+console.log(subscriptions);
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Ver Paciente" />
@@ -160,8 +160,8 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                 </div>
 
                 <div className="mt-4">
-                    <h2 className="text-xl font-bold">Información del suscripción</h2>
-                    <p>Suscripción Activa: {activeSubscription ? 'Sí' : 'No'}</p>
+                    <h2 className="text-xl font-bold">Información de funcional</h2>
+                    <p>Funcional Activa: {activeSubscription ? 'Sí' : 'No'}</p>
                     {activeSubscription && (
                         <>
                             <p>Inicio del periodo: {new Date(activeSubscription.start_date).toLocaleDateString('es-ES')}</p>
@@ -231,7 +231,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                             </div>
 
                             <div className="flex items-center space-x-2">
-                                <Label htmlFor="filterBySubscription" className="whitespace-nowrap">Filtrar por Suscripción:</Label>
+                                <Label htmlFor="filterBySubscription" className="whitespace-nowrap">Filtrar por Funcional:</Label>
                                 <input
                                     type="checkbox"
                                     id="filterBySubscription"
@@ -299,7 +299,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
             </div>
 
             <div className="mt-4">
-                <h2 className="text-xl font-bold mb-2">Suscripciones</h2>
+                <h2 className="text-xl font-bold mb-2">Funcionales</h2>
                 <DataTable
                     columns={subscriptionColumns}
                     data={subscriptions}

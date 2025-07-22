@@ -1,6 +1,5 @@
-import AppLayout from '@/layouts/app-layout';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, Payment, type BreadcrumbItem } from '@/types';
+import { Payment, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'; // Asegúrate de que la ruta sea correcta
 import Heading from '@/components/heading';
@@ -23,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Show({ payment }: { payment: Payment }) {
 
     return (
-        <ContentLayout>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Detalles del Pago" />
             <Heading
                 title="Detalles del Pago"

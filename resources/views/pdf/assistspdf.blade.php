@@ -103,10 +103,11 @@
             <p> <strong>Dirección:</strong> {{ $consultation->patient->address }}</p>
             <p> <strong>Fecha de Visita:</strong> {{ $consultation->created_at }}</p>
             @if ($consultation->patient->subscriptions->isNotEmpty())
-            <p><strong>Nro. de Suscripción:</strong> {{ $consultation->patient->subscriptions->first()->id }}</p>
+            <p><strong>Funcional:</strong> {{ $consultation->patient->subscriptions->first()->subscription->name }}</p>
             @else
-            <p>Sin suscripción</p>
+            <p>Sin funcional</p>
             @endif
+
         </div>
 
         <!-- <h4>Información de la Consulta</h4>

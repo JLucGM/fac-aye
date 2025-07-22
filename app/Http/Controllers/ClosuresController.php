@@ -21,7 +21,7 @@ class ClosuresController extends Controller
         $auth = Auth::user();
 
         // Obtener todas las consultas del día
-        $consultas = Consultation::with('patient', 'user','subscription')->whereDate('created_at', $fechaHoy)->get();
+        $consultas = Consultation::with('patient', 'user', 'subscription')->whereDate('created_at', $fechaHoy)->get();
         $settings = Setting::with('media')->first()->get();
         // return $auth;
         // dd($consultas);
@@ -57,7 +57,7 @@ class ClosuresController extends Controller
         $auth = Auth::user();
 
         // Obtener la consulta específica
-        $consultation = Consultation::with('patient.subscriptions')->findOrFail($consultation->id);
+        $consultation = Consultation::with('patient.subscriptions.subscription')->findOrFail($consultation->id);
         $settings = Setting::with('media')->first()->get();
         // return $consultas;
         // Cargar la vista del PDF
@@ -75,9 +75,12 @@ class ClosuresController extends Controller
         $auth = Auth::user();
         $fechaHoy = Carbon::today();
 
+        // Ajustar endDate para incluir todo el día
+        $endDate = Carbon::parse($endDate)->endOfDay();
+
         $consultas = Consultation::with('patient', 'user')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderBy('scheduled_at', 'asc') // Ordenar por fecha de creacións
+            ->orderBy('scheduled_at', 'asc') // Ordenar por fecha de creación
             ->get();
 
         $settings = Setting::with('media')->first()->get();
@@ -89,12 +92,15 @@ class ClosuresController extends Controller
     }
 
 
+
     public function pagosPorRango(Request $request)
     {
         $startDate = $request->input('start');
         $endDate = $request->input('end');
         $auth = Auth::user();
         $fechaHoy = Carbon::today();
+
+        $endDate = Carbon::parse($endDate)->endOfDay();
 
         $pagos = Payment::with('paymentMethod', 'consultations.patient')
             ->whereBetween('created_at', [$startDate, $endDate])

@@ -20,7 +20,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-
 export default function Create({ paymentMethods, patients, consultations }: { paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
     const { data, setData, errors, post } = useForm<CreatePaymentFormData>({
         patient_id: null, // Agrega esta línea para inicializar patient_id

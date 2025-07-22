@@ -28,7 +28,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ payments }: { payments: Payment[] }) {
-  console.log(payments)
+  // console.log(payments)
   const [selectedMethod, setSelectedMethod] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [startDate, setStartDate] = useState('');

@@ -40,8 +40,9 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
   const statusOptions = [
     { value: 'pendiente', label: 'Pendiente' },
-    { value: 'completado', label: 'Completado' },
-    { value: 'cancelado', label: 'Cancelado' },
+    { value: 'pagado', label: 'Pagado' },
+    { value: 'incobrable', label: 'Incobrable' },
+    { value: 'reembolsado', label: 'Reembolsado' },
   ];
 
   // Al cambiar el paciente, filtra y carga consultas no pagadas

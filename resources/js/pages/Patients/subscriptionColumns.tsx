@@ -1,14 +1,20 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { PatientSubscription, Subscription } from "@/types"; // Asegúrate de que la ruta sea correcta
+import { PatientSubscription } from "@/types"; // Asegúrate de que la ruta sea correcta
 
 export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
+    // {
+    //     accessorKey: "id",
+    //     header: "ID",
+    // },
     {
-        accessorKey: "id",
-        header: "ID",
-    },
-    {
-        accessorKey: "subscription_id",
-        header: "Suscripción",
+        id: "subscriptionName", // Cambia el id de la columna
+        header: "Nombre",
+        cell: ({ row }) => {
+            const subscription = row.original.subscription; // Accede a la suscripción directamente
+            return subscription && subscription.name // Accede directamente a name
+                ? subscription.name // Mostrar el nombre de la suscripción
+                : 'Sin funcional';
+        },
     },
     {
         accessorKey: "start_date",

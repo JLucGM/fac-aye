@@ -45,11 +45,11 @@ export default function Create({ patients, consultations }: { patients: Patient[
         e.preventDefault();
         post(route('invoices.store'), {
             onSuccess: () => {
-                toast.success("Factura creada con éxito.");
+                // toast.success("Factura creada con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear la factura:", err);
-                toast.error("Error al crear la factura. Revisa los campos.");
+                // toast.error("Error al crear la factura. Revisa los campos.");
             },
         });
     };
