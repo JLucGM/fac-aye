@@ -48,13 +48,11 @@ class InvoiceController extends Controller
         // 1. Validar los datos
         $validatedData = $request->validate([
             'patient_id' => 'required|exists:patients,id',
+            'invoice_number' => 'required|string|max:255', // Validación para el número de factura
             'invoice_date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:invoice_date',
             'notes' => 'nullable|string|max:1000',
             'items' => 'required|array|min:1',
-            // 'items.*.service_id' => 'nullable|exists:services,id', // <-- ELIMINADO
             'items.*.consultation_id' => 'required|exists:consultations,id', // Ahora es requerido
-            // 'items.*.description' => 'required|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.line_total' => 'required|numeric|min:0',
@@ -65,17 +63,14 @@ class InvoiceController extends Controller
         foreach ($validatedData['items'] as $item) {
             $subtotal += $item['line_total'];
         }
-        // $taxRate = 0.16; // 16% de IVA
-        // $taxAmount = $subtotal * $taxRate;
-        $totalAmount = $subtotal;
+        $totalAmount = $subtotal; // Puedes agregar impuestos si es necesario
+
         // 3. Crear la Factura
         $invoice = Invoice::create([
-            'invoice_number' => 'INV-' . now()->format('YmdHis') . Str::random(4),
+            'invoice_number' => $validatedData['invoice_number'], // Usar el número de factura proporcionado por el usuario
             'patient_id' => $validatedData['patient_id'],
             'invoice_date' => $validatedData['invoice_date'],
-            'due_date' => $validatedData['due_date'],
             'subtotal' => $subtotal,
-            // 'tax_amount' => $taxAmount,
             'total_amount' => $totalAmount,
             'status' => 'pending',
             'notes' => $validatedData['notes'],
@@ -84,15 +79,14 @@ class InvoiceController extends Controller
         // 4. Crear los Ítems de la Factura
         foreach ($validatedData['items'] as $itemData) {
             $invoice->items()->create([
-                // 'service_id' => null, // Ya no existe
                 'consultation_id' => $itemData['consultation_id'],
-                // 'description' => $itemData['description'],
                 'quantity' => $itemData['quantity'],
                 'unit_price' => $itemData['unit_price'],
                 'line_total' => $itemData['line_total'],
             ]);
         }
 
+        // 5. Redirigir con un mensaje de éxito
         return redirect()->route('invoices.index')->with('success', 'Factura creada con éxito.');
     }
 
@@ -101,6 +95,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
+        $invoice->load('items');
         return Inertia::render('Invoices/Show', compact('invoice'));
     }
 
@@ -130,6 +125,7 @@ class InvoiceController extends Controller
         $validatedData = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'invoice_date' => 'required|date',
+            // 'invoice_number' no se actualiza, ya que es único y se genera al crear la factura
             // 'due_date' => 'required|date|after_or_equal:invoice_date',
             'notes' => 'nullable|string|max:1000',
             'items' => 'required|array|min:1',
@@ -215,5 +211,4 @@ class InvoiceController extends Controller
         // Devolver el PDF para abrir en una nueva pestaña
         return $pdf->stream('factura_' . $invoice->invoice_number . '.pdf', ['Attachment' => 0]);
     }
-    
 }

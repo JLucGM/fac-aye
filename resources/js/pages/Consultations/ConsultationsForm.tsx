@@ -42,10 +42,13 @@ export default function ConsultationsForm({ data, patients = [], users, services
         { value: 'cancelado', label: 'Cancelado' },
     ];
 
-    const paymentStatusOptions = [
-        { value: 'pendiente', label: 'Pendiente' },
-        { value: 'reembolsado', label: 'Reembolsado' },
-    ];
+    // Opciones de estado de pago
+    const paymentStatusOptions = hasActiveSubscription
+        ? [{ value: 'pagado', label: 'Pagado' }] // Solo "Pagado" si hay suscripción activa
+        : [
+            { value: 'pendiente', label: 'Pendiente' },
+            { value: 'reembolsado', label: 'Reembolsado' },
+        ];
 
     const consultationTypeOptions = [
         { value: 'domiciliaria', label: 'Domiciliaria' },
@@ -53,23 +56,23 @@ export default function ConsultationsForm({ data, patients = [], users, services
     ];
 
     useEffect(() => {
+        // Si hay una suscripción activa, establecer el estado de pago como "pagado"
         if (hasActiveSubscription) {
-            setData('amount', 0);
+            setData('payment_status', 'pagado');
         } else {
-            const totalAmount = data.service_id.reduce((total, serviceId) => {
-                const service = services.find(s => s.id === serviceId);
-                return total + (service ? parseFloat(String(service.price)) : 0);
-            }, 0);
-            setData('amount', totalAmount);
+            setData('payment_status', 'pendiente'); // O cualquier valor predeterminado que desees
         }
+
+        const totalAmount = data.service_id.reduce((total, serviceId) => {
+            const service = services.find(s => s.id === serviceId);
+            return total + (service ? parseFloat(String(service.price)) : 0);
+        }, 0);
+        setData('amount', totalAmount);
     }, [data.service_id, hasActiveSubscription, services, setData]);
 
     const selectedServices = services
         .filter(service => data.service_id.includes(service.id))
-        .map(service => ({
-            ...service,
-            price: hasActiveSubscription ? 0 : service.price
-        }));
+        .map(service => service);
 
     return (
         <>
@@ -135,12 +138,13 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
-                    options={paymentStatusOptions}
+                    options={paymentStatusOptions} // Usar las opciones filtradas
                     value={paymentStatusOptions.find(option => option.value === data.payment_status) || null}
                     onChange={(selectedOption) => setData('payment_status', selectedOption?.value ?? '')}
                     isSearchable
                     placeholder="Selecciona el estado de pago..."
                     className="rounded-md"
+                    isDisabled={hasActiveSubscription} // Desactivar el select si hay suscripción activa
                 />
                 <InputError message={errors.payment_status} />
             </div>

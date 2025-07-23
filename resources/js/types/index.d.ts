@@ -300,18 +300,18 @@ export interface CreatePaymentFormData {
     [key: string]: any;
 }
 export type InvoiceItemFormData = {
-    // service_id: number | null; // <-- ELIMINADO
-    id:string | null; // Para nuevos ítems, el ID puede ser null o un string vacío
+    id: number | null; // Cambiar a number | null
     consultation_id: number | null; // Ahora será requerido si la factura es de consultas
-    // description: string;
     quantity: number;
     unit_price: number;
     line_total: number;
 };
+
 export type CreateInvoiceFormData = {
+    invoice_number: string; // Generado automáticamente en el backend
     patient_id: number | null;
     invoice_date: string; // YYYY-MM-DD
-    due_date: string; // YYYY-MM-DD
+    // due_date: string; // YYYY-MM-DD
     notes: string;
     items: InvoiceItemFormData[]; // Array de ítems de la factura
 };

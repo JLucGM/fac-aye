@@ -35,7 +35,6 @@ export default function Create({ doctors, subscriptions }: { doctors: Doctor[], 
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // console.log(data); // Para depuración, puedes ver los datos que se envían
         post(route('patients.store'), {
             onSuccess: () => {
                 // Manejo de éxito

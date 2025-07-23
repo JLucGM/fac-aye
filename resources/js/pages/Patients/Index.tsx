@@ -33,7 +33,6 @@ export default function Index({ patients }: { patients: Patient[] }) {
         setBirthdayPatients(birthdayList);
     }, [patients]);
 
-console.log(patients)
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Listado de Pacientes" />

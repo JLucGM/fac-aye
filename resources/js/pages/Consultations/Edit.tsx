@@ -108,19 +108,19 @@ export default function Edit({ consultation, patients, users, services, paymentM
     };
 
     const openMedicalRecordDialog = (record: MedicalRecord) => {
-    setSelectedMedicalRecord(record);
-    setMedicalRecordData({
-        patient_id: record.patient_id,
-        consultation_id: record.consultation_id ?? 0, // Asignar un valor por defecto si es null
-        title: record.title,
-        anamnesis: record.anamnesis || '', // Asegúrate de que no sea null
-        pain_behavior: record.pain_behavior || '', // Asegúrate de que no sea null
-        description: record.description || '', // Asegúrate de que no sea null
-        // record_date: record.record_date || new Date().toISOString().slice(0, 10), // Si no hay record_date, usar la fecha actual
-        type: record.type,
-    });
-    setIsMedicalRecordDialogOpen(true);
-};
+        setSelectedMedicalRecord(record);
+        setMedicalRecordData({
+            patient_id: record.patient_id,
+            consultation_id: record.consultation_id ?? 0, // Asignar un valor por defecto si es null
+            title: record.title,
+            anamnesis: record.anamnesis || '', // Asegúrate de que no sea null
+            pain_behavior: record.pain_behavior || '', // Asegúrate de que no sea null
+            description: record.description || '', // Asegúrate de que no sea null
+            // record_date: record.record_date || new Date().toISOString().slice(0, 10), // Si no hay record_date, usar la fecha actual
+            type: record.type,
+        });
+        setIsMedicalRecordDialogOpen(true);
+    };
 
 
     return (
@@ -133,10 +133,10 @@ export default function Edit({ consultation, patients, users, services, paymentM
                 <div className="">
                     <Dialog open={isMedicalRecordDialogOpen} onOpenChange={setIsMedicalRecordDialogOpen}>
                         <DialogTrigger asChild>
-                                 {(!consultation.medical_records || consultation.medical_records.length === 0) && (
-         <Button variant="outline" className='me-4'>Añadir Nuevo Registro Médico</Button>
-     )}
-     
+                            {(!consultation.medical_records || consultation.medical_records.length === 0) && (
+                                <Button variant="outline" className='me-4'>Añadir Nuevo Registro Médico</Button>
+                            )}
+
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[550px]">
                             <DialogHeader>
@@ -171,7 +171,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
             <div className="mb-8">
                 <h2 className="text-xl font-bold mb-4">Detalles de la Consulta</h2>
                 <form className="flex flex-col gap-4" onSubmit={submitConsultation}>
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                         <ConsultationsForm
                             data={{
                                 ...data,

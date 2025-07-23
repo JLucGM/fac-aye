@@ -1,5 +1,3 @@
-// resources/js/Pages/Invoices/Create.tsx
-
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
@@ -23,17 +21,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Create({ patients, consultations }: { patients: Patient[], consultations: Consultation[] }) { // Eliminado services
+export default function Create({ patients, consultations }: { patients: Patient[], consultations: Consultation[] }) {
     const { data, setData, errors, post, processing } = useForm<CreateInvoiceFormData>({
+        invoice_number: `INV-${new Date().toISOString().split('T')[0]}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`, // Generar número de factura
         patient_id: null,
         invoice_date: new Date().toISOString().split('T')[0],
-        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         notes: '',
         items: [
             {
-                // service_id: null, // <-- ELIMINADO
+                id: null, // Agregar el campo id
                 consultation_id: null,
-                // description: '',
                 quantity: 1,
                 unit_price: 0,
                 line_total: 0,
@@ -45,11 +42,11 @@ export default function Create({ patients, consultations }: { patients: Patient[
         e.preventDefault();
         post(route('invoices.store'), {
             onSuccess: () => {
-                // toast.success("Factura creada con éxito.");
+                toast.success("Factura creada con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear la factura:", err);
-                // toast.error("Error al crear la factura. Revisa los campos.");
+                toast.error("Error al crear la factura. Revisa los campos.");
             },
         });
     };
@@ -66,7 +63,6 @@ export default function Create({ patients, consultations }: { patients: Patient[
                     data={data}
                     patients={patients}
                     consultations={consultations}
-                    // services={services} // <-- ELIMINADO
                     setData={setData}
                     errors={errors}
                 />

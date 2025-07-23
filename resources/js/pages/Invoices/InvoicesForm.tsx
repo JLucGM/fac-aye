@@ -16,7 +16,7 @@ type InvoicesFormProps = {
     errors: {
         patient_id?: string;
         invoice_date?: string;
-        due_date?: string;
+        // due_date?: string;
         notes?: string;
         'items.0.description'?: string;
         [key: string]: string | undefined; // Permitir claves dinámicas
@@ -93,6 +93,18 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
 
     return (
         <>
+            <div>
+                <Label className="my-2 block font-semibold text-gray-700" htmlFor="invoice_number">Número de Factura</Label>
+                <Input
+                    id="invoice_number"
+                    type="text"
+                    name="invoice_number"
+                    value={data.invoice_number}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('invoice_number', e.target.value)}
+                />
+                <InputError message={errors.invoice_number} className="mt-2" />
+            </div>
             {/* Campo de Paciente (usando react-select) */}
             <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="patient_id">Paciente</Label>
@@ -124,7 +136,7 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                 <InputError message={errors.invoice_date} className="mt-2" />
             </div>
 
-            <div>
+            {/* <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="due_date">Fecha de Vencimiento</Label>
                 <Input
                     id="due_date"
@@ -135,7 +147,7 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                     onChange={(e) => setData('due_date', e.target.value)}
                 />
                 <InputError message={errors.due_date} className="mt-2" />
-            </div>
+            </div> */}
 
             <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="notes">Notas</Label>
@@ -217,9 +229,10 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                             type="number"
                             name={`items[${index}][quantity]`}
                             value={item.quantity}
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full bg-gray-100"
                             onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
                             min="1"
+                            readOnly
                         />
                         <InputError message={errors[`items.${index}.quantity`]} className="mt-2" />
                     </div>

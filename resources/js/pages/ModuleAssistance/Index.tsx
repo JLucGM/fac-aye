@@ -1,6 +1,6 @@
 import Heading from '@/components/heading';
 import { buttonVariants } from '@/components/ui/button';
-import {ContentLayout} from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -21,27 +21,38 @@ export default function Index({ }: {}) {
     return (
         // <AppLayout breadcrumbs={breadcrumbs}>
 
-            <ContentLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Modulo asistencia" />
-                <Heading
-                    title="Modulo asistencia"
-                    description="Gestiona las operaciones de asistencia."
-                >
-                    {/* <Button asChild>
+            <Heading
+                title="Modulo asistencia"
+                description="Gestiona las operaciones de asistencia."
+            >
+                {/* <Button asChild>
                         <Link className="btn btn-primary" href={route('consultations.create')}>
                             Create paciente
                         </Link>
                         </Button> */}
-                </Heading>
+            </Heading>
 
-                 <Link
-                    className={buttonVariants({ variant: "default" })}
+            <div className="flex flex-col">
+
+                <Link
+                    className={buttonVariants({ variant: "link" })}
                     href={route('consultations.index')}
                 >
-                    Lista de asistencias
+                    Lista de Asistencias
                 </Link>
 
-                {/*<Link
+                <Link
+                    className={buttonVariants({ variant: "link" })}
+                    href={route('patients.index')}
+                >
+                    Lista de Pacientes
+                </Link>
+
+            </div>
+
+            {/*<Link
                     className={buttonVariants({ variant: "default" })}
                     href={route('payments.create')}
                 >
@@ -55,7 +66,7 @@ export default function Index({ }: {}) {
                 </Link> */}
 
 
-            </ContentLayout>
+        </ContentLayout>
 
         // </AppLayout>
     );

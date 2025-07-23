@@ -65,7 +65,10 @@ const calculateTotalDebt = (consultations: Consultation[]): number => {
 };
 
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
-
+    // En tu componente Show
+    const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
+    const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
+   
     const [paymentStatus, setPaymentStatus] = useState<string>('all');
     const [consultationType, setConsultationType] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>('');
@@ -123,7 +126,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
     const totalConsultations = filteredConsultations.length;
     const paidConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pagado').length;
     const pendingConsultations = filteredConsultations.filter(consultation => consultation.payment_status === 'pendiente').length;
-console.log(subscriptions);
+
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Ver Paciente" />
@@ -279,18 +282,26 @@ console.log(subscriptions);
 
                 <div className="mt-4">
                     <div className="flex justify-between">
-                        
-                    <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
-                    <Button asChild>
-                        <PDFDownloadLink
-                            key={pdfKey} // Se añadió la clave para forzar el re-renderizado
-                            document={<ConsultationPDF consultations={filteredConsultations} patient={patient} settings={settings} />} // Se pasa el objeto patient
-                            fileName={`reporte_consultas_${patient.id}.pdf`}
+
+                        <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
+                        <Button asChild>
+                            <PDFDownloadLink
+                                key={pdfKey} // Se añadió la clave para forzar el re-renderizado
+                                document={
+                                    <ConsultationPDF
+                                        consultations={filteredConsultations}
+                                        patient={patient}
+                                        settings={settings}
+                                        logoUrl={logoUrl}
+                                        signatureUrl={signatureUrl}
+                                    />
+                                }
+                                fileName={`reporte_consultas_${patient.id}.pdf`}
                             >
-                            {({ loading }) => (loading ? 'Cargando documento...' : 'PDF Informe de Asistencia')}
-                        </PDFDownloadLink>
-                    </Button>
-                            </div>
+                                {({ loading }) => (loading ? 'Cargando documento...' : 'PDF Informe de Asistencia')}
+                            </PDFDownloadLink>
+                        </Button>
+                    </div>
                     <DataTable
                         columns={consultationColumns}
                         data={filteredConsultations}

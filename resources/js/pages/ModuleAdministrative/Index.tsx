@@ -71,6 +71,14 @@ const Index = () => {
                     >
                         Cuentas por cobrar
                     </Link>
+                    <h3 className="font-medium">Facturas</h3>
+
+                    <Link
+                        className={buttonVariants({ variant: "default" })}
+                        href={route('invoices.index')}
+                    >
+                        Facturas
+                    </Link>
                 </div>
 
                 <div className="flex flex-col gap-2">

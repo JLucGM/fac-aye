@@ -1,5 +1,3 @@
-// resources/js/Pages/Invoices/Edit.tsx
-
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
@@ -34,12 +32,12 @@ type EditInvoiceProps = {
 export default function Edit({ invoice, patients, consultations }: EditInvoiceProps) {
     // Inicializa el formulario con los datos de la factura existente
     const { data, setData, errors, put, processing } = useForm<CreateInvoiceFormData>({
+        invoice_number: invoice.invoice_number, // Asegúrate de que el número de factura se mantenga
         patient_id: invoice.patient_id,
         invoice_date: invoice.invoice_date,
-        due_date: invoice.due_date,
         notes: invoice.notes ?? '', // Asegúrate de que notes no sea null
         items: (invoice.items ?? []).map(item => ({
-            id: item.id, // Es crucial incluir el ID del ítem para la actualización
+            id: item.id, // Asegúrate de que el ID sea un número o null
             consultation_id: item.consultation_id ?? null, // Cambia undefined a null
             quantity: item.quantity,
             unit_price: item.unit_price,
@@ -70,14 +68,12 @@ export default function Edit({ invoice, patients, consultations }: EditInvoicePr
             >
                 <Button
                     variant="default"
-                    // Usa window.open para abrir el PDF en una nueva pestaña
                     onClick={() => window.open(route('invoices.pdf', invoice.id), '_blank')}
                 >
                     <Download className="mr-2 h-4 w-4" />
                     Descargar Factura PDF
                 </Button>
             </Heading>
-
 
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <InvoicesForm

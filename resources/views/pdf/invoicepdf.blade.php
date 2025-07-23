@@ -32,7 +32,7 @@
         }
         .company-info, .invoice-details, .patient-info {
             margin-bottom: 20px;
-            border: 1px solid #eee;
+            /* border: 1px solid #eee; */
             padding: 10px;
             border-radius: 5px;
         }
@@ -125,7 +125,7 @@
             <p><strong>Número de Factura:</strong> {{ $invoice->invoice_number }}</p>
             <p><strong>Fecha de Emisión:</strong> {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}</p>
             {{-- due_date ha sido eliminado --}}
-            <p><strong>Estado:</strong> {{ ucfirst(str_replace('_', ' ', $invoice->status)) }}</p>
+            <!-- <p><strong>Estado:</strong> {{ ucfirst(str_replace('_', ' ', $invoice->status)) }}</p> -->
         </div>
     </div>
 

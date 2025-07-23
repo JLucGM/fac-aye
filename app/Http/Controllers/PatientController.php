@@ -121,13 +121,17 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        $patient->load('consultations', 'consultations.subscription.subscription', 'consultations.payment', 'doctor');
-    $subscriptions = $patient->subscriptions()->with('subscription')->get();
+        $patient->load('consultations', 'consultations.subscription.subscription', 'consultations.payment');
+        $subscriptions = $patient->subscriptions()->with('subscription')->get();
 
-        $settings = Setting::with('media')->first()->get();
-        
-        // dd($settings);
-        return Inertia::render('Patients/Show', compact('patient', 'subscriptions','settings'));
+        // Cargar la configuración y sus medios
+        $settings = Setting::with('media')->first(); // Obtiene el primer registro como un objeto
+
+        // Obtener las URLs de las imágenes
+        // $logoUrl = $settings->hasMedia('logo') ? $settings->getFirstMediaUrl('logo') : null;
+        // $signatureUrl = $settings->hasMedia('signature') ? $settings->getFirstMediaUrl('signature') : null;
+// dd($logoUrl, $signatureUrl);
+    return Inertia::render('Patients/Show', compact('patient', 'subscriptions', 'settings'));
     }
 
 
