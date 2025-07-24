@@ -9,7 +9,7 @@ import { columns } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -20,8 +20,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ roles }: { roles: Role[] }) {
-
-    // console.log('paymentMethods', paymentMethods);
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Index" />

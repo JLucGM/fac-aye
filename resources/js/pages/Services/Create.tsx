@@ -31,12 +31,9 @@ export default function Create() {
         e.preventDefault();
         post(route('services.store'), {
             onSuccess: () => {
-                console.log("Servicio creado con éxito:", data);
-                // toast("Servicio creado con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear el servicio:", err);
-                // toast("Error al crear el servicio.");
             },
         });
     };

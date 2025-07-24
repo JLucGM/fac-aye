@@ -7,7 +7,7 @@ import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -35,12 +35,9 @@ export default function Edit({ paymentMethod }: { paymentMethod: PaymentMethod }
 
         put(routeFn('payment-methods.update', paymentMethod.slug), {
             onSuccess: () => {
-                console.log("Método de pago actualizado con éxito:");
-                // toast("Método de pago actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
                 console.error("Error al actualizar el método de pago:", err);
-                // toast("Error al actualizar el método de pago."); // Uncomment if you have sonner setup
             },
         });
     };

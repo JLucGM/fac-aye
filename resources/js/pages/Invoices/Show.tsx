@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Show({ invoice }: { invoice: Invoice }) {
-    // console.log("Factura recibida:", invoice);
+
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title={`Factura ${invoice.invoice_number}`} />

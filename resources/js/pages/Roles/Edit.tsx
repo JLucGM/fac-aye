@@ -6,7 +6,7 @@ import Heading from '@/components/heading';
 import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Inicio', href: '/dashboard' },
     { title: 'Role', href: '/roles' },
     { title: 'Edit role', href: '#' },
 ];
@@ -23,7 +23,6 @@ export default function Edit({ role, permissions, assignedPermissions }: { role:
 
         put(routeFn('roles.update', role), {
             onSuccess: () => {
-                console.log('Role actualizado con éxito:', data);
             },
             onError: (err) => {
                 console.error('Error al actualizar el Role:', err);

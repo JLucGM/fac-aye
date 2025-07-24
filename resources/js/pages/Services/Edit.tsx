@@ -32,21 +32,14 @@ export default function Edit({ service }: { service: Service }) {
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // console.log("Submitting updated service data:", data); // Verifies that data is updating
 
-        // FIX: Address 'Argument of type 'Router' is not assignable to parameter of type 'string'.'
-        // This workaround helps TypeScript understand the global 'route' function (from Ziggy.js)
-        // by explicitly casting 'window.route' to a function type that returns a string.
         const routeFn = (name: string, params?: object | number) => (window as any).route(name, params);
 
         put(routeFn('services.update', service), { // Use routeFn and pass service.id
             onSuccess: () => {
-                // console.log("Servicio actualizado con éxito:", data);
-                // toast("Servicio actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
                 console.error("Error al actualizar el servicio:", err);
-                // toast("Error al actualizar el servicio."); // Uncomment if you have sonner setup
             },
         });
     };

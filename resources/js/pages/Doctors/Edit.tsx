@@ -22,7 +22,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Edit({ doctor }: { doctor: Doctor }) {
-    // console.log("Edit doctor page loaded with doctor data:", doctor);
     const { data, setData, errors, put, recentlySuccessful } = useForm({
         name: doctor.name,
         lastname: doctor.lastname ?? '', // Fix: Provide an empty string if lastname is undefined
@@ -39,8 +38,6 @@ export default function Edit({ doctor }: { doctor: Doctor }) {
 
         put(routeFn('doctors.update', doctor), {
             onSuccess: () => {
-                // console.log("Doctor actualizado con éxito:");
-                // toast("Doctor actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
                 console.error("Error al actualizar el doctor:", err);

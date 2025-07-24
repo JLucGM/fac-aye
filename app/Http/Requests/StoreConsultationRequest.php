@@ -27,7 +27,7 @@ class StoreConsultationRequest extends FormRequest
             'service_id' => 'required|exists:services,id',
             'notes' => 'nullable|string|max:1000',
             'status' => 'required|in:programado,completado,cancelado',
-            // 'payment_status' => 'required|in:pendiente,pagado,reembolsado',
+            'payment_status' => 'required|in:pendiente,pagado,reembolsado,incobrable',
             'scheduled_at' => 'nullable|date',
             // 'completed_at' => 'nullable|date|after_or_equal:scheduled_at',
             'amount' => 'nullable|numeric|min:0',
@@ -64,7 +64,7 @@ class StoreConsultationRequest extends FormRequest
             'status.in' => 'El estado debe ser uno de los siguientes: programado, completado, cancelado.',
 
             'payment_status.required' => 'El campo estado de pago es obligatorio.',
-            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, pagado, reembolsado.',
+            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, pagado, reembolsado, incobrable.',
 
             'scheduled_at.date' => 'La fecha programada debe ser una fecha válida.',
 

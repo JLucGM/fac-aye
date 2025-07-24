@@ -42,7 +42,6 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-    // console.log(consultation);
 
     // Estado para controlar la apertura/cierre del Dialog
     const [isMedicalRecordDialogOpen, setIsMedicalRecordDialogOpen] = useState(false);

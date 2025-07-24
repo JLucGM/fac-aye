@@ -1,7 +1,6 @@
-import { Consultation, CreateConsultationFormData, Patient, Service, User, type BreadcrumbItem } from '@/types';
+import { CreateConsultationFormData, Patient, Service, User, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { ContentLayout } from '@/layouts/content-layout';
 import ConsultationsForm from './ConsultationsForm';
 import Heading from '@/components/heading';
@@ -52,11 +51,9 @@ export default function Create({ patients, users, services }: {
 
         post(route('consultations.store'), {
             onSuccess: () => {
-                toast.success("Consulta creada con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear la Asistencia:", err);
-                toast.error("Error al crear la asistencia.");
             },
         });
     };

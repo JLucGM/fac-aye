@@ -2,9 +2,8 @@ import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
-import InvoicesForm from './InvoicesForm'; // Importa el componente del formulario
+import InvoicesForm from './InvoicesForm'; 
 import { Invoice, Patient, Consultation, type BreadcrumbItem, CreateInvoiceFormData } from '@/types';
-import { toast } from 'sonner'; // Si usas sonner para notificaciones
 import { Download } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -50,11 +49,9 @@ export default function Edit({ invoice, patients, consultations }: EditInvoicePr
         // Usa 'put' para la actualización
         put(route('invoices.update', invoice.id), {
             onSuccess: () => {
-                toast.success("Factura actualizada con éxito.");
             },
             onError: (err) => {
                 console.error("Error al actualizar la factura:", err);
-                toast.error("Error al actualizar la factura. Revisa los campos.");
             },
         });
     };

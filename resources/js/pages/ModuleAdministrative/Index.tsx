@@ -34,7 +34,7 @@ const Index = () => {
     const handleCierrePorRango = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (!startDate || !endDate) return;
-        console.log('Cierre por rango:', startDate, endDate);
+
         window.open(route('cierre.por.rango', { start: startDate, end: endDate }), '_blank');
     };
 

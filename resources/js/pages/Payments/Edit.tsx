@@ -37,12 +37,9 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
 
         put(route('payments.update', payment.id), { // Asegúrate de que la ruta sea correcta
             onSuccess: () => {
-                // console.log("Pago actualizado con éxito");
-                // Aquí puedes mostrar un mensaje de éxito
             },
             onError: (err) => {
                 console.error("Error al actualizar el pago:", err);
-                // Aquí puedes mostrar un mensaje de error
             },
         });
     };

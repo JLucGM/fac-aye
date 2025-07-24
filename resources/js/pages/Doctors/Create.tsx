@@ -35,12 +35,9 @@ export default function Create() {
         e.preventDefault();
         post(route('doctors.store'), {
             onSuccess: () => {
-                // console.log("Paciente creado con éxito:", data);
-                // toast("Paciente creado con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear el doctor:", err);
-                // toast("Error al crear el doctor.");
             },
         });
     };

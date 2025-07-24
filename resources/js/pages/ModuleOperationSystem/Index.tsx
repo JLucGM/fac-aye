@@ -19,7 +19,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ }: {}) {
 
-    // console.log('consultations', consultations);
     return (
         // <AppLayout breadcrumbs={breadcrumbs}>
         

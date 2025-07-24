@@ -19,10 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ services }: { services: Service[] }) {
 
-    // console.log('services', services);
     return (
-        // <AppLayout breadcrumbs={breadcrumbs}>
-
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Listado de Servicios" />
             <Heading
@@ -40,9 +37,6 @@ export default function Index({ services }: { services: Service[] }) {
                 columns={columns}
                 data={services}
             />
-
         </ContentLayout>
-
-        // </AppLayout>
     );
 }

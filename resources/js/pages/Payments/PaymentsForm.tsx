@@ -25,7 +25,7 @@ type PaymentsFormProps = {
 };
 
 export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], setData, errors }: PaymentsFormProps) {
-  console.log(consultations);
+
   const [pendingConsultations, setPendingConsultations] = useState<Consultation[]>([]);
 
   const patientOptions = Array.isArray(patients) ? patients.map(patient => ({

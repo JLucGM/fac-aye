@@ -43,12 +43,9 @@ export default function Edit({ patient, doctors, subscriptions }: { patient: Pat
 
         put(routeFn('patients.update', patient), {
             onSuccess: () => {
-                // console.log("Paciente actualizado con éxito:");
-                // toast("Paciente actualizado con éxito."); // Uncomment if you have sonner setup
             },
             onError: (err) => {
                 console.error("Error al actualizar el paciente:", err);
-                // toast("Error al actualizar el paciente."); // Uncomment if you have sonner setup
             },
         });
     };

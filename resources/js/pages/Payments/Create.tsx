@@ -1,7 +1,7 @@
-import { Consultation, CreatePaymentFormData, Patient, Payment, PaymentMethod, type BreadcrumbItem } from '@/types';
+import { Consultation, CreatePaymentFormData, Patient, PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import {ContentLayout} from '@/layouts/content-layout';
+import { ContentLayout } from '@/layouts/content-layout';
 import PaymentsForm from './PaymentsForm';
 import Heading from '@/components/heading';
 
@@ -38,37 +38,34 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
 
         post(route('payments.store'), {
             onSuccess: () => {
-                console.log("Pago creado con éxito");
-                // toast("Pago creado con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear el pago:", err);
-                // toast("Error al crear el pago.");
             },
         });
     };
 
     return (
-            <ContentLayout breadcrumbs={breadcrumbs}>
+        <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Crear Pago" />
-                <Heading
-                    title="Crear Pago"
-                    description="Aquí puedes crear un nuevo pago para un paciente."
+            <Heading
+                title="Crear Pago"
+                description="Aquí puedes crear un nuevo pago para un paciente."
+            />
+            <form className="flex flex-col gap-4" onSubmit={submit}>
+                <PaymentsForm
+                    data={data}
+                    patients={patients}
+                    paymentMethods={paymentMethods}
+                    consultations={consultations}
+                    setData={setData}
+                    errors={errors}
                 />
-                <form className="flex flex-col gap-4" onSubmit={submit}>
-                    <PaymentsForm
-                        data={data}
-                        patients={patients}
-                        paymentMethods={paymentMethods}
-                        consultations={consultations}
-                        setData={setData}
-                        errors={errors}
-                    />
 
-                    <Button variant={"default"}>
-                        Crear Pago
-                    </Button>
-                </form>
-            </ContentLayout>
+                <Button variant={"default"}>
+                    Crear Pago
+                </Button>
+            </form>
+        </ContentLayout>
     );
 }

@@ -19,7 +19,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ doctors }: { doctors: Doctor[] }) {
 
-    // console.log('doctors', doctors);
     return (
         // <AppLayout breadcrumbs={breadcrumbs}>
 

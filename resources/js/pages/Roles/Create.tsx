@@ -8,7 +8,7 @@ import { ContentLayout } from '@/layouts/content-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -26,17 +26,14 @@ export default function Create({permissions}:any) {
         name: '', // Asegúrate de que sea string
         permissions: [], // Asegúrate de que sea string
     });
-// console.log(data)
+
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(route('roles.store'), {
             onSuccess: () => {
-                console.log("Metodo de pago creado con éxito:", data);
-                // toast("Metodo de pago creado con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear el Metodo de pago:", err);
-                // toast("Error al crear el Metodo de pago.");
             },
         });
     };

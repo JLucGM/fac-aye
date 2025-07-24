@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Service, Subscription, type BreadcrumbItem } from '@/types';
+import { Subscription, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
@@ -19,10 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ subscriptions }: { subscriptions: Subscription[] }) {
 
-    // console.log('subscriptions', subscriptions);
     return (
-        // <AppLayout breadcrumbs={breadcrumbs}>
-
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Listado de Funcionales" />
             <Heading
@@ -40,9 +37,6 @@ export default function Index({ subscriptions }: { subscriptions: Subscription[]
                 columns={columns}
                 data={subscriptions}
             />
-
         </ContentLayout>
-
-        // </AppLayout>
     );
 }

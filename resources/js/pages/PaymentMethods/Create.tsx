@@ -7,7 +7,7 @@ import Heading from '@/components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
@@ -31,12 +31,10 @@ export default function Create() {
         e.preventDefault();
         post(route('payment-methods.store'), {
             onSuccess: () => {
-                // console.log("Metodo de pago creado con éxito:");
-                // toast("Metodo de pago creado con éxito.");
+             
             },
             onError: (err) => {
-                console.error("Error al crear el Metodo de pago:", err);
-                // toast("Error al crear el Metodo de pago.");
+                console.error("Error al crear el Método de pago:", err);
             },
         });
     };

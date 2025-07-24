@@ -4,7 +4,6 @@ import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
 import InvoicesForm from './InvoicesForm';
 import { Consultation, Patient, type BreadcrumbItem, CreateInvoiceFormData } from '@/types'; // Eliminado Service
-import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,11 +41,9 @@ export default function Create({ patients, consultations }: { patients: Patient[
         e.preventDefault();
         post(route('invoices.store'), {
             onSuccess: () => {
-                toast.success("Factura creada con éxito.");
             },
             onError: (err) => {
                 console.error("Error al crear la factura:", err);
-                toast.error("Error al crear la factura. Revisa los campos.");
             },
         });
     };

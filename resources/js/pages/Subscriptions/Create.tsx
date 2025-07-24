@@ -33,7 +33,6 @@ export default function Create() {
         e.preventDefault();
         post(route('subscriptions.store'), {
             onSuccess: () => {
-                // console.log("Suscripción creada con éxito:", data);
             },
             onError: (err) => {
                 console.error("Error al crear la Funcional:", err);
