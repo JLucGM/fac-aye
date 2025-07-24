@@ -89,7 +89,9 @@
         </td>
         <td class="center">
           <h1>Reporte de Consultas</h1>
+          @if(isset($startDate) && isset($endDate))
           <p>Desde: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} Hasta: {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+          @endif
         </td>
         <td>
           <!-- Mover la fecha aquí -->
@@ -127,15 +129,15 @@
         <td>{{ $consulta->amount }}</td>
         <td>
           @if ($consulta->services)
-            @php
-              $services = json_decode($consulta->services);
-              $serviceNames = array_map(function($service) {
-                return $service->name;
-              }, $services);
-            @endphp
-            {{ implode(', ', $serviceNames) }} <!-- Mostrar los nombres de los servicios -->
+          @php
+          $services = json_decode($consulta->services);
+          $serviceNames = array_map(function($service) {
+          return $service->name;
+          }, $services);
+          @endphp
+          {{ implode(', ', $serviceNames) }} <!-- Mostrar los nombres de los servicios -->
           @else
-            Sin servicios
+          Sin servicios
           @endif
         </td>
       </tr>

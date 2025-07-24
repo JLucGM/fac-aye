@@ -81,8 +81,9 @@
                 </td>
                 <td class="center">
                     <h1>Reporte de Pagos</h1>
-                              <p>Desde: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} Hasta: {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
-
+                    @if(isset($startDate) && isset($endDate))
+                    <p>Desde: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} Hasta: {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
+                    @endif
                 </td>
                 <td>
                     <p>Fecha: {{ $fechaHoy->format('d/m/Y') }}</p>
