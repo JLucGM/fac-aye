@@ -57,6 +57,6 @@ class SettingController extends Controller
                 });
         }
 
-        return Inertia::render('settings/profile');
+         return to_route('profile.edit');
     }
 }

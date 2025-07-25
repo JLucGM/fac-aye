@@ -44,7 +44,7 @@ export function ContentLayout({ children, breadcrumbs = [], ...props }: ContentL
                 <Menubar>
                     <MenubarMenu>
                         <MenubarTrigger>
-                            <UserInfo user={auth.user} />
+                            {/* <UserInfo user={auth.user} /> */}
                             {auth.user.name} {auth.user.lastname}
                             <ChevronDown className="ml-auto size-4" />
                         </MenubarTrigger>

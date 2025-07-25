@@ -1,1 +1,0 @@
-import{j as e}from"./app-CURduOZ7.js";function n({title:t,description:s,children:a}){return e.jsxs("div",{className:"mb-6 space-y-0.5 flex justify-between items-center",children:[e.jsxs("div",{className:"",children:[e.jsx("h2",{className:"text-xl font-semibold tracking-tight",children:t}),s&&e.jsx("p",{className:"text-muted-foreground text-sm",children:s})]}),a]})}export{n as H};
