@@ -74,7 +74,7 @@ export default function Index({ }: {}) {
                         className={buttonVariants({ variant: "link" })}
                         href={route('user.index')}
                     >
-                        Ususarios
+                        Usuarios
                     </Link>
                 </div>
 
