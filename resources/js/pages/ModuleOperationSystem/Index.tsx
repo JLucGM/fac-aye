@@ -52,7 +52,7 @@ export default function Index({ }: {}) {
 
                     <Link
                         className={buttonVariants({ variant: "link" })}
-                        href={route('services.create')}
+                        href={route('services.index')}
                     >
                         Servicios
                     </Link>
@@ -69,6 +69,12 @@ export default function Index({ }: {}) {
                         href={route('subscriptions.index')}
                     >
                         Funcionales
+                    </Link>
+                    <Link
+                        className={buttonVariants({ variant: "link" })}
+                        href={route('user.index')}
+                    >
+                        Ususarios
                     </Link>
                 </div>
 
