@@ -11,9 +11,7 @@ class InvoiceItem extends Model
 
     protected $fillable = [
         'invoice_id',
-        // 'service_id',
-        'consultation_id',
-        // 'description',
+        'service_name',
         'quantity',
         'unit_price',
         'line_total',
@@ -27,20 +25,5 @@ class InvoiceItem extends Model
         return $this->belongsTo(Invoice::class);
     }
 
-    /**
-     * Get the service that owns the invoice item.
-     */
-    public function service()
-    {
-        return $this->belongsTo(Service::class);
-    }
-
-    /**
-     * Get the consultation that owns the invoice item.
-     */
-    public function consultation()
-    {
-        return $this->belongsTo(Consultation::class);
-    }
 }
 

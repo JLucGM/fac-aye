@@ -1,13 +1,10 @@
-// resources/js/Pages/Invoices/InvoicesForm.tsx
-
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Select from 'react-select';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateInvoiceFormData, InvoiceItemFormData, Patient, Consultation } from "@/types";
-import { useState, useEffect } from "react";
+import { CreateInvoiceFormData, InvoiceItemFormData, Patient, PaymentMethod } from "@/types";
 import SelectReact from 'react-select';
 
 type InvoicesFormProps = {
@@ -16,44 +13,31 @@ type InvoicesFormProps = {
     errors: {
         patient_id?: string;
         invoice_date?: string;
-        // due_date?: string;
         notes?: string;
-        'items.0.description'?: string;
+        'items.0.service_name'?: string; // Cambiado a service_name
         [key: string]: string | undefined; // Permitir claves dinámicas
     };
     patients: Patient[];
-    consultations: Consultation[];
-    // Añadir una prop para indicar si estamos en modo edición
-    isEditing?: boolean;
+    paymentMethods: PaymentMethod[];
 };
 
-export default function InvoicesForm({ data, setData, errors, patients, consultations, isEditing = false }: InvoicesFormProps) {
-    const [filteredConsultations, setFilteredConsultations] = useState<Consultation[]>([]);
-
+export default function InvoicesForm({ data, setData, errors, patients, paymentMethods }: InvoicesFormProps) {
     const patientOptions = patients.map(patient => ({
         value: patient.id,
         label: `${patient.name} ${patient.lastname} (C.I: ${patient.identification})`
     }));
 
-    useEffect(() => {
-        if (data.patient_id) {
-            const patientConsults = consultations.filter(
-                c => c.patient_id === data.patient_id
-            );
-            setFilteredConsultations(patientConsults);
-        } else {
-            setFilteredConsultations([]);
-        }
-    }, [data.patient_id, consultations]);
-
+    const paymentMethodOptions = paymentMethods.map(method => ({
+        value: method.id,
+        label: method.name
+    }));
 
     const addInvoiceItem = () => {
         setData('items', [
             ...data.items,
             {
-                // No se necesita 'id' para nuevos ítems hasta que se guarden
-                consultation_id: null,
-                // description: '',
+                id: null,
+                service_name: '', // Agregar el campo para el nombre del servicio
                 quantity: 1,
                 unit_price: 0,
                 line_total: 0,
@@ -78,16 +62,6 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
             newItems[index].line_total = quantity * unitPrice;
         }
 
-        // Si se selecciona una consulta, rellenar descripción y precio unitario
-        if (key === 'consultation_id' && value) {
-            const selectedConsultation = filteredConsultations.find(c => c.id === parseInt(value));
-            if (selectedConsultation) {
-                // newItems[index].description = `Consulta del ${selectedConsultation.scheduled_at}`;
-                newItems[index].unit_price = selectedConsultation.amount;
-                newItems[index].line_total = newItems[index].quantity * selectedConsultation.amount;
-            }
-        }
-
         setData('items', newItems);
     };
 
@@ -105,6 +79,7 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                 />
                 <InputError message={errors.invoice_number} className="mt-2" />
             </div>
+
             {/* Campo de Paciente (usando react-select) */}
             <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="patient_id">Paciente</Label>
@@ -136,18 +111,19 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                 <InputError message={errors.invoice_date} className="mt-2" />
             </div>
 
-            {/* <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="due_date">Fecha de Vencimiento</Label>
-                <Input
-                    id="due_date"
-                    type="date"
-                    name="due_date"
-                    value={data.due_date}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData('due_date', e.target.value)}
+            <div>
+                <Label htmlFor="payment_method_id">Método de Pago</Label>
+                <Select
+                    id="payment_method_id"
+                    options={paymentMethodOptions}
+                    value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
+                    onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
+                    isSearchable
+                    placeholder="Selecciona un método de pago..."
+                    className="rounded-md mt-1 block w-full"
                 />
-                <InputError message={errors.due_date} className="mt-2" />
-            </div> */}
+                <InputError message={errors.payment_method_id} className="mt-2" />
+            </div>
 
             <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="notes">Notas</Label>
@@ -165,9 +141,6 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
             <h3 className="text-lg font-semibold mt-6 mb-3">Ítems de la Factura</h3>
             {data.items.map((item, index) => (
                 <div key={item.id || `new-${index}`} className="border p-4 rounded-md mb-4 relative">
-                    {/* Campo oculto para el ID del ítem si existe */}
-                    {item.id && <input type="hidden" name={`items[${index}][id]`} value={item.id} />}
-
                     <Button
                         type="button"
                         variant="destructive"
@@ -178,48 +151,19 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                         X
                     </Button>
 
-                    {/* Campo de Consulta */}
+                    {/* Campo de Nombre del Servicio */}
                     <div>
-                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`consultation_${index}`}>Consulta Asociada</Label>
-                        <Select
-                            value={item.consultation_id?.toString() || ''}
-                            onValueChange={(value) => handleItemChange(index, 'consultation_id', parseInt(value))}
-                            disabled={!data.patient_id || filteredConsultations.length === 0}
-                        >
-                            <SelectTrigger id={`consultation_${index}`}>
-                                <SelectValue placeholder="Selecciona una consulta" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {filteredConsultations.map((consultation) => (
-                                    <SelectItem key={consultation.id} value={consultation.id.toString()}>
-                                        {consultation.scheduled_at} - {consultation.patient ? `${consultation.patient.name} ${consultation.patient.lastname}` : 'Paciente no disponible'} (ID: {consultation.id}) - ${consultation.amount}
-                                    </SelectItem>
-
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {!data.patient_id && (
-                            <p className="text-sm text-gray-500 mt-1">Selecciona un paciente para ver sus consultas.</p>
-                        )}
-                        {data.patient_id && filteredConsultations.length === 0 && (
-                            <p className="text-sm text-gray-500 mt-1">No hay consultas disponibles para este paciente.</p>
-                        )}
-                        <InputError message={errors[`items.${index}.consultation_id`]} className="mt-2" />
-                    </div>
-
-                    {/* Campo de Descripción */}
-                    {/* <div>
-                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`description_${index}`}>Descripción</Label>
+                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`service_name_${index}`}>Nombre del Servicio</Label>
                         <Input
-                            id={`description_${index}`}
+                            id={`service_name_${index}`}
                             type="text"
-                            name={`items[${index}][description]`}
-                            value={item.description}
+                            name={`items[${index}][service_name]`}
+                            value={item.service_name}
                             className="mt-1 block w-full"
-                            onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                            onChange={(e) => handleItemChange(index, 'service_name', e.target.value)}
                         />
-                        <InputError message={errors[`items.${index}.description`]} className="mt-2" />
-                    </div> */}
+                        <InputError message={errors[`items.${index}.service_name`]} className="mt-2" />
+                    </div>
 
                     {/* Campo de Cantidad */}
                     <div>
@@ -229,10 +173,9 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                             type="number"
                             name={`items[${index}][quantity]`}
                             value={item.quantity}
-                            className="mt-1 block w-full bg-gray-100"
+                            className="mt-1 block w-full"
                             onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
                             min="1"
-                            readOnly
                         />
                         <InputError message={errors[`items.${index}.quantity`]} className="mt-2" />
                     </div>
@@ -245,8 +188,8 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                             type="number"
                             name={`items[${index}][unit_price]`}
                             value={item.unit_price}
-                            className="mt-1 block w-full bg-gray-100"
-                            readOnly
+                            className="mt-1 block w-full"
+                            onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
                         />
                         <InputError message={errors[`items.${index}.unit_price`]} className="mt-2" />
                     </div>
@@ -258,14 +201,14 @@ export default function InvoicesForm({ data, setData, errors, patients, consulta
                             id={`line_total_${index}`}
                             type="number"
                             value={item.line_total}
-                            className="mt-1 block w-full bg-gray-100"
+                            className="mt-1 block w-full"
                             readOnly
                         />
                     </div>
                 </div>
             ))}
             <Button type="button" variant="outline" onClick={addInvoiceItem} className="mt-4">
-                Agregar Ítem de Consulta
+                Agregar Ítem de Servicio
             </Button>
         </>
     );

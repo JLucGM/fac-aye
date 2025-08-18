@@ -13,11 +13,8 @@ class Invoice extends Model
         'invoice_number',
         'patient_id',
         'invoice_date',
-        // 'due_date',
-        // 'subtotal',
-        // 'tax_amount',
+        'payment_method_id',
         'total_amount',
-        'status',
         'notes',
     ];
 
@@ -35,16 +32,6 @@ class Invoice extends Model
     public function items()
     {
         return $this->hasMany(InvoiceItem::class);
-    }
-
-    /**
-     * The payments that belong to the invoice.
-     */
-    public function payments()
-    {
-        return $this->belongsToMany(Payment::class, 'invoice_payments')
-                    ->withPivot('amount_applied') // Para acceder al campo amount_applied en la tabla pivote
-                    ->withTimestamps();
     }
 
     // Puedes agregar métodos para calcular el saldo pendiente, etc.

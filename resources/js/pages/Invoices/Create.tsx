@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
 import InvoicesForm from './InvoicesForm';
-import { Consultation, Patient, type BreadcrumbItem, CreateInvoiceFormData } from '@/types'; // Eliminado Service
+import { Patient, type BreadcrumbItem, CreateInvoiceFormData, PaymentMethod } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,16 +20,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Create({ patients, consultations }: { patients: Patient[], consultations: Consultation[] }) {
-    const { data, setData, errors, post, processing } = useForm<CreateInvoiceFormData>({
+export default function Create({ patients, paymentMethods }: { patients: Patient[], paymentMethods: PaymentMethod[] }) {
+    const { data, setData, errors, post, processing } = useForm({
         invoice_number: `INV-${new Date().toISOString().split('T')[0]}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`, // Generar número de factura
         patient_id: null,
         invoice_date: new Date().toISOString().split('T')[0],
+        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
         notes: '',
         items: [
             {
                 id: null, // Agregar el campo id
-                consultation_id: null,
+                service_name: '', // Agregar el campo para el nombre del servicio
                 quantity: 1,
                 unit_price: 0,
                 line_total: 0,
@@ -39,13 +40,20 @@ export default function Create({ patients, consultations }: { patients: Patient[
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log(data)
         post(route('invoices.store'), {
             onSuccess: () => {
+                // Puedes agregar lógica adicional aquí si es necesario
             },
             onError: (err) => {
                 console.error("Error al crear la factura:", err);
             },
         });
+    };
+
+    // Calcular el total de la factura
+    const calculateTotal = () => {
+        return data.items.reduce((total, item) => total + item.line_total, 0);
     };
 
     return (
@@ -59,11 +67,15 @@ export default function Create({ patients, consultations }: { patients: Patient[
                 <InvoicesForm
                     data={data}
                     patients={patients}
-                    consultations={consultations}
+                    paymentMethods={paymentMethods}
                     setData={setData}
                     errors={errors}
                 />
 
+<div className="mt-4">
+                    <h3 className="text-lg font-semibold">Total de la Factura: ${calculateTotal().toFixed(2)}</h3>
+                </div>
+                
                 <Button
                     variant={"default"}
                     type="submit"

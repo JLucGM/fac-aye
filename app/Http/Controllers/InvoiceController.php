@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Consultation;
 use App\Models\Invoice;
 use App\Models\Patient;
+use App\Models\PaymentMethod;
 use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -34,10 +35,9 @@ class InvoiceController extends Controller
     public function create()
     {
         $patients = Patient::all();
-        // Cargar paciente asociado a la consulta para mostrar en el select
-        $consultations = Consultation::with('patient')->get();
+        $paymentMethods = PaymentMethod::where('active', 1)->get();
 
-        return Inertia::render('Invoices/Create', compact('patients', 'consultations'));
+        return Inertia::render('Invoices/Create', compact('patients', 'paymentMethods'));
     }
 
     /**
@@ -48,38 +48,38 @@ class InvoiceController extends Controller
         // 1. Validar los datos
         $validatedData = $request->validate([
             'patient_id' => 'required|exists:patients,id',
-            'invoice_number' => 'required|string|max:255', // Validación para el número de factura
+            'invoice_number' => 'required|string|max:255',
             'invoice_date' => 'required|date',
             'notes' => 'nullable|string|max:1000',
+            'payment_method_id' => 'required|exists:payment_methods,id', // Validación para el método de pago
             'items' => 'required|array|min:1',
-            'items.*.consultation_id' => 'required|exists:consultations,id', // Ahora es requerido
+            'items.*.service_name' => 'required|string|max:255', // Validación para el nombre del servicio
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.line_total' => 'required|numeric|min:0',
         ]);
 
-        // 2. Calcular subtotal, tax_amount y total_amount en el backend para seguridad
+        // 2. Calcular subtotal y total_amount
         $subtotal = 0;
         foreach ($validatedData['items'] as $item) {
             $subtotal += $item['line_total'];
         }
-        $totalAmount = $subtotal; // Puedes agregar impuestos si es necesario
+        $totalAmount = $subtotal;
 
         // 3. Crear la Factura
         $invoice = Invoice::create([
-            'invoice_number' => $validatedData['invoice_number'], // Usar el número de factura proporcionado por el usuario
+            'invoice_number' => $validatedData['invoice_number'],
             'patient_id' => $validatedData['patient_id'],
             'invoice_date' => $validatedData['invoice_date'],
-            'subtotal' => $subtotal,
             'total_amount' => $totalAmount,
-            'status' => 'pending',
             'notes' => $validatedData['notes'],
+            'payment_method_id' => $validatedData['payment_method_id'], // Agregar el método de pago
         ]);
 
         // 4. Crear los Ítems de la Factura
         foreach ($validatedData['items'] as $itemData) {
             $invoice->items()->create([
-                'consultation_id' => $itemData['consultation_id'],
+                'service_name' => $itemData['service_name'], // Usar el nombre del servicio
                 'quantity' => $itemData['quantity'],
                 'unit_price' => $itemData['unit_price'],
                 'line_total' => $itemData['line_total'],
@@ -87,7 +87,7 @@ class InvoiceController extends Controller
         }
 
         // 5. Redirigir con un mensaje de éxito
-        return redirect()->route('invoices.index')->with('success', 'Factura creada con éxito.');
+        return redirect()->route('invoices.show', $invoice)->with('success', 'Factura creada con éxito.');
     }
 
     /**
@@ -107,13 +107,12 @@ class InvoiceController extends Controller
         // Cargar la factura con sus relaciones necesarias
         $invoice->load([
             'patient', // Para mostrar el paciente principal de la factura
-            'items.consultation.patient' // Para los ítems, cargar la consulta y su paciente asociado
+            'items' // Para los ítems, cargar la consulta y su paciente asociado
         ]);
         // También necesitamos todas las listas para los selects (pacientes, consultas)
         $patients = Patient::all();
         // Cargar consultas con su paciente para el select de ítems
-        $consultations = Consultation::with('patient')->get();
-        return Inertia::render('Invoices/Edit', compact('invoice', 'patients', 'consultations'));
+        return Inertia::render('Invoices/Edit', compact('invoice', 'patients'));
     }
 
     /**
@@ -130,7 +129,6 @@ class InvoiceController extends Controller
             'notes' => 'nullable|string|max:1000',
             'items' => 'required|array|min:1',
             'items.*.id' => 'nullable|exists:invoice_items,id', // Para identificar ítems existentes
-            'items.*.consultation_id' => 'required|exists:consultations,id',
             // 'items.*.description' => 'nullable|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
@@ -195,8 +193,8 @@ class InvoiceController extends Controller
     public function invoicePdf(Invoice $invoice)
     {
         // Cargar la factura con sus relaciones necesarias para el PDF
-        // Ahora solo necesitamos 'patient' y 'items.consultation'
-        $invoice->load(['patient', 'items.consultation']);
+        // Ahora solo necesitamos 'patient' y 'items'
+        $invoice->load(['patient', 'items']);
         $fechaHoy = Carbon::today();
         $auth = Auth::user(); // Usuario autenticado que genera el PDF
         $settings = Setting::with('media')->first(); // Obtener la configuración de la empresa

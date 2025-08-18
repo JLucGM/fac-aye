@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
 import InvoicesForm from './InvoicesForm'; 
-import { Invoice, Patient, Consultation, type BreadcrumbItem, CreateInvoiceFormData } from '@/types';
+import { Invoice, Patient, type BreadcrumbItem, CreateInvoiceFormData } from '@/types';
 import { Download } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -25,10 +25,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 type EditInvoiceProps = {
     invoice: Invoice;
     patients: Patient[];
-    consultations: Consultation[];
 };
 
-export default function Edit({ invoice, patients, consultations }: EditInvoiceProps) {
+export default function Edit({ invoice, patients,  }: EditInvoiceProps) {
     // Inicializa el formulario con los datos de la factura existente
     const { data, setData, errors, put, processing } = useForm<CreateInvoiceFormData>({
         invoice_number: invoice.invoice_number, // Asegúrate de que el número de factura se mantenga
@@ -37,7 +36,6 @@ export default function Edit({ invoice, patients, consultations }: EditInvoicePr
         notes: invoice.notes ?? '', // Asegúrate de que notes no sea null
         items: (invoice.items ?? []).map(item => ({
             id: item.id, // Asegúrate de que el ID sea un número o null
-            consultation_id: item.consultation_id ?? null, // Cambia undefined a null
             quantity: item.quantity,
             unit_price: item.unit_price,
             line_total: item.line_total,
@@ -76,7 +74,6 @@ export default function Edit({ invoice, patients, consultations }: EditInvoicePr
                 <InvoicesForm
                     data={data}
                     patients={patients}
-                    consultations={consultations}
                     setData={setData}
                     errors={errors}
                     isEditing={true} // Pasa esta prop para indicar modo edición
