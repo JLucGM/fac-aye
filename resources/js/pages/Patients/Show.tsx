@@ -2,7 +2,7 @@ import { DataTable } from '@/components/data-table';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Patient, type BreadcrumbItem, Consultation, Subscription, PatientSubscription } from '@/types';
+import { Patient, type BreadcrumbItem, Consultation, PatientSubscription } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, PenBox } from 'lucide-react';
@@ -10,14 +10,13 @@ import React, { useState, useMemo } from 'react'; // Importamos useMemo
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import {
-    Collapsible,
-    CollapsibleTrigger,
-    CollapsibleContent,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent, } from "@/components/ui/collapsible";
 import { subscriptionColumns } from './subscriptionColumns';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import ConsultationPDF from '@/components/pdf/ConsultationPdf';
+import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import HeadingSmall from '@/components/heading-small';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -65,10 +64,10 @@ const calculateTotalDebt = (consultations: Consultation[]): number => {
 };
 
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
-    // En tu componente Show
+
     const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
     const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
-   
+
     const [paymentStatus, setPaymentStatus] = useState<string>('all');
     const [consultationType, setConsultationType] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>('');
@@ -171,8 +170,14 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
             </div>
 
             <div className="mt-4 space-y-4">
-                <h2 className="text-xl font-bold">Filtros de Consultas</h2>
+                <div className="mt-4">
 
+                    <Tabs defaultValue="account" className="w-full">
+                        <TabsList>
+                            <TabsTrigger value="account">Consultas</TabsTrigger>
+                            <TabsTrigger value="password">Funcionales</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="account">
                 <Collapsible
                     open={isFiltersOpen}
                     onOpenChange={setIsFiltersOpen}
@@ -275,11 +280,12 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                         </div>
                     </CollapsibleContent>
                 </Collapsible>
-
-                <div className="mt-4">
                     <div className="flex justify-between">
 
-                        <h2 className="text-xl font-bold mb-2">Consultas ({filteredConsultations.length})</h2>
+                        <HeadingSmall
+                                title='Consultas'
+                                description="Lista de consultas del paciente"
+                            />
                         <Button asChild>
                             <PDFDownloadLink
                                 key={pdfKey} // Se añadió la clave para forzar el re-renderizado
@@ -298,20 +304,40 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                             </PDFDownloadLink>
                         </Button>
                     </div>
-                    <DataTable
-                        columns={consultationColumns}
-                        data={filteredConsultations}
-                    />
+
+                            <DataTable
+                                columns={consultationColumns}
+                                data={filteredConsultations}
+                            />
+                        </TabsContent>
+                        <TabsContent value="password">
+                            <HeadingSmall
+                                title="Funcionales"
+                                description="Lista de suscripciones activas y pasadas del paciente"
+                            />
+            
+                            <DataTable
+                                columns={subscriptionColumns}
+                                data={subscriptions}
+                            />
+
+                        </TabsContent>
+                    </Tabs>
+
                 </div>
             </div>
 
+
             <div className="mt-4">
-                <h2 className="text-xl font-bold mb-2">Funcionales</h2>
-                <DataTable
-                    columns={subscriptionColumns}
-                    data={subscriptions}
+                <h2 className="text-xl font-bold mb-2">Historial Médico</h2>
+                <MedicalRecordTimeline
+                    medicalRecords={patient.medical_records || []}
+                    initialVisibleCount={3}
+                // onEdit={openMedicalRecordDialog} // Pasar la función para abrir el diálogo
                 />
             </div>
+
+
         </ContentLayout>
     );
 }
