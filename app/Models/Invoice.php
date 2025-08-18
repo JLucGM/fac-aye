@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Invoice extends Model
+class Invoice extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'invoice_number',
@@ -17,6 +20,14 @@ class Invoice extends Model
         'total_amount',
         'notes',
     ];
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('invoice_img')
+              ->width(368)
+              ->height(232);
+
+    }
 
     /**
      * Get the patient that owns the invoice.

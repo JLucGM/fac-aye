@@ -44,9 +44,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'invoices' => InvoiceController::class,
     ]);
 
-    // routes/web.php
-
-
     Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');
     Route::get('first-visit', [ModuleOperationController::class, 'first_visit_index'])->name('module-operation.first_visit_index');
     Route::post('first-visit-store', [ModuleOperationController::class, 'first_visit_store'])->name('module-operation.first_visit_store');

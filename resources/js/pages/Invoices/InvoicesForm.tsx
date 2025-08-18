@@ -68,6 +68,24 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
     return (
         <>
             <div>
+                <Label htmlFor="invoice_img">Adjuntar factura</Label>
+                <Input
+                    id="invoice_img"
+                    type="file"
+                    name="invoice_img"
+                    className="mt-1 block w-full"
+                    onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                            setData('invoice_img', Array.from(e.target.files));
+                        } else {
+                            setData('invoice_img', null);
+                        }
+                    }}
+                    accept="image/*" // Solo acepta imágenes
+                />
+                <InputError message={errors.invoice_img} className="mt-2" />
+            </div>
+            <div>
                 <Label className="my-2 block font-semibold text-gray-700" htmlFor="invoice_number">Número de Factura</Label>
                 <Input
                     id="invoice_number"

@@ -27,6 +27,7 @@ export default function Create({ patients, paymentMethods }: { patients: Patient
         invoice_date: new Date().toISOString().split('T')[0],
         payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
         notes: '',
+        invoice_img:'',
         items: [
             {
                 id: null, // Agregar el campo id
@@ -75,7 +76,7 @@ export default function Create({ patients, paymentMethods }: { patients: Patient
 <div className="mt-4">
                     <h3 className="text-lg font-semibold">Total de la Factura: ${calculateTotal().toFixed(2)}</h3>
                 </div>
-                
+
                 <Button
                     variant={"default"}
                     type="submit"

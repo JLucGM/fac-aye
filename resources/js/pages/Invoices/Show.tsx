@@ -1,10 +1,15 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Asegúrate de importar los componentes de la tabla
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import { Invoice, type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { Download } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { Download, ImageIcon } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import InputError from '@/components/input-error';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,7 +26,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+type MediaItem = {
+    collection_name: string;
+    original_url: string;
+    name: string;
+};
+
+
+
 export default function Show({ invoice }: { invoice: Invoice }) {
+    const invoice_img = invoice.media.find((mediaItem: MediaItem) => mediaItem.collection_name === 'invoice_img');
+    const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado para controlar el diálogo
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -30,13 +45,23 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                 title={`Factura ${invoice.invoice_number}`}
                 description="Detalles de la factura"
             >
-                <Button
-                    variant="default"
-                    onClick={() => window.open(route('invoices.pdf', invoice.id), '_blank')}
-                >
-                    <Download className="mr-2 h-4 w-4" />
-                    Descargar Factura PDF
-                </Button>
+                <div className="flex gap-4">
+                    {invoice_img && (
+                        <div className="flex justify-center">
+                            <Button onClick={() => setIsDialogOpen(true)} >
+                                <ImageIcon />
+                                Ver adjunto
+                            </Button>
+                        </div>
+                    )}
+                    <Button
+                        variant="default"
+                        onClick={() => window.open(route('invoices.pdf', invoice.id), '_blank')}
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar Factura PDF
+                    </Button>
+                </div>
             </Heading>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -61,9 +86,9 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {(invoice.items ?? []).map((item) => ( // Proporcionar un valor predeterminado
-                                <TableRow key={item.consultation_id}>
-                                    <TableCell>{item.consultation_id}</TableCell>
+                            {(invoice.items ?? []).map((item) => (
+                                <TableRow key={item.id}>
+                                    <TableCell>{item.service_name}</TableCell>
                                     <TableCell>{item.quantity}</TableCell>
                                     <TableCell>${item.unit_price}</TableCell>
                                     <TableCell>${item.line_total}</TableCell>
@@ -77,6 +102,25 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                     </Table>
                 </div>
             </div>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Factura: {invoice.invoice_number}</DialogTitle>
+                        <DialogDescription>
+                            {invoice_img ? (
+                                <img
+                                    src={invoice_img.original_url}
+                                    alt={invoice_img.name}
+                                    className="w-full h-auto"
+                                />
+                            ) : (
+                                <p>No hay imagen adjunta.</p>
+                            )}
+                        </DialogDescription>
+                    </DialogHeader>
+                </DialogContent>
+            </Dialog>
         </ContentLayout>
     );
 }

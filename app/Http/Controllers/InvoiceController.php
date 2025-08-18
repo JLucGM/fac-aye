@@ -57,6 +57,7 @@ class InvoiceController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.line_total' => 'required|numeric|min:0',
+            'invoice_img' => 'required'
         ]);
 
         // 2. Calcular subtotal y total_amount
@@ -86,6 +87,17 @@ class InvoiceController extends Controller
             ]);
         }
 
+        if ($request->hasFile('invoice_img')) {
+            // Eliminar la imagen anterior de la colección 'invoice_img'
+            $invoice->clearMediaCollection('invoice_img');
+
+            // Agregar la nueva imagen a la colección 'invoice_img'
+            $invoice->addMultipleMediaFromRequest(['invoice_img'])
+                ->each(function ($fileAdder) {
+                    $fileAdder->toMediaCollection('invoice_img');
+                });
+        }
+
         // 5. Redirigir con un mensaje de éxito
         return redirect()->route('invoices.show', $invoice)->with('success', 'Factura creada con éxito.');
     }
@@ -95,7 +107,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        $invoice->load('items');
+        $invoice->load('items','media');
         return Inertia::render('Invoices/Show', compact('invoice'));
     }
 
