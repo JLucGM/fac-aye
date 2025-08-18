@@ -49,73 +49,38 @@ class ConsultationController extends Controller
      */
     public function store(StoreConsultationRequest $request)
     {
-        // Validar los datos de la consulta
-        $validatedData = $request->validated();
-        unset($validatedData['service_id']); // Eliminar service_id del array de datos
+        $validated = $request->validated();
+        $useSubscription = $request->subscription_use === 'yes';
 
-        // Buscar el paciente
-        $patient = Patient::find($validatedData['patient_id']); // Asegúrate de que el patient_id esté en los datos validados
+        if ($useSubscription) {
+            $patient = Patient::with('activeSubscription')->find($validated['patient_id']);
 
-        // Buscar suscripción activa del paciente (si existe)
-        $activeSubscription = $patient->subscriptions()
-            ->where('status', 'active')
-            ->first();
+            if ($patient->activeSubscription) {
+                $subscription = $patient->activeSubscription;
+                $subscription->increment('consultations_used');
+                $subscription->decrement('consultations_remaining');
 
-        // Si existe suscripción activa, actualizarla
-        if ($activeSubscription) {
-            // Incrementar consultas usadas
-            $activeSubscription->consultations_used += 1;
-            // Decrementar consultas restantes
-            $activeSubscription->consultations_remaining -= 1;
-            // Actualizar la suscripción
-            $activeSubscription->save();
-
-            // Marcar como inactiva si no quedan consultas
-            if ($activeSubscription->consultations_remaining <= 0) {
-                $activeSubscription->update(['status' => 'inactive']);
-            }
-
-            // Asignar el ID de la suscripción activa a la consulta
-            $validatedData['patient_subscription_id'] = $activeSubscription->id;
-        }
-
-        // Crear la consulta
-        $consultation = Consultation::create($validatedData);
-
-        // Obtener los servicios seleccionados
-        $servicesData = [];
-        if (is_array($request->service_id)) {
-            foreach ($request->service_id as $serviceId) {
-                $service = Service::find($serviceId);
-                if ($service) {
-                    // Si el paciente tiene una suscripción activa, establecer el precio a 0
-                    $price = $activeSubscription ? 0 : $service->price;
-                    $servicesData[] = [
-                        'id' => $service->id,
-                        'name' => $service->name,
-                        'price' => $price,
-                    ];
+                if ($subscription->consultations_remaining <= 0) {
+                    $subscription->update(['status' => 'inactive']);
                 }
-            }
-        } else {
-            // Si solo hay un servicio, puedes usar attach directamente
-            $service = Service::find($request->service_id);
-            if ($service) {
-                // Si el paciente tiene una suscripción activa, establecer el precio a 0
-                $price = $activeSubscription ? 0 : $service->price;
-                $servicesData[] = [
-                    'id' => $service->id,
-                    'name' => $service->name,
-                    'price' => $price,
-                ];
+
+                $validated['patient_subscription_id'] = $subscription->id;
             }
         }
 
-        // Almacenar la información de los servicios en el campo 'services'
-        $consultation->services = json_encode($servicesData);
+        // Registrar servicios con precios REALES (ya vienen modificados desde frontend)
+        $services = Service::whereIn('id', $request->service_id)->get()
+            ->map(fn($service) => [
+                'id' => $service->id,
+                'name' => $service->name,
+                'price' => $useSubscription ? 0 : $service->price
+            ]);
+
+        $consultation = Consultation::create($validated);
+        $consultation->services = $services;
         $consultation->save();
 
-        return redirect()->route('consultations.edit', $consultation->id);
+        return redirect()->route('consultations.edit', $consultation);
     }
 
     /**
@@ -130,61 +95,71 @@ class ConsultationController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Consultation $consultation)
-{
-    // Cargar los datos relacionados, incluyendo las suscripciones del paciente
-    $consultation->load('patient.subscriptions', 'user', 'payment','medicalRecords'); // Cargar las suscripciones del paciente
-    $consultation->services = json_decode($consultation->services, true); // Decodificar el JSON a un array
-    $patients = Patient::all();
-    $users = User::all();
-    $services = Service::all();
-// dd($consultation);
-    return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services'));
-}
+    {
+        // Cargar los datos relacionados, incluyendo las suscripciones del paciente
+        $consultation->load('patient.subscriptions', 'user', 'payment', 'medicalRecords'); // Cargar las suscripciones del paciente
+        $consultation->services = json_decode($consultation->services, true); // Decodificar el JSON a un array
+        $patients = Patient::all();
+        $users = User::all();
+        $services = Service::all();
 
+        return Inertia::render('Consultations/Edit', compact('consultation', 'patients', 'users', 'services'));
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateConsultationRequest $request, Consultation $consultation)
     {
-        // Extraer los datos validados
         $data = $request->validated();
 
-        // Actualizar la consulta con los datos validados
-        $consultation->update($data);
+        // Verificar si la consulta original tenía una suscripción
+        $hadSubscription = $consultation->patient_subscription_id !== null;
+        $usingSubscriptionNow = $data['subscription_use'] === 'yes';
 
-        // Obtener los servicios seleccionados
-        $servicesData = [];
-        if (is_array($request->service_id)) {
-            foreach ($request->service_id as $serviceId) {
-                $service = Service::find($serviceId);
-                if ($service) {
-                    $servicesData[] = [
-                        'id' => $service->id,
-                        'name' => $service->name,
-                        'price' => $service->price,
-                    ];
+        // Si ahora se quiere usar suscripción y no tenía antes
+        if ($usingSubscriptionNow && !$hadSubscription) {
+            $patient = Patient::with('activeSubscription')->find($data['patient_id']);
+
+            if ($patient && $patient->activeSubscription) {
+                $subscription = $patient->activeSubscription;
+                $subscription->increment('consultations_used');
+                $subscription->decrement('consultations_remaining');
+
+                if ($subscription->consultations_remaining <= 0) {
+                    $subscription->update(['status' => 'inactive']);
                 }
-            }
-        } else {
-            // Si solo hay un servicio, puedes usar attach directamente
-            $service = Service::find($request->service_id);
-            if ($service) {
-                $servicesData[] = [
-                    'id' => $service->id,
-                    'name' => $service->name,
-                    'price' => $service->price,
-                ];
+
+                $consultation->patient_subscription_id = $subscription->id;
             }
         }
+        // Si ahora no quiere usar suscripción pero antes sí tenía
+        elseif (!$usingSubscriptionNow && $hadSubscription) {
+            $consultation->patient_subscription_id = null;
+        }
 
-        // Almacenar la información de los servicios en el campo 'services'
-        $consultation->services = json_encode($servicesData);
-        $consultation->save();
+        // Construir el array de servicios
+        $servicesData = Service::whereIn('id', $request->service_id)
+            ->get()
+            ->map(function ($service) use ($usingSubscriptionNow) {
+                return [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'price' => $usingSubscriptionNow ? 0 : $service->price
+                ];
+            })->toArray();
 
-        // Redirigir a la lista de consultas con un mensaje de éxito
-        return redirect()->route('consultations.index')->with('success', 'Consulta actualizada con éxito.');
+        // Actualizar todos los campos juntos
+        $consultation->update([
+            ...$data,
+            'services' => json_encode($servicesData),
+            // Otros campos que necesites actualizar
+        ]);
+
+        return redirect()->route('consultations.edit', $consultation)
+            ->with('success', 'Consulta actualizada con éxito.');
     }
+
 
     /**
      * Remove the specified resource from storage.

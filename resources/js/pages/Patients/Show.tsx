@@ -96,7 +96,6 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
 
             let subscriptionMatch = true;
             if (filterBySubscription) {
-                // Filtrar solo consultas que tienen una suscripción asociada
                 subscriptionMatch = consultation.patient_subscription_id !== null;
             }
 
@@ -118,9 +117,6 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
         });
     }, [consultations, paymentStatus, consultationType, filterBySubscription, startDate, endDate]);
 
-    // Genera una clave única para forzar el re-renderizado del PDFDownloadLink
-    // Esto ayuda a solucionar el error "Eo is not a function" con @react-pdf/renderer
-    // cuando los datos del PDF cambian dinámicamente.
     const pdfKey = JSON.stringify(filteredConsultations.map(c => c.id));
 
     const totalConsultations = filteredConsultations.length;

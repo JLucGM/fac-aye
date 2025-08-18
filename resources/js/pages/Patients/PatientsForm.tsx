@@ -17,7 +17,8 @@ type ServicesFormProps = {
         address?: string; // Optional field for address errors
         doctor_id?: string; // Optional field for doctor selection errors
         subscription_id?: string; // Optional field for subscription selection errors
-        patientSubscription?: string; // Optional field for patient subscription errors     
+        patientSubscription?: string; // Optional field for patient subscription errors 
+        subscription_use?: string;    
     };
     doctors: Doctor[];
     subscriptions: Subscription[]; // Agregar las suscripciones
@@ -36,6 +37,8 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
         value: subscription.id,
         label: subscription.name // Asegúrate de que el campo 'name' exista
     }));
+
+    
 
     return (
         <>
@@ -167,6 +170,8 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
                 />
                 <InputError message={errors.subscription_id} className="mt-2" />
             </div>
+
+            
 
 
         </>

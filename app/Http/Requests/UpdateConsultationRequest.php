@@ -32,6 +32,8 @@ class UpdateConsultationRequest extends FormRequest
             'amount' => 'nullable|numeric|min:0',
             'consultation_type' => 'required|in:domiciliaria,consultorio',
             'payment_status' => 'required|in:pendiente,pagado,reembolsado,incobrable',
+                       'subscription_use' => 'required|string|in:yes,no', // Asegúrate de que este campo esté validado
+
         ];
     }
 

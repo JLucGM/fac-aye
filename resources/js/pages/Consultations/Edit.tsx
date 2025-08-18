@@ -42,7 +42,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-
+    console.log("Consultation Data:", consultation);
     // Estado para controlar la apertura/cierre del Dialog
     const [isMedicalRecordDialogOpen, setIsMedicalRecordDialogOpen] = useState(false);
     const [selectedMedicalRecord, setSelectedMedicalRecord] = useState<MedicalRecord | null>(null);
@@ -58,10 +58,12 @@ export default function Edit({ consultation, patients, users, services, paymentM
         payment_status: consultation.payment_status || '',
         consultation_type: consultation.consultation_type || '',
         amount: consultation.amount || 0,
+        subscription_use: consultation.patient_subscription_id ? 'yes' : 'no', // Determina si se usa la suscripción
     });
 
     const submitConsultation = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // console.log(data);
         put(route('consultations.update', consultation.id));
     };
 

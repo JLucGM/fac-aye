@@ -25,6 +25,7 @@ export default function Create({ patients, users, services }: {
     users: User[],
     services: Service[],
 }) {
+    // console.log(services)
     const { data, setData, errors, post } = useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,
@@ -35,16 +36,15 @@ export default function Create({ patients, users, services }: {
         notes: '',
         payment_status: 'pendiente', // Inicialmente se establece como pendiente
         amount: 0,
+        
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Verificar si el paciente tiene una suscripción activa
         const currentPatient = patients.find(patient => patient.id === data.patient_id);
         const hasActiveSubscription = currentPatient?.subscriptions?.some(sub => sub.status === 'active');
 
-        // Si hay una suscripción activa, establecer el estado de pago como "pagado"
         if (hasActiveSubscription) {
             setData('payment_status', 'pagado');
         }

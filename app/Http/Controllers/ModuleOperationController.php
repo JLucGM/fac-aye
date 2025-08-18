@@ -58,8 +58,9 @@ class ModuleOperationController extends Controller
             'payment_status' => 'required|string',
             'amount' => 'required|numeric',
             'address' => 'nullable|string|max:255',
-            'doctor_id' => 'nullable|integer|exists:doctors,id', // Asegúrate de que el doctor sea opcional
-            'subscription_id' => 'nullable|integer|exists:subscriptions,id', // Validar la suscripción si se proporciona
+            'doctor_id' => 'nullable|integer|exists:doctors,id',
+            'subscription_id' => 'nullable|integer|exists:subscriptions,id',
+            'subscription_use' => 'nullable|string|in:yes,no', // Validar el uso de la suscripción
         ]);
 
         // Crear o encontrar el paciente
@@ -72,7 +73,7 @@ class ModuleOperationController extends Controller
                 'phone' => $validatedData['phone'],
                 'birthdate' => $validatedData['birthdate'],
                 'address' => $validatedData['address'] ?? null,
-                'doctor_id' => $validatedData['doctor_id'] ?? null, // Asocia el doctor si se proporciona
+                'doctor_id' => $validatedData['doctor_id'] ?? null,
             ]
         );
 
@@ -80,8 +81,8 @@ class ModuleOperationController extends Controller
         $patientSubscriptionId = null;
         $totalAmount = 0; // Inicializa el monto total
 
-        // Si viene subscription_id, manejamos la suscripción
-        if ($request->filled('subscription_id')) {
+        // Manejo de suscripción si se va a usar
+        if ($request->subscription_use === 'yes' && $request->filled('subscription_id')) {
             $subscription = Subscription::findOrFail($request->subscription_id);
 
             // Buscar si ya tiene una suscripción ACTIVA del mismo tipo
@@ -122,7 +123,6 @@ class ModuleOperationController extends Controller
             }
         } else {
             // Si no hay suscripción, calcular el monto total basado en los servicios seleccionados
-            $totalAmount = 0; // Inicializa el monto total
             if (is_array($request->service_id)) {
                 foreach ($request->service_id as $serviceId) {
                     $service = Service::find($serviceId);

@@ -30,6 +30,9 @@ export default function ConsultationsForm({ data, patients = [], users, services
     const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname }));
     const currentPatient = data.patient || patients.find(p => p.id === data.patient_id);
     const hasActiveSubscription = currentPatient?.subscriptions?.some((sub: Subscription) => sub.status === 'active');
+    //     const currentPatient = patients.find(p => p.id === data.patient_id);
+    //   const hasActiveSubscription = currentPatient?.subscriptions?.some(sub => sub.status === 'active');
+
     const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
         value: String(patient.id),
         label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
@@ -56,25 +59,12 @@ export default function ConsultationsForm({ data, patients = [], users, services
     ];
 
     useEffect(() => {
-        // Si hay una suscripción activa, establecer el estado de pago como "pagado"
-        if (hasActiveSubscription) {
-            setData('payment_status', 'pagado');
-            setData('amount', 0); // Si es pagado, el monto puede ser 0 o el monto de la suscripción
-        } else {
-            setData('payment_status', 'pendiente'); // O cualquier valor predeterminado que desees
-        const totalAmount = data.service_id.reduce((total, serviceId) => {
-                const service = services.find(s => s.id === serviceId);
-                return total + (service ? parseFloat(String(service.price)) : 0);
-            }, 0);
-            setData('amount', totalAmount);
-        }
-
-        // const totalAmount = data.service_id.reduce((total, serviceId) => {
-        //     const service = services.find(s => s.id === serviceId);
-        //     return total + (service ? parseFloat(String(service.price)) : 0);
-        // }, 0);
-        // setData('amount', totalAmount);
-    }, [data.service_id, hasActiveSubscription, services, setData]);
+        const total = data.service_id.reduce((total, serviceId) => {
+            const service = services.find(s => s.id === serviceId);
+            return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || 0));
+        }, 0);
+        setData('amount', total);
+    }, [data.service_id, data.subscription_use, services]);
 
     const selectedServices = services
         .filter(service => data.service_id.includes(service.id))
@@ -82,6 +72,11 @@ export default function ConsultationsForm({ data, patients = [], users, services
             ...service,
             price: hasActiveSubscription ? 0 : service.price
         }));
+
+    const subscriptionOptions = [
+        { value: 'no', label: 'Pagar normalmente (precios completos)' },
+        { value: 'yes', label: 'Usar funcional (precios a 0)' },
+    ];
 
     return (
         <>
@@ -143,6 +138,8 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <InputError message={errors.status} />
             </div>
 
+            
+
             <div>
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
@@ -166,6 +163,32 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 />
                 <InputError message={errors.scheduled_at} />
             </div>
+            {hasActiveSubscription && (
+                <div className="">
+                    <div>
+                        <Label htmlFor="subscription_use" className="my-2 block font-semibold text-gray-700">¿Usar Funcional?</Label>
+                        <Select
+                            id="subscription_use"
+                            options={subscriptionOptions}
+                            value={subscriptionOptions.find(option => option.value === data.subscription_use) || null}
+                            onChange={(option) => setData('subscription_use', option?.value || 'no')}
+                            isSearchable
+                            placeholder="Selecciona..."
+                            className="rounded-md"
+                        />
+                    </div>
+
+                    {data.subscription_use === 'yes' && (
+                        <p className="text-sm text-blue-600 mt-2">
+                            Se aplicará la funcional #{
+                                currentPatient.subscriptions.find(s => s.status === 'active')?.id
+                            } (Consultas restantes: {
+                                currentPatient.subscriptions.find(s => s.status === 'active')?.consultations_remaining
+                            })
+                        </p>
+                    )}
+                </div>
+            )}
 
             <div className="col-span-full">
                 <Label htmlFor="service_id" className="my-2 block font-semibold text-gray-700">Servicios</Label>
@@ -194,17 +217,27 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <InputError message={errors.notes} />
             </div>
 
-            <ServicesTable className="col-span-full" services={selectedServices} />
-
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700">Total</Label>
-                <Input
-                    type="text"
-                    value={`$ ${(typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00')}`}
-                    readOnly
-                    className="rounded-md bg-gray-200"
-                />
+            {/* TABLA DE SERVICIOS (mostrar precios según selección) */}
+            <ServicesTable
+                className="col-span-full"
+                services={data.service_id.map(id => {
+                    const service = services.find(s => s.id === id);
+                    return {
+                        ...service,
+                        price: data.subscription_use === 'yes' ? 0 : service?.price
+                    };
+                })}
+            />
+            {/* CAMPO TOTAL */}
+            <div className="">
+                Total: ${
+                    data.service_id.reduce((total, serviceId) => {
+                        const service = services.find(s => s.id === serviceId);
+                        return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || 0));
+                    }, 0).toFixed(2)
+                }
             </div>
+
         </>
     );
 }
