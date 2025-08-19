@@ -66,7 +66,7 @@ export default function Index({ settings }: { settings: Settings }) {
         email: settings.email,
         instagram: settings.instagram,
         logo: settings.logo || null, // Inicializa como null o string vacío
-        signature: settings.logo || null, // Inicializa como null o string vacío
+        signature: settings.signature || null, // Inicializa como null o string vacío
     });
 
     const submit: FormEventHandler = (e) => {

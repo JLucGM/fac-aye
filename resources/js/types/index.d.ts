@@ -188,19 +188,18 @@ export type Invoice = {
     subtotal: number;
     tax_amount: number;
     total_amount: number;
-    status: 'pending' | 'partially_paid' | 'paid' | 'cancelled';
     notes: string;
     created_at: string;
     updated_at: string;
     // Si precargas los ítems de la factura
     items?: InvoiceItem[]; // Asegúrate de que esta propiedad esté definida como opcional
+    payment_method?: PaymentMethod;
 };
 
 export type InvoiceItem = {
     id: number;
     invoice_id: number;
-    consultation_id?: number;
-    // description: string;
+    service_name: string;
     quantity: number;
     unit_price: number;
     line_total: number;

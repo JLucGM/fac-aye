@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CreateInvoiceFormData, InvoiceItemFormData, Patient, PaymentMethod } from "@/types";
 import SelectReact from 'react-select';
+import { Trash } from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
 type InvoicesFormProps = {
     data: CreateInvoiceFormData;
@@ -14,8 +23,8 @@ type InvoicesFormProps = {
         patient_id?: string;
         invoice_date?: string;
         notes?: string;
-        'items.0.service_name'?: string; // Cambiado a service_name
-        [key: string]: string | undefined; // Permitir claves dinámicas
+        'items.0.service_name'?: string;
+        [key: string]: string | undefined;
     };
     patients: Patient[];
     paymentMethods: PaymentMethod[];
@@ -37,7 +46,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
             ...data.items,
             {
                 id: null,
-                service_name: '', // Agregar el campo para el nombre del servicio
+                service_name: '',
                 quantity: 1,
                 unit_price: 0,
                 line_total: 0,
@@ -65,6 +74,11 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
         setData('items', newItems);
     };
 
+    // Calcular el total de la factura
+    const calculateTotal = () => {
+        return data.items.reduce((total, item) => total + item.line_total, 0);
+    };
+
     return (
         <>
             <div>
@@ -81,70 +95,74 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                             setData('invoice_img', null);
                         }
                     }}
-                    accept="image/*" // Solo acepta imágenes
+                    accept="image/*"
                 />
                 <InputError message={errors.invoice_img} className="mt-2" />
             </div>
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="invoice_number">Número de Factura</Label>
-                <Input
-                    id="invoice_number"
-                    type="text"
-                    name="invoice_number"
-                    value={data.invoice_number}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData('invoice_number', e.target.value)}
-                />
-                <InputError message={errors.invoice_number} className="mt-2" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="invoice_number">Número de Factura</Label>
+                    <Input
+                        id="invoice_number"
+                        type="text"
+                        name="invoice_number"
+                        value={data.invoice_number}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('invoice_number', e.target.value)}
+                    />
+                    <InputError message={errors.invoice_number} className="mt-2" />
+
+                </div>
+
+                {/* Campos de la Factura Principal (Fechas, Notas) */}
+                <div>
+                    <Label htmlFor="invoice_date">Fecha de Factura</Label>
+                    <Input
+                        id="invoice_date"
+                        type="date"
+                        name="invoice_date"
+                        value={data.invoice_date}
+                        className=" block w-full"
+                        onChange={(e) => setData('invoice_date', e.target.value)}
+                    />
+                    <InputError message={errors.invoice_date} className="mt-2" />
+                </div>
+
+                {/* Campo de Paciente (usando react-select) */}
+                <div>
+                    <Label htmlFor="patient_id">Paciente</Label>
+                    <Select
+                        id="patient_id"
+                        options={patientOptions}
+                        value={patientOptions.find(option => option.value === data.patient_id) || null}
+                        onChange={(selectedOption) =>
+                            setData('patient_id', selectedOption ? selectedOption.value : null)
+                        }
+                        isSearchable
+                        placeholder="Selecciona un paciente..."
+                        className="block w-full"
+                    />
+                    <InputError message={errors.patient_id} className="mt-2" />
+                </div>
+
+                <div>
+                    <Label htmlFor="payment_method_id">Método de Pago</Label>
+                    <Select
+                        id="payment_method_id"
+                        options={paymentMethodOptions}
+                        value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
+                        onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
+                        isSearchable
+                        placeholder="Selecciona un método de pago..."
+                        className="block w-full"
+                    />
+                    <InputError message={errors.payment_method_id} className="mt-2" />
+                </div>
             </div>
 
-            {/* Campo de Paciente (usando react-select) */}
             <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="patient_id">Paciente</Label>
-                <SelectReact
-                    id="patient_id"
-                    options={patientOptions}
-                    value={patientOptions.find(option => option.value === data.patient_id) || null}
-                    onChange={(selectedOption) =>
-                        setData('patient_id', selectedOption ? selectedOption.value : null)
-                    }
-                    isSearchable
-                    placeholder="Selecciona un paciente..."
-                    className="rounded-md"
-                />
-                <InputError message={errors.patient_id} className="mt-2" />
-            </div>
-
-            {/* Campos de la Factura Principal (Fechas, Notas) */}
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="invoice_date">Fecha de Factura</Label>
-                <Input
-                    id="invoice_date"
-                    type="date"
-                    name="invoice_date"
-                    value={data.invoice_date}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData('invoice_date', e.target.value)}
-                />
-                <InputError message={errors.invoice_date} className="mt-2" />
-            </div>
-
-            <div>
-                <Label htmlFor="payment_method_id">Método de Pago</Label>
-                <Select
-                    id="payment_method_id"
-                    options={paymentMethodOptions}
-                    value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
-                    onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
-                    isSearchable
-                    placeholder="Selecciona un método de pago..."
-                    className="rounded-md mt-1 block w-full"
-                />
-                <InputError message={errors.payment_method_id} className="mt-2" />
-            </div>
-
-            <div>
-                <Label className="my-2 block font-semibold text-gray-700" htmlFor="notes">Notas</Label>
+                <Label htmlFor="notes">Notas</Label>
                 <Textarea
                     id="notes"
                     name="notes"
@@ -155,78 +173,104 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                 <InputError message={errors.notes} className="mt-2" />
             </div>
 
-            {/* Sección de Ítems de la Factura */}
+            {/* Sección de Ítems de la Factura en una tabla */}
             <h3 className="text-lg font-semibold mt-6 mb-3">Ítems de la Factura</h3>
-            {data.items.map((item, index) => (
-                <div key={item.id || `new-${index}`} className="border p-4 rounded-md mb-4 relative">
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2"
-                        onClick={() => removeInvoiceItem(index)}
-                    >
-                        X
-                    </Button>
+            <div className="overflow-x-auto rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[15%]">Cantidad</TableHead>
+                            <TableHead className="w-[40%] text-right">Descripción</TableHead>
+                            <TableHead className="w-[20%] text-right">P. Unitario</TableHead>
+                            <TableHead className="w-[20%] text-right">Total</TableHead>
+                            <TableHead className="w-[5%] text-right">Acción</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.items.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={5} className="h-24 text-center">
+                                    No hay ítems en la factura.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            data.items.map((item, index) => (
+                                <TableRow key={item.id || `new-${index}`}>
+                                    {/* Cantidad */}
+                                    <TableCell className="text-right">
+                                        <Input
+                                            id={`quantity_${index}`}
+                                            type="number"
+                                            name={`items[${index}][quantity]`}
+                                            value={item.quantity}
+                                            className="w-full"
+                                            onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                                            min="1"
+                                        />
+                                        <InputError message={errors[`items.${index}.quantity`]} className="mt-1" />
+                                    </TableCell>
+                                    {/* Descripción */}
+                                    <TableCell>
+                                        <Input
+                                            id={`service_name_${index}`}
+                                            type="text"
+                                            name={`items[${index}][service_name]`}
+                                            value={item.service_name}
+                                            className="w-full"
+                                            onChange={(e) => handleItemChange(index, 'service_name', e.target.value)}
+                                        />
+                                        <InputError message={errors[`items.${index}.service_name`]} className="mt-1" />
+                                    </TableCell>
+                                    {/* Precio Unitario */}
+                                    <TableCell className="text-right">
+                                        <Input
+                                            id={`unit_price_${index}`}
+                                            type="number"
+                                            name={`items[${index}][unit_price]`}
+                                            value={item.unit_price}
+                                            className="w-full"
+                                            onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                                        />
+                                        <InputError message={errors[`items.${index}.unit_price`]} className="mt-1" />
+                                    </TableCell>
+                                    {/* Total de Línea */}
+                                    <TableCell className="text-right">
+                                        <Input
+                                            id={`line_total_${index}`}
+                                            type="number"
+                                            value={item.line_total}
+                                            className="w-full bg-gray-100 dark:bg-gray-800 text-right"
+                                            readOnly
+                                        />
+                                    </TableCell>
+                                    {/* Botón de eliminar */}
+                                    <TableCell className="text-right">
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            onClick={() => removeInvoiceItem(index)}
+                                        >
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                        <TableRow>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                            <TableCell colSpan={1} className="text-right">
+                                <p>Total: ${calculateTotal().toFixed(2)}</p>
 
-                    {/* Campo de Nombre del Servicio */}
-                    <div>
-                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`service_name_${index}`}>Nombre del Servicio</Label>
-                        <Input
-                            id={`service_name_${index}`}
-                            type="text"
-                            name={`items[${index}][service_name]`}
-                            value={item.service_name}
-                            className="mt-1 block w-full"
-                            onChange={(e) => handleItemChange(index, 'service_name', e.target.value)}
-                        />
-                        <InputError message={errors[`items.${index}.service_name`]} className="mt-2" />
-                    </div>
-
-                    {/* Campo de Cantidad */}
-                    <div>
-                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`quantity_${index}`}>Cantidad</Label>
-                        <Input
-                            id={`quantity_${index}`}
-                            type="number"
-                            name={`items[${index}][quantity]`}
-                            value={item.quantity}
-                            className="mt-1 block w-full"
-                            onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
-                            min="1"
-                        />
-                        <InputError message={errors[`items.${index}.quantity`]} className="mt-2" />
-                    </div>
-
-                    {/* Campo de Precio Unitario */}
-                    <div>
-                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`unit_price_${index}`}>Precio Unitario</Label>
-                        <Input
-                            id={`unit_price_${index}`}
-                            type="number"
-                            name={`items[${index}][unit_price]`}
-                            value={item.unit_price}
-                            className="mt-1 block w-full"
-                            onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                        />
-                        <InputError message={errors[`items.${index}.unit_price`]} className="mt-2" />
-                    </div>
-
-                    {/* Campo de Total de Línea (solo lectura) */}
-                    <div>
-                        <Label className="my-2 block font-semibold text-gray-700" htmlFor={`line_total_${index}`}>Total de Línea</Label>
-                        <Input
-                            id={`line_total_${index}`}
-                            type="number"
-                            value={item.line_total}
-                            className="mt-1 block w-full"
-                            readOnly
-                        />
-                    </div>
-                </div>
-            ))}
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
             <Button type="button" variant="outline" onClick={addInvoiceItem} className="mt-4">
-                Agregar Ítem de Servicio
+                Agregar
             </Button>
         </>
     );

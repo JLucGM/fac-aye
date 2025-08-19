@@ -57,7 +57,7 @@ class InvoiceController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.line_total' => 'required|numeric|min:0',
-            'invoice_img' => 'required'
+            'invoice_img' => 'nullable'
         ]);
 
         // 2. Calcular subtotal y total_amount
@@ -107,7 +107,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        $invoice->load('items','media');
+        $invoice->load('items', 'media', 'patient', 'paymentMethod');
         return Inertia::render('Invoices/Show', compact('invoice'));
     }
 
@@ -132,66 +132,23 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, Invoice $invoice)
     {
-        // 1. Validar los datos (similar al store, pero con 'sometimes' para campos no siempre presentes)
-        $validatedData = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'invoice_date' => 'required|date',
-            // 'invoice_number' no se actualiza, ya que es único y se genera al crear la factura
-            // 'due_date' => 'required|date|after_or_equal:invoice_date',
-            'notes' => 'nullable|string|max:1000',
-            'items' => 'required|array|min:1',
-            'items.*.id' => 'nullable|exists:invoice_items,id', // Para identificar ítems existentes
-            // 'items.*.description' => 'nullable|string|max:255',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.line_total' => 'required|numeric|min:0',
+        // dd($request->all());
+        $request->validate([
+            'invoice_img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validaciones
         ]);
 
-        DB::transaction(function () use ($request, $invoice, $validatedData) {
-            // 2. Actualizar los datos principales de la Factura
-            $invoice->update([
-                'patient_id' => $validatedData['patient_id'],
-                'invoice_date' => $validatedData['invoice_date'],
-                // 'due_date' => $validatedData['due_date'],
-                'notes' => $validatedData['notes'],
-                // 'invoice_number' no se actualiza, 'status' se actualiza por pagos
-            ]);
-            // 3. Sincronizar los Ítems de la Factura
-            $existingItemIds = $invoice->items->pluck('id')->toArray();
-            $updatedItemIds = [];
-            foreach ($validatedData['items'] as $itemData) {
-                if (isset($itemData['id']) && in_array($itemData['id'], $existingItemIds)) {
-                    // Actualizar ítem existente
-                    $invoice->items()->where('id', $itemData['id'])->update($itemData);
-                    $updatedItemIds[] = $itemData['id'];
-                } else {
-                    // Crear nuevo ítem
-                    $newItem = $invoice->items()->create($itemData);
-                    $updatedItemIds[] = $newItem->id;
-                }
-            }
+        if ($request->hasFile('invoice_img')) {
+            // Eliminar la imagen anterior de la colección 'invoice_img'
+            $invoice->clearMediaCollection('invoice_img');
 
-            // Eliminar ítems que ya no están en la lista
-            $itemsToDelete = array_diff($existingItemIds, $updatedItemIds);
-            if (!empty($itemsToDelete)) {
-                $invoice->items()->whereIn('id', $itemsToDelete)->delete();
-            }
-            // 4. Recalcular subtotal, tax_amount y total_amount después de actualizar los ítems
-            $subtotal = 0;
-            foreach ($invoice->items as $item) { // Recargar ítems para el cálculo
-                $subtotal += $item->line_total;
-            }
-            // $taxRate = 0.16; // 16% de IVA
-            $taxAmount = $subtotal;
-            $totalAmount = $subtotal + $taxAmount;
-            $invoice->update([
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount,
-            ]);
-        });
-        return redirect()->route('invoices.index')->with('success', 'Factura actualizada con éxito.');
+            // Agregar la nueva imagen a la colección 'invoice_img'
+            $invoice->addMediaFromRequest('invoice_img')
+                ->toMediaCollection('invoice_img');
+        }
+
+        return redirect()->back()->with('success', 'Factura actualizada con éxito.');
     }
+
 
     /**
      * Remove the specified resource from storage.

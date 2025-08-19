@@ -37,6 +37,11 @@ class Invoice extends Model implements HasMedia
         return $this->belongsTo(Patient::class);
     }
 
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
+    
     /**
      * Get the invoice items for the invoice.
      */
