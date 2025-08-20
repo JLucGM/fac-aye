@@ -40,11 +40,18 @@ export default function Index({ patients }: { patients: Patient[] }) {
                 title="Listado de Pacientes"
                 description="Gestiona tus pacientes."
             >
-                <Button asChild>
-                    <Link className="btn btn-primary" href={route('patients.create')}>
-                        Crear paciente
-                    </Link>
-                </Button>
+                <div className="flex justify-end gap-4">
+                    <Button asChild variant={'outline'}>
+                        <Link href={route('subscriptionpatient.store')}>
+                            Actualizar funcional
+                        </Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href={route('patients.create')}>
+                            Crear paciente
+                        </Link>
+                    </Button>
+                </div>
             </Heading>
 
             {/* Mostrar mensaje o tabla de pacientes que cumplen años */}

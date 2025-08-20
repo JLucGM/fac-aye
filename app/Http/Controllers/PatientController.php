@@ -10,6 +10,8 @@ use App\Models\PatientSubscription;
 use App\Models\Setting;
 use App\Models\Subscription;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PatientController extends Controller
@@ -210,6 +212,64 @@ class PatientController extends Controller
     public function destroy(Patient $patient)
     {
         $patient->delete();
+        return redirect()->route('patients.index');
+    }
+
+    public function subscriptionpatientstore()
+    {
+        $patients = Patient::with('subscriptions')
+            ->whereDoesntHave('activeSubscription') // Filtrar pacientes con suscripción activa
+            ->get();
+        $subscriptions = Subscription::all();
+
+        return Inertia::render('Patients/subscriptionpatient', compact('patients', 'subscriptions'));
+    }
+
+    // Método dedicado solo para actualización/renovación de suscripciones
+    public function updateSubscription(Request $request)
+    {
+        // dd($request->all()); // Para depurar y ver los datos recibidos
+
+        $request->validate([
+            'subscription_id' => 'required|exists:subscriptions,id',
+            'patient_id' => 'required|exists:patients,id',
+        ]);
+
+        // 1. Buscar la suscripción seleccionada
+        $newSubscription = Subscription::findOrFail($request->subscription_id);
+        $patient = Patient::findOrFail($request->patient_id);
+
+        // 2. Buscar suscripción activa actual (si existe)
+        $currentActiveSubscription = $patient->subscriptions()
+            ->where('status', 'active')
+            ->first();
+
+        // 3. Determinar tipo de operación
+        $isRenewal = $currentActiveSubscription &&
+            ($currentActiveSubscription->subscription_id == $newSubscription->id);
+
+        DB::transaction(function () use ($patient, $currentActiveSubscription, $newSubscription) {
+            // 4. Desactivar suscripción actual si existe
+            if ($currentActiveSubscription) {
+                $currentActiveSubscription->update([
+                    'status' => 'inactive',
+                    'end_date' => now()
+                ]);
+            }
+
+            // 5. Crear siempre nueva suscripción (renovación o nueva)
+            $patient->subscriptions()->create([
+                'subscription_id' => $newSubscription->id,
+                'start_date' => now(),
+                'end_date' => $this->calculateEndDate($newSubscription->type),
+                'consultations_remaining' => $newSubscription->consultations_allowed,
+                'consultations_used' => 0,
+                'status' => 'active'
+            ]);
+        });
+
+        // 6. Respuesta adecuada
+        // return redirect()->back()->with('success', 'Suscripción actualizada exitosamente');
         return redirect()->route('patients.index');
     }
 }

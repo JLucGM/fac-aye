@@ -53,22 +53,21 @@ class Patient extends Model
     {
         return $this->hasMany(PatientSubscription::class);
     }
-
-    public function activeSubscription()
-{
-    return $this->hasOne(PatientSubscription::class)
-                ->where('status', 'active');
-}
-
-
+    
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class);
     }
-
+    
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
+    }
+    
+    public function activeSubscription()
+    {
+        return $this->hasOne(PatientSubscription::class)
+            ->where('status', 'active');
     }
 
     public function getFullNameAttribute()
