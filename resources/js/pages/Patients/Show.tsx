@@ -64,7 +64,7 @@ const calculateTotalDebt = (consultations: Consultation[]): number => {
 };
 
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
-
+console.log(patient)
     const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
     const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
 
