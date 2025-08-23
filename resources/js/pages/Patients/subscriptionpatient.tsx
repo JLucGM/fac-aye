@@ -24,8 +24,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Create({ patients, subscriptions }: { patients: Patient[], subscriptions: Subscription[] }) {
     const { data, setData, errors, post } = useForm({
-        subscription_id: '', // Inicializa el campo de Funcionales
-        patient_id: '', // Inicializa el campo de Funcionales
+        subscription_id: '',
+        patient_id: '',
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,6 +45,9 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
         });
     };
 
+    // Encuentra el paciente y la suscripción seleccionados
+    const selectedPatient = patients.find(patient => patient.id === data.patient_id);
+    const selectedSubscription = subscriptions.find(subscription => subscription.id === data.subscription_id);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -53,60 +56,90 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
                 title="Renovar funcional"
                 description="Aquí puedes renovar o crear un nuevo funcional al paciente."
             />
-            <form className="flex flex-col gap-4" onSubmit={submit}>
+
+            <div className="grid grid-cols-3 gap-4">
+                <form className="col-span-2 flex flex-col gap-4" onSubmit={submit}>
+                    <div className="mt-4">
+                        <Label htmlFor="patient_id">Paciente</Label>
+                        <Select
+                            id="patient_id"
+                            options={[
+                                { value: '', label: 'Sin paciente' },
+                                ...patients.map(patient => ({
+                                    value: patient.id,
+                                    label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
+                                }))
+                            ]}
+                            value={data.patient_id
+                                ? { value: data.patient_id, label: patients.find(s => s.id === data.patient_id)?.name || '' }
+                                : { value: '', label: 'Sin paciente' }
+                            }
+                            onChange={(selected) => setData('patient_id', selected?.value || null)}
+                            isClearable={false}
+                            className="mt-1"
+                        />
+                        <Label className='text-gray-500 text-sm' htmlFor="patient_id">Solo se mostrarán los pacientes sin funcional o renovación de funcional</Label>
+                        <InputError message={errors.patient_id} className="mt-2" />
+                    </div>
+
+                    <div className="mt-4">
+                        <Label htmlFor="subscription_id">Funcionales</Label>
+                        <Select
+                            id="subscription_id"
+                            options={[
+                                { value: '', label: 'Sin Funcionales' },
+                                ...subscriptions.map(subscription => ({
+                                    value: subscription.id,
+                                    label: `${subscription.name} (${subscription.type})`
+                                }))
+                            ]}
+                            value={data.subscription_id
+                                ? { value: data.subscription_id, label: subscriptions.find(s => s.id === data.subscription_id)?.name || '' }
+                                : { value: '', label: 'Sin Funcionales' }
+                            }
+                            onChange={(selected) => setData('subscription_id', selected?.value || null)}
+                            isClearable={false}
+                            className="mt-1"
+                        />
+                        <InputError message={errors.subscription_id} className="mt-2" />
+                    </div>
+
+                    <Button variant={"default"} type="submit">
+                        Renovar
+                    </Button>
+                </form>
 
                 <div className="mt-4">
-                    <Label htmlFor="patient_id">Paciente</Label>
-                    <Select
-                        id="patient_id"
-                        options={[
-                            { value: '', label: 'Sin paciente' },  // Nueva opción explícita
-                            ...patients.map(patient => ({
-                                value: patient.id,
-                                label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
-                            }))
-                        ]}
-                        value={data.patient_id
-                            ? { value: data.patient_id, label: patients.find(s => s.id === data.patient_id)?.name || '' }
-                            : { value: '', label: 'Sin paciente' }
-                        }
-                        onChange={(selected) => setData('patient_id', selected?.value || null)}
-                        isClearable={false}  // Deshabilitamos clearable porque ya tenemos nuestra opción explícita
-                        className="mt-1"
-                    />
-                    <Label className='text-gray-500 text-sm' htmlFor="patient_id">Solo se mostraran los paciente sin funcional o renovación de funcional</Label>
+                    {selectedPatient ? (
+                        <div className="">
+                            <h3 className="font-semibold text-lg mb-3">Datos del Paciente:</h3>
+                            <div className="space-y-2">
+                                <p><strong>Nombre:</strong> {selectedPatient.name} {selectedPatient.lastname}</p>
+                                <p><strong>C.I:</strong> {selectedPatient.identification}</p>
+                                <p><strong>Teléfono:</strong> {selectedPatient.phone || 'No disponible'}</p>
+                                <p><strong>Email:</strong> {selectedPatient.email || 'No disponible'}</p>
+                                {/* Agrega más campos del paciente según sea necesario */}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-gray-100 p-4 rounded-lg text-center">
+                            <p className="text-gray-500">Seleccione un paciente para ver sus datos</p>
+                        </div>
+                    )}
 
-                    <InputError message={errors.patient_id} className="mt-2" />
+                    {selectedSubscription && (
+                        <div className=" mt-4">
+                            <h3 className="font-semibold text-lg mb-3">Datos de la Suscripción:</h3>
+                            <div className="space-y-2">
+                                <p><strong>Nombre:</strong> {selectedSubscription.name}</p>
+                                <p><strong>Tipo:</strong> {selectedSubscription.type}</p>
+                                <p><strong>Precio:</strong> ${selectedSubscription.price}</p>
+                                {/* Agrega más campos de la suscripción según sea necesario */}
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                <div className="mt-4">
-                    <Label htmlFor="subscription_id">Funcionales</Label>
-                    <Select
-                        id="subscription_id"
-                        options={[
-                            { value: '', label: 'Sin Funcionales' },  // Nueva opción explícita
-                            ...subscriptions.map(subscription => ({
-                                value: subscription.id,
-                                label: `${subscription.name} (${subscription.type})`
-                            }))
-                        ]}
-                        value={data.subscription_id
-                            ? { value: data.subscription_id, label: subscriptions.find(s => s.id === data.subscription_id)?.name || '' }
-                            : { value: '', label: 'Sin Funcionales' }
-                        }
-                        onChange={(selected) => setData('subscription_id', selected?.value || null)}
-                        isClearable={false}  // Deshabilitamos clearable porque ya tenemos nuestra opción explícita
-                        className="mt-1"
-                    />
-
-                    <InputError message={errors.subscription_id} className="mt-2" />
-                </div>
-
-                <Button variant={"default"} onClick={submit}>
-                    Actualizar Suscripción
-                </Button>
-
-            </form>
+            </div>
         </ContentLayout>
     );
 }

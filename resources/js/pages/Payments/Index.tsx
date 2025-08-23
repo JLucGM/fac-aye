@@ -15,6 +15,7 @@ import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -33,6 +34,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('consultas');
 
   // Obtener métodos de pago únicos
   const paymentMethods = [
@@ -44,7 +46,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
     ...new Set(payments.map(p => p.status).filter(Boolean))
   ].sort();
 
-  // Filtrar resultados
+  // Filtrar pagos
   const filteredPayments = payments.filter(payment => {
     const methodMatch =
       selectedMethod === 'all' ||
@@ -76,6 +78,31 @@ export default function Index({ payments }: { payments: Payment[] }) {
     return methodMatch && statusMatch && dateMatch;
   });
 
+  // Filtrar pagos de consultas y suscripciones
+  const consultationPayments = filteredPayments.filter(payment => payment.consultations.length > 0);
+  const subscriptionPayments = filteredPayments.filter(payment => payment.patient_subscriptions.length > 0);
+
+  // Función para obtener el nombre del paciente desde cualquier tipo de pago
+  const getPatientName = (payment: Payment) => {
+    if (payment.consultations.length > 0) {
+      return `${payment.consultations[0].patient.name} ${payment.consultations[0].patient.lastname}`;
+    } else if (payment.patient_subscriptions.length > 0) {
+      return `${payment.patient_subscriptions[0].patient.name} ${payment.patient_subscriptions[0].patient.lastname}`;
+    }
+    return 'Paciente no disponible';
+  };
+
+  // Preparar datos para la tabla con la información del paciente incluida
+  const consultationTableData = consultationPayments.map(payment => ({
+    ...payment,
+    patientName: getPatientName(payment)
+  }));
+
+  const subscriptionTableData = subscriptionPayments.map(payment => ({
+    ...payment,
+    patientName: getPatientName(payment)
+  }));
+// console.log(subscriptionTableData)
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Lista de Pagos" />
@@ -96,7 +123,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
               Registrar Pago
             </Link>
           </Button>
-
         </div>
       </div>
 
@@ -206,15 +232,31 @@ export default function Index({ payments }: { payments: Payment[] }) {
         </CollapsibleContent>
       </Collapsible>
 
-      <div className="mt-4">
-        <p className="text-sm text-gray-500 mb-2">
-          Mostrando {filteredPayments.length} de {payments.length} pagos
-        </p>
-        <DataTable
-          columns={columns}
-          data={filteredPayments}
-        />
-      </div>
+      {/* Tabs para separar pagos */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <TabsList>
+          <TabsTrigger value="consultas">Pagos de Consultas</TabsTrigger>
+          <TabsTrigger value="suscripciones">Pagos de Suscripciones</TabsTrigger>
+        </TabsList>
+        <TabsContent value="consultas">
+          {/* <p className="text-sm text-gray-500 mb-2">
+            Mostrando {consultationPayments.length} pagos de consultas
+          </p> */}
+          <DataTable
+            columns={columns}
+            data={consultationTableData}
+          />
+        </TabsContent>
+        <TabsContent value="suscripciones">
+          {/* <p className="text-sm text-gray-500 mb-2">
+            Mostrando {subscriptionPayments.length} pagos de suscripciones
+          </p> */}
+          <DataTable
+            columns={columns}
+            data={subscriptionTableData}
+          />
+        </TabsContent>
+      </Tabs>
     </ContentLayout>
   );
 }

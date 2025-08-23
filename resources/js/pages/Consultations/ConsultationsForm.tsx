@@ -30,8 +30,6 @@ export default function ConsultationsForm({ data, patients = [], users, services
     const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname }));
     const currentPatient = data.patient || patients.find(p => p.id === data.patient_id);
     const hasActiveSubscription = currentPatient?.subscriptions?.some((sub: Subscription) => sub.status === 'active');
-    //     const currentPatient = patients.find(p => p.id === data.patient_id);
-    //   const hasActiveSubscription = currentPatient?.subscriptions?.some(sub => sub.status === 'active');
 
     const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
         value: String(patient.id),
@@ -45,9 +43,9 @@ export default function ConsultationsForm({ data, patients = [], users, services
         { value: 'cancelado', label: 'Cancelado' },
     ];
 
-    // Opciones de estado de pago
-    const paymentStatusOptions = hasActiveSubscription
-        ? [{ value: 'pagado', label: 'Pagado' }] // Solo "Pagado" si hay suscripción activa
+    // Opciones de estado de pago basadas en si se usa funcional o no
+    const paymentStatusOptions = data.subscription_use === 'yes' 
+        ? [{ value: 'pagado', label: 'Pagado' }] // Solo "Pagado" si se usa funcional
         : [
             { value: 'pendiente', label: 'Pendiente' },
             { value: 'reembolsado', label: 'Reembolsado' },
@@ -66,11 +64,21 @@ export default function ConsultationsForm({ data, patients = [], users, services
         setData('amount', total);
     }, [data.service_id, data.subscription_use, services]);
 
+    // Efecto para actualizar automáticamente el estado de pago cuando cambia subscription_use
+    useEffect(() => {
+        if (data.subscription_use === 'yes') {
+            setData('payment_status', 'pagado');
+        } else if (data.payment_status === 'pagado') {
+            // Si estaba en pagado pero ya no se usa funcional, resetear a pendiente
+            setData('payment_status', 'pendiente');
+        }
+    }, [data.subscription_use]);
+
     const selectedServices = services
         .filter(service => data.service_id.includes(service.id))
         .map(service => ({
             ...service,
-            price: hasActiveSubscription ? 0 : service.price
+            price: data.subscription_use === 'yes' ? 0 : service.price
         }));
 
     const subscriptionOptions = [
@@ -138,19 +146,17 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <InputError message={errors.status} />
             </div>
 
-            
-
             <div>
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
-                    options={paymentStatusOptions} // Usar las opciones filtradas
+                    options={paymentStatusOptions}
                     value={paymentStatusOptions.find(option => option.value === data.payment_status) || null}
                     onChange={(selectedOption) => setData('payment_status', selectedOption?.value ?? '')}
                     isSearchable
                     placeholder="Selecciona el estado de pago..."
                     className="rounded-md"
-                    isDisabled={hasActiveSubscription} // Desactivar el select si hay suscripción activa
+                    isDisabled={data.subscription_use === 'yes'} // Desactivar solo si se usa funcional
                 />
                 <InputError message={errors.payment_status} />
             </div>
@@ -163,6 +169,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 />
                 <InputError message={errors.scheduled_at} />
             </div>
+            
             {hasActiveSubscription && (
                 <div className="">
                     <div>
@@ -237,7 +244,6 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     }, 0).toFixed(2)
                 }
             </div>
-
         </>
     );
 }

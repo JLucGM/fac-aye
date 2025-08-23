@@ -1,5 +1,5 @@
-import { ColumnDef } from "@tanstack/react-table"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { ColumnDef } from "@tanstack/react-table";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,34 +7,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
-import { Link } from "@inertiajs/react"
-import { Payment } from "@/types"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
+import { Link } from "@inertiajs/react";
+import { Payment } from "@/types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const columns: ColumnDef<Payment>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  // },
   {
     accessorKey: "created_at",
     header: "Creado",
@@ -45,6 +44,13 @@ export const columns: ColumnDef<Payment>[] = [
   {
     accessorKey: "reference",
     header: "Referencia",
+    cell: ({ row }) => {
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {row.original.reference || "N/A"}
+        </p>
+      );
+    },
   },
   {
     accessorKey: "payment_method_id",
@@ -54,72 +60,71 @@ export const columns: ColumnDef<Payment>[] = [
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
           {row.original.payment_method?.name}
         </p>
-      )
+      );
     },
   },
   {
-    accessorKey: "patient",
+    accessorKey: "patientName", // Nueva columna para el nombre del paciente
     header: "Paciente",
     cell: ({ row }) => {
-      const consultations = row.original.consultations || []; // Asegúrate de que sea un array
-      if (consultations.length > 0) {
-        const patient = consultations[0].patient; // Obtener el primer paciente
-        return (
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-            {patient?.name} {patient?.lastname}
-          </p>
-        );
-      }
-      return <p className="text-sm text-gray-500">Sin paciente</p>;
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {row.original.patientName || "Sin paciente"}
+        </p>
+      );
     },
   },
+  // {
+  //   accessorKey: "services",
+  //   header: "Servicios",
+  //   cell: ({ row }) => {
+  //     const consultations = row.original.consultations || [];
+  //     console.log(consultations)
+  //     if (consultations.length > 0) {
+  //       let services = consultations[0]?.services;
+
+  //       if (typeof services === 'string') {
+  //         try {
+  //           services = JSON.parse(services);
+  //         } catch (error) {
+  //           console.error("Error parsing services:", error);
+  //           services = [];
+  //         }
+  //       }
+
+  //       if (Array.isArray(services)) {
+  //         return (
+  //           <div>
+  //             {services.length > 0 ? (
+  //               services.map(service => (
+  //                 <p key={service.id} className="text-sm font-medium text-gray-900 dark:text-gray-50">
+  //                   {service.name} - $ {service.price}
+  //                 </p>
+  //               ))
+  //             ) : (
+  //               <p className="text-sm text-gray-500">Sin servicios</p>
+  //             )}
+  //           </div>
+  //         );
+  //       }
+  //     }
+  //     return <p className="text-sm text-gray-500">Sin consultas</p>;
+  //   },
+  // },
   {
-  accessorKey: "services",
-  header: "Servicios",
-  cell: ({ row }) => {
-    const consultations = row.original.consultations || []; // Asegúrate de que sea un array
-    if (consultations.length > 0) {
-      // Asegúrate de que services sea un array
-      let services = consultations[0]?.services;
-
-      // Si services es un string, parsealo
-      if (typeof services === 'string') {
-        try {
-          services = JSON.parse(services);
-        } catch (error) {
-          console.error("Error parsing services:", error);
-          services = []; // Si hay un error, asigna un array vacío
-        }
-      }
-
-      // Verifica que services sea un array
-      if (Array.isArray(services)) {
-        return (
-          <div>
-            {services.length > 0 ? (
-              services.map(service => (
-                <p key={service.id} className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                  {service.name} - $ {service.price}
-                </p>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">Sin servicios</p>
-            )}
-          </div>
-        );
-      }
-    }
-    return <p className="text-sm text-gray-500">Sin consultas</p>;
-  },
-}, 
-  {
-
     accessorKey: "amount",
     header: "Monto",
   },
   {
     accessorKey: "status",
     header: "Estado",
+    cell: ({ row }) => {
+      return (
+        <p className="capitalize text-sm font-medium text-gray-900 dark:text-gray-50">
+          {row.original.status || "Sin estado"}
+        </p>
+      );
+    },
   },
   {
     id: "actions",
@@ -133,15 +138,8 @@ export const columns: ColumnDef<Payment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {/*<DropdownMenuLabel>Actions</DropdownMenuLabel>
-             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(service.id)}
-            >
-              Copy service ID
-            </DropdownMenuItem> 
-            <DropdownMenuSeparator />*/}
             <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])} >
+              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])}>
                 Mostrar
               </Link>
             </DropdownMenuItem>
@@ -152,7 +150,7 @@ export const columns: ColumnDef<Payment>[] = [
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];

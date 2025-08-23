@@ -7,7 +7,9 @@ use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Consultation;
 use App\Models\Patient;
+use App\Models\PatientSubscription;
 use App\Models\PaymentMethod;
+use App\Models\Subscription;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -26,7 +28,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::with('paymentMethod', 'consultations.patient')->get();
+        $payments = Payment::with('paymentMethod', 'consultations.patient','patientSubscriptions.patient')->get();
         return Inertia::render('Payments/Index', compact('payments'));
     }
 
@@ -36,8 +38,9 @@ class PaymentController extends Controller
     public function create()
     {
         $paymentMethods = PaymentMethod::where('active', 1)->get();
-        $patients = Patient::all();
+        $patients = Patient::with(['subscriptions.subscription'])->get(); // Cargar suscripciones con la relación de suscripción
         $consultations = Consultation::with('patient', 'user')->get();
+        // $subscriptions = Subscription::all();
 
         return Inertia::render('Payments/Create', compact('paymentMethods', 'patients', 'consultations'));
     }
@@ -47,7 +50,6 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
-        // Iniciar una transacción para asegurar la integridad de los datos
         DB::transaction(function () use ($request) {
             // Crear el pago
             $payment = Payment::create([
@@ -56,17 +58,29 @@ class PaymentController extends Controller
                 'status' => $request->status,
                 'reference' => $request->reference,
                 'notes' => $request->notes,
-                // 'paid_at' => $request->paid_at,
             ]);
 
-            // Sincronizar las consultas seleccionadas
-            $payment->consultations()->sync($request->consultation_ids);
+            // Procesar según el tipo de pago
+            if ($request->payment_type === 'consulta') {
+                // Sincronizar las consultas seleccionadas
+                $payment->consultations()->sync($request->consultation_ids);
 
-            // Actualizar el estado de las consultas
-            foreach ($request->consultation_ids as $consultationId) {
-                $consultation = Consultation::find($consultationId);
-                if ($consultation) {
-                    $consultation->update(['payment_status' => 'pagado']);
+                // Actualizar el estado de las consultas
+                foreach ($request->consultation_ids as $consultationId) {
+                    $consultation = Consultation::find($consultationId);
+                    if ($consultation) {
+                        $consultation->update(['payment_status' => 'pagado']);
+                    }
+                }
+            } elseif ($request->payment_type === 'suscripcion') {
+                // Sincronizar las suscripciones seleccionadas
+                $payment->patientSubscriptions()->sync($request->subscription_ids);
+
+                foreach ($request->subscription_ids as $patientSubscriptionId) {
+                    $patientSubscription = PatientSubscription::find($patientSubscriptionId);
+                    if ($patientSubscription) {
+                        $patientSubscription->update(['payment_status' => 'pagado']);
+                    }
                 }
             }
         });
@@ -80,7 +94,7 @@ class PaymentController extends Controller
      */
     public function show(Payment $payment)
     {
-        $payment->load('consultations', 'paymentMethod', 'consultations.patient', 'consultations.user');
+        $payment->load('paymentMethod', 'consultations.patient', 'consultations.user', 'patientSubscriptions.patient','patientSubscriptions.subscription');
         return Inertia::render('Payments/Show', compact('payment'));
     }
 

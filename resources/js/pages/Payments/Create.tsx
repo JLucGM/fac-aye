@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import PaymentsForm from './PaymentsForm';
 import Heading from '@/components/heading';
+import PatientInfo from '@/components/patients-info';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,28 +23,32 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Create({ paymentMethods, patients, consultations }: { paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
     const { data, setData, errors, post } = useForm<CreatePaymentFormData>({
-        patient_id: null, // Agrega esta línea para inicializar patient_id
+        patient_id: null,
         consultation_ids: [],
-        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
+        subscription_ids: [],
+        payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null,
         amount: 0,
-        status: 'pendiente', // Cambia a 'pendiente' para el estado inicial
+        status: 'pendiente',
         reference: '',
         notes: '',
-        // paid_at: new Date().toISOString().split('T')[0],
+        payment_type: 'consulta',
     });
-
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+        console.log(data);
         post(route('payments.store'), {
             onSuccess: () => {
+                // Manejar éxito
             },
             onError: (err) => {
                 console.error("Error al crear el pago:", err);
             },
         });
     };
+
+    // Encuentra el paciente seleccionado
+    const selectedPatient = patients.find(patient => patient.id === data.patient_id);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -52,20 +57,31 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
                 title="Crear Pago"
                 description="Aquí puedes crear un nuevo pago para un paciente."
             />
-            <form className="flex flex-col gap-4" onSubmit={submit}>
-                <PaymentsForm
-                    data={data}
-                    patients={patients}
-                    paymentMethods={paymentMethods}
-                    consultations={consultations}
-                    setData={setData}
-                    errors={errors}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <form className="col-span-2 gap-4" onSubmit={submit}>
 
-                <Button variant={"default"}>
-                    Crear Pago
-                </Button>
-            </form>
+                    <PaymentsForm
+                        data={data}
+                        patients={patients}
+                        paymentMethods={paymentMethods}
+                        consultations={consultations}
+                        setData={setData}
+                        errors={errors}
+                    />
+
+                    <Button variant={"default"} className="w-full mt-4">
+                        Crear Pago
+                    </Button>
+                </form>
+
+                <div className="mt-4">
+                    {selectedPatient ? (
+                        <PatientInfo patients={[selectedPatient]} />
+                    ) : (
+                        <p>No se ha seleccionado ningún paciente.</p>
+                    )}
+                </div>
+            </div>
         </ContentLayout>
     );
 }

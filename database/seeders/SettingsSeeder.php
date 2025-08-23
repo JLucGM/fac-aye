@@ -14,11 +14,11 @@ class SettingsSeeder extends Seeder
     {
         $settings = [
             [
-                'name' => ' FisioAthletic Care',
+                'name' => ' Athletic Balance 8.6',
                 'rif' => "1234567",
                 'email' => "joedoe@example.com",
                 'phone' => "0424-1524141",
-                'direction' => "Urb. San Luis, Centro Comercial San Luis. Local FisioAthletic Care.",
+                'direction' => "Urb. San Luis, Centro Comercial San Luis. Local Athletic Balance 8.6.",
                 'instagram' => "@facvzla",
             ],
         ];

@@ -61,7 +61,7 @@ export default function Index({ patients }: { patients: Patient[] }) {
                     <ul>
                         {birthdayPatients.map(patient => (
                             <li key={patient.id}>
-                                {patient.name} {patient.lastname} - {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('en-CA', { day: '2-digit', month: '2-digit' }) : 'Fecha no disponible'}
+                                {patient.name} {patient.lastname} - {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-CA', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Fecha no disponible'}
                             </li>
                         ))}
 

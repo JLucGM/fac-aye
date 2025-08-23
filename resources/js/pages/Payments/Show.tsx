@@ -1,8 +1,9 @@
 import { ContentLayout } from '@/layouts/content-layout';
 import { Payment, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'; // Asegúrate de que la ruta sea correcta
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Heading from '@/components/heading';
+import PatientInfo from '@/components/patients-info';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,6 +21,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Show({ payment }: { payment: Payment }) {
+    console.log(payment);
+
+    // Determinar si el pago es por consultas o por suscripciones
+    const isSubscriptionPayment = payment.patient_subscriptions && payment.patient_subscriptions.length > 0;
+    const patient = isSubscriptionPayment 
+        ? payment.patient_subscriptions[0].patient 
+        : payment.consultations.length > 0 
+            ? payment.consultations[0].patient 
+            : null;
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -29,50 +39,93 @@ export default function Show({ payment }: { payment: Payment }) {
                 description="Aquí puedes ver la información de un pago existente."
             />
 
-            <h1 className="text-2xl font-bold mb-4">Detalles del Pago</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-4">
+                    <p className='capitalize'>Fecha de Creación: {new Date(payment.created_at).toLocaleDateString()}</p>
+                    <p className='capitalize'>Última Actualización: {new Date(payment.updated_at).toLocaleDateString()}</p>
+                    {payment.payment_method && (
+                        <p className='capitalize'>Método: {payment.payment_method.name}</p>
+                    )}
+                    <p className='capitalize'>Estado: {payment.status}</p>
+                    <p className='capitalize'>Referencia: {payment.reference || 'N/A'}</p>
+                    <p className='capitalize'>Notas: {payment.notes || 'N/A'}</p>
+                </div>
 
-            <div className="mb-4">
-                <h2 className="text-xl font-semibold">Información del Pago</h2>
-                <p><strong>ID:</strong> {payment.id}</p>
-                <p><strong>Monto:</strong> ${payment.amount}</p>
-                <p><strong>Estado:</strong> {payment.status}</p>
-                <p><strong>Referencia:</strong> {payment.reference}</p>
-                <p><strong>Notas:</strong> {payment.notes}</p>
-                {/* <p><strong>Fecha de Pago:</strong> {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString() : 'No disponible'}</p> */}
-                <p><strong>Método de Pago:</strong> {payment.payment_method_id}</p>
+                {/* Información del Paciente */}
+                {patient && (
+                    <div className="mb-4">
+                        <PatientInfo patients={[patient]} />
+                    </div>
+                )}
             </div>
 
+            {/* Consultas o Suscripciones Asociadas */}
             <div className="mb-4">
-                <h2 className="text-xl font-semibold">Consultas Asociadas</h2>
-                {payment.consultations && payment.consultations.length > 0 ? (
+                <h2 className="text-xl font-semibold">{isSubscriptionPayment ? 'Suscripciones Asociadas' : 'Consultas Asociadas'}</h2>
+                {isSubscriptionPayment ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Consulta ID</TableHead>
-                                <TableHead>Paciente</TableHead>
-                                <TableHead>Tipo de Consulta</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead>Fecha Programada</TableHead>
+                                <TableHead>Suscripción ID</TableHead>
+                                <TableHead>Periodo</TableHead>
+                                <TableHead>Consultas Usadas</TableHead>
+                                <TableHead>Consultas Restantes</TableHead>
                                 <TableHead>Monto</TableHead>
-                                <TableHead>Notas</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {payment.consultations.map((consultation) => (
-                                <TableRow key={consultation.id}>
-                                    <TableCell>{consultation.id}</TableCell>
-                                    <TableCell>{consultation.patient?.name}</TableCell>
-                                    <TableCell>{consultation.consultation_type}</TableCell>
-                                    <TableCell>{consultation.status}</TableCell>
-                                    <TableCell>{new Date(consultation.scheduled_at).toLocaleDateString()}</TableCell>
-                                    <TableCell>${consultation.amount}</TableCell>
-                                    <TableCell>{consultation.notes}</TableCell>
+                            {payment.patient_subscriptions.map((subscription) => (
+                                <TableRow key={subscription.id}>
+                                    <TableCell>{subscription.subscription.name}</TableCell>
+                                    <TableCell>
+                                        Comienzo: <p>{new Date(subscription.start_date).toLocaleDateString()}</p>
+                                        Fin: <p>{new Date(subscription.end_date).toLocaleDateString()}</p>
+                                    </TableCell>
+                                    {/* <TableCell>{new Date(subscription.end_date).toLocaleDateString()}</TableCell> */}
+                                    <TableCell>{subscription.consultations_used}</TableCell>
+                                    <TableCell>{subscription.consultations_remaining}</TableCell>
+                                    <TableCell>{subscription.subscription.price}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={4}>Total</TableCell>
+                                <TableCell>${payment.amount}</TableCell>
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 ) : (
-                    <p>No hay consultas asociadas a este pago.</p>
+                    payment.consultations && payment.consultations.length > 0 ? (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Tipo de Consulta</TableHead>
+                                    <TableHead>Estado</TableHead>
+                                    <TableHead>Fecha Programada</TableHead>
+                                    <TableHead>Monto</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {payment.consultations.map((consultation) => (
+                                    <TableRow key={consultation.id}>
+                                        <TableCell>{consultation.consultation_type}</TableCell>
+                                        <TableCell>{consultation.status}</TableCell>
+                                        <TableCell>{new Date(consultation.scheduled_at).toLocaleDateString()}</TableCell>
+                                        <TableCell>${consultation.amount}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TableCell colSpan={3}>Total</TableCell>
+                                    <TableCell>${payment.amount}</TableCell>
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    ) : (
+                        <p>No hay consultas asociadas a este pago.</p>
+                    )
                 )}
             </div>
         </ContentLayout>

@@ -44,30 +44,9 @@ class Payment extends Model
             ->withTimestamps();
     }
 
-    // public function patient()
-    // {
-    //     return $this->belongsTo(Patient::class);
-    // }
-
-    // public function getStatusLabelAttribute()
-    // {
-    //     return match ($this->status) {
-    //         'pendiente' => 'Pendiente',
-    //         'completado' => 'Completado',
-    //         'fallido' => 'Fallido',
-    //         default => 'Desconocido',
-    //     };
-    // }
-
-    // public function getPaidAtFormattedAttribute()
-    // {
-    //     return $this->paid_at ? $this->paid_at->format('d/m/Y H:i') : 'No pagado';
-    // }
-
-    // public function getAmountFormattedAttribute()
-    // {
-    //     return number_format($this->amount, 2, ',', '.');
-    // }
-
+    public function patientSubscriptions()
+    {
+        return $this->belongsToMany(PatientSubscription::class, 'patient_subscription_payment');
+    }
 
 }

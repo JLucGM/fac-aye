@@ -1,10 +1,12 @@
+
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Select from 'react-select';
-import { Consultation, CreatePaymentFormData, Patient, Payment, PaymentMethod } from "@/types";
+import { Consultation, CreatePaymentFormData, Patient, PaymentMethod, Subscription } from "@/types";
 import { useEffect, useState } from 'react';
 import ConsultationsTable from "./ConsultationsTable";
+import SubscriptionsTable from "./SubscriptionsTable";
 
 type PaymentsFormProps = {
   data: CreatePaymentFormData;
@@ -15,21 +17,22 @@ type PaymentsFormProps = {
   errors: {
     patient_id?: string;
     consultation_ids?: string;
+    subscription_ids?: string;
     payment_method_id?: string;
     amount?: string;
     status?: string;
     reference?: string;
     notes?: string;
-    // paid_at?: string;
   };
 };
 
 export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], setData, errors }: PaymentsFormProps) {
 
-  const [pendingConsultations, setPendingConsultations] = useState<Consultation[]>([]);
+  const [pendingItems, setPendingItems] = useState<(Consultation | Subscription)[]>([]);
+  const [paymentType, setPaymentType] = useState<'consulta' | 'suscripcion'>('consulta');
 
   const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
-    value: String(patient.id),
+    value: Number(patient.id),
     label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
   })) : [];
 
@@ -45,134 +48,115 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
     { value: 'reembolsado', label: 'Reembolsado' },
   ];
 
-  // Al cambiar el paciente, filtra y carga consultas no pagadas
-  const handlePatientChange = (selectedOption: { value: number; label: string } | null) => {
-    setData('patient_id', selectedOption ? selectedOption.value : null);
-    if (selectedOption) {
-      const filtered = consultations.filter(
-        c =>
-          c.patient_id === selectedOption.value &&
-          c.payment_status !== "pagado"
-      );
-      setPendingConsultations(filtered);
+  const handleItemSelection = (itemId: number) => {
+    let newSelection;
+    let dataKey;
 
-      // Resetear consultas seleccionadas y monto
-      setData('consultation_ids', []);
-      setData('amount', 0);
+    if (paymentType === 'consulta') {
+      newSelection = [...(data.consultation_ids || [])];
+      dataKey = 'consultation_ids';
+      setData('subscription_ids', []);
     } else {
-      setPendingConsultations([]);
+      newSelection = [...(data.subscription_ids || [])];
+      dataKey = 'subscription_ids';
       setData('consultation_ids', []);
-      setData('amount', 0);
     }
-  };
 
-  const toggleConsultationSelection = (consultationId: number) => {
-    let newSelection = [...data.consultation_ids];
-    if (newSelection.includes(consultationId)) {
-      newSelection = newSelection.filter(id => id !== consultationId);
+    if (newSelection.includes(itemId)) {
+      newSelection = newSelection.filter(id => id !== itemId);
     } else {
-      newSelection.push(consultationId);
+      newSelection.push(itemId);
     }
-    setData('consultation_ids', newSelection);
 
-    // Actualizar monto según selección
-    const selectedConsultations = pendingConsultations.filter(c => newSelection.includes(c.id));
-    const totalAmount = selectedConsultations.reduce((total, c) => {
-      const amt = (typeof c.amount === 'number' ? c.amount : parseFloat(c.amount)) || 0; // Asegúrate de que amount sea un número
-      return total + (isNaN(amt) ? 0 : amt);
+    setData(dataKey, newSelection);
+
+    // Calcular el monto total basado en el tipo de pago
+    const selectedItems = pendingItems.filter(item => newSelection.includes(item.id));
+    const totalAmount = selectedItems.reduce((total, item) => {
+      let amount = 0;
+
+      if (paymentType === 'consulta') {
+        // Para consultas, usar la propiedad amount
+        amount = (typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount))) || 0;
+      } else {
+        // Para suscripciones, usar subscription.subscription.price
+        const subscription = item as Subscription;
+        if (subscription.subscription && subscription.subscription.price !== undefined) {
+          amount = typeof subscription.subscription.price === 'number'
+            ? subscription.subscription.price
+            : parseFloat(String(subscription.subscription.price));
+        }
+      }
+
+      return total + (isNaN(amount) ? 0 : amount);
     }, 0);
 
     setData('amount', totalAmount);
   };
 
+  const handlePatientChange = (selectedOption: { value: number; label: string } | null) => {
+    const patientId = selectedOption ? selectedOption.value : null;
+    setData('patient_id', patientId);
+    setData('consultation_ids', []);
+    setData('subscription_ids', []);
+    setData('amount', 0);
+  };
+
+  useEffect(() => {
+    setData('payment_type', paymentType);
+  }, [paymentType]);
 
   useEffect(() => {
     if (data.patient_id) {
-      const filtered = consultations.filter(
-        c => c.patient_id === data.patient_id && c.payment_status !== "pagado"
-      );
-      setPendingConsultations(filtered);
+      const patient = patients.find(p => p.id === data.patient_id);
+      if (paymentType === 'consulta') {
+        const filtered = consultations.filter(
+          c => c.patient_id === data.patient_id && c.payment_status !== "pagado"
+        );
+        setPendingItems(filtered);
+      } else if (paymentType === 'suscripcion') {
+        const subscriptions = patient?.subscriptions || [];
+        const filteredSubscriptions = subscriptions.filter(
+          s => s.payment_status !== "pagado"
+        );
+        setPendingItems(filteredSubscriptions);
+      }
+    } else {
+      setPendingItems([]);
     }
-  }, [data.patient_id, consultations]);
-
+  }, [data.patient_id, consultations, paymentType, patients]);
 
   return (
-    <>
-      {patientOptions.length > 0 && (
+    <div className="space-y-6">
+
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente</Label>
+          <Label htmlFor="payment_method_id">Método de Pago</Label>
           <Select
-            id="patient_id"
-            options={patientOptions}
-            value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
-            onChange={(selectedOption) =>
-              setData('patient_id', selectedOption ? Number(selectedOption.value) : null)
-            }
+            id="payment_method_id"
+            options={paymentMethodOptions}
+            value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
+            onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
             isSearchable
-            placeholder="Selecciona un paciente..."
+            placeholder="Selecciona un método de pago..."
+            className="rounded-md mt-1 block w-full"
+          />
+          <InputError message={errors.payment_method_id} className="mt-2" />
+        </div>
+
+        <div>
+          <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado del pago</Label>
+          <Select
+            id="status"
+            options={statusOptions}
+            value={statusOptions.find(option => option.value === data.status) || null}
+            onChange={(selectedOption) => setData('status', selectedOption?.value ?? '')}
+            isSearchable
+            placeholder="Select Status..."
             className="rounded-md"
           />
-          <InputError message={errors.patient_id} />
+          <InputError message={errors.status} />
         </div>
-      )}
-
-      {/* Lista de consultas no pagadas con checkbox */}
-      {pendingConsultations.length > 0 && (
-        <div className="mb-4">
-          <Label className="mb-2 block font-semibold text-gray-700">
-            Consultas pendientes a pagar
-          </Label>
-          <ConsultationsTable
-            pendingConsultations={pendingConsultations}
-            data={data}
-            toggleConsultationSelection={toggleConsultationSelection}
-          />
-          <InputError message={errors.consultation_ids} />
-        </div>
-      )}
-
-
-      <div>
-        <Label htmlFor="amount">Monto a pagar</Label>
-        <Input
-          id="amount"
-          type="text"
-          name="amount"
-          value={typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00'}
-          className="mt-1 block w-full bg-gray-200"
-          readOnly
-        />
-        <InputError message={errors.amount} className="mt-2" />
-      </div>
-
-      <div>
-        <Label htmlFor="payment_method_id">Método de Pago</Label>
-        <Select
-          id="payment_method_id"
-          options={paymentMethodOptions}
-          value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
-          onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
-          isSearchable
-          placeholder="Selecciona un método de pago..."
-          className="rounded-md mt-1 block w-full"
-        />
-        <InputError message={errors.payment_method_id} className="mt-2" />
-      </div>
-
-
-
-      <div>
-        <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado del pago</Label>
-        <Select
-          id="status"
-          options={statusOptions}
-          value={statusOptions.find(option => option.value === data.status) || null}
-          onChange={(selectedOption) => setData('status', selectedOption?.value ?? '')}
-          isSearchable
-          placeholder="Select Status..."
-          className="rounded-md"
-        />
-        <InputError message={errors.status} />
       </div>
 
       <div>
@@ -188,6 +172,101 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
         <InputError message={errors.reference} className="mt-2" />
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        {patientOptions.length > 0 && (
+          <div>
+            <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente</Label>
+            <Select
+              id="patient_id"
+              options={patientOptions}
+              value={patientOptions.find(option => option.value === Number(data.patient_id)) || null}
+              onChange={handlePatientChange}
+              isSearchable
+              placeholder="Selecciona un paciente..."
+              className="rounded-md"
+            />
+            <InputError message={errors.patient_id} />
+          </div>
+        )}
+        <div>
+          <Label htmlFor="payment_type" className="mb-2 block font-semibold text-gray-700">Tipo de Pago</Label>
+          <Select
+            id="payment_type"
+            options={[
+              { value: 'consulta', label: 'Consulta' },
+              { value: 'suscripcion', label: 'Funcional' },
+            ]}
+            value={{ value: paymentType, label: paymentType === 'consulta' ? 'Consulta' : 'Funcional' }}
+            onChange={(selectedOption) => {
+              setPaymentType(selectedOption?.value as 'consulta' | 'suscripcion');
+              setData('consultation_ids', []);
+              setData('subscription_ids', []);
+              setData('amount', 0);
+            }}
+            isSearchable
+            placeholder="Selecciona un tipo de pago..."
+            className="rounded-md"
+          />
+        </div>
+
+      </div>
+
+
+      {paymentType === 'consulta' && (
+        <div className="mb-4">
+          <Label className="mb-2 block font-semibold text-gray-700">
+            Consultas pendientes a pagar
+          </Label>
+          {pendingItems.length > 0 ? (
+            <ConsultationsTable
+              pendingConsultations={pendingItems as Consultation[]}
+              data={data}
+              toggleConsultationSelection={handleItemSelection}
+            />
+          ) : (
+            <div className="text-gray-500 text-sm mt-2">
+              No hay consultas pendientes de pago para este paciente.
+            </div>
+          )}
+          <InputError message={errors.consultation_ids} />
+        </div>
+      )}
+
+      {paymentType === 'suscripcion' && (
+        <div className="mb-4">
+          <Label className="mb-2 block font-semibold text-gray-700">
+            Funcionales pendientes a pagar
+          </Label>
+          {pendingItems.length > 0 ? (
+            <SubscriptionsTable
+              pendingSubscriptions={pendingItems as Subscription[]}
+              data={data}
+              toggleSubscriptionSelection={handleItemSelection}
+            />
+          ) : (
+            <div className="text-gray-500 text-sm mt-2">
+              No hay Funcionales pendientes de pago para este paciente.
+            </div>
+          )}
+          <InputError message={errors.subscription_ids} />
+        </div>
+      )}
+
+      <div>
+        <Label htmlFor="amount">Monto a pagar</Label>
+        <Input
+          id="amount"
+          type="text"
+          name="amount"
+          value={typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00'}
+          className="mt-1 block w-full bg-gray-200"
+          readOnly
+        />
+        <InputError message={errors.amount} className="mt-2" />
+      </div>
+
+
+
       <div>
         <Label htmlFor="notes">Notas</Label>
         <Input
@@ -200,6 +279,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
         />
         <InputError message={errors.notes} className="mt-2" />
       </div>
-    </>
+    </div>
   );
 }
+

@@ -31,7 +31,7 @@ export function ContentLayout({ children, breadcrumbs = [], ...props }: ContentL
     };
 
     return (
-        <div className="mx-5">
+        <div className="mx-5 min-h-screen ">
             <div className="flex justify-between items-center gap-4">
                 <div className="flex items-center gap-4">
 

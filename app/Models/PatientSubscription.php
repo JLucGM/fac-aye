@@ -15,7 +15,8 @@ class PatientSubscription extends Model
         'end_date',
         'consultations_used', 
         'consultations_remaining', 
-        'status'
+        'status',
+        'payment_status',
     ];
     
     public function patient()
@@ -32,4 +33,10 @@ class PatientSubscription extends Model
     {
         return $this->hasMany(Consultation::class);
     }
+
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'patient_subscription_payment');
+    }
+
 }

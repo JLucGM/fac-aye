@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import ConsultationsForm from './ConsultationsForm';
 import Heading from '@/components/heading';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,6 +40,20 @@ export default function Create({ patients, users, services }: {
         
     });
 
+    const [birthdayPatients, setBirthdayPatients] = useState<Patient[]>([]);
+    
+        useEffect(() => {
+            const today = new Date().toLocaleDateString('en-CA', { month: '2-digit', day: '2-digit' });
+            const birthdayList = patients.filter(patient => {
+                if (patient.birthdate) {
+                    const birthday = new Date(patient.birthdate).toLocaleDateString('en-CA', { month: '2-digit', day: '2-digit' });
+                    return birthday === today;
+                }
+                return false; // Si birthdate es undefined, no incluir en la lista
+            });
+            setBirthdayPatients(birthdayList);
+        }, [patients]);
+
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -65,6 +80,21 @@ export default function Create({ patients, users, services }: {
                 title="Crear asistencia"
                 description="Aquí puedes crear una nueva asistencia para un paciente."
             />
+
+            {/* Mostrar mensaje o tabla de pacientes que cumplen años */}
+            {birthdayPatients.length > 0 && (
+                <div className="mb-4 p-4 border border-yellow-300 bg-yellow-100 rounded">
+                    <h2 className="font-semibold text-lg">¡Feliz Cumpleaños a nuestros pacientes!</h2>
+                    <ul>
+                        {birthdayPatients.map(patient => (
+                            <li key={patient.id}>
+                                {patient.name} {patient.lastname} - {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-CA', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Fecha no disponible'}
+                            </li>
+                        ))}
+
+                    </ul>
+                </div>
+            )}
 
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
