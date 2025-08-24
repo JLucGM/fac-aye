@@ -15,6 +15,10 @@
             text-align: center;
         }
 
+        h2 {
+            margin-top: 20px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -35,13 +39,11 @@
         /* Estilo para la tabla sin bordes */
         .no-border {
             border: none;
-            /* Elimina el borde de la tabla */
         }
 
         .no-border th,
         .no-border td {
             border: none;
-            /* Elimina el borde de las celdas */
         }
 
         /* Centrar el texto en la celda del título */
@@ -92,30 +94,34 @@
             </tr>
         </tbody>
     </table>
+
+    <!-- Tabla de Pagos de Consulta -->
+    <h2>Pagos de Consulta</h2>
     <table>
         <thead>
             <tr>
-                <!-- <th>ID</th> -->
                 <th>Fecha de Pago</th>
                 <th>Paciente</th>
                 <th>Método de Pago</th>
                 <th>Estado</th>
                 <th>Referencia</th>
+                <th>Servicios</th>
                 <th>Monto</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($pagos as $pago)
+            @foreach ($pagosConsulta as $pago)
             <tr>
-                <!-- <td>{{ $pago->id }}</td> -->
                 <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
                 <td>
-                    @foreach ($pago->consultations as $consulta)
-                    {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}<br>
-                    @endforeach
+                    @if ($pago->consultations->isNotEmpty())
+                    {{ $pago->consultations->first()->patient->name }} {{ $pago->consultations->first()->patient->lastname }}
+                    @else
+                    Sin paciente
+                    @endif
                 </td>
-                <td>{{ $pago->status }}</td>
                 <td>{{ $pago->paymentMethod->name }}</td>
+                <td>{{ $pago->status }}</td>
                 <td>
                     @if ($pago->reference)
                     {{ $pago->reference }}
@@ -123,21 +129,83 @@
                     Sin referencia
                     @endif
                 </td>
+                <td>
+                    @if ($pago->consultations->isNotEmpty())
+                    @foreach ($pago->consultations as $consulta)
+                    @php
+                    $services = json_decode($consulta->services, true);
+                    @endphp
+                    @foreach ($services as $service)
+                    {{ $service['name'] }} ({{ $service['price'] }})<br>
+                    @endforeach
+                    @endforeach
+                    @else
+                    Sin servicios
+                    @endif
+                </td>
                 <td>{{ $pago->amount }}</td>
             </tr>
             @endforeach
             <tr>
-                <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
-                <td><strong>{{ $totalAmount }}</strong></td>
+                <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
+                <td><strong>{{ $totalAmountConsulta }}</strong></td>
             </tr>
         </tbody>
     </table>
 
-    <!-- Mostrar la suma total -->
-    <!-- <table>
-        <tfoot>
-        </tfoot>
-    </table> -->
+    <!-- Tabla de Pagos de Suscripción -->
+    <h2>Pagos de Suscripción</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha de Pago</th>
+                <th>Paciente</th>
+                <th>Método de Pago</th>
+                <th>Estado</th>
+                <th>Referencia</th>
+                <th>Suscripción</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($pagosSuscripcion as $pago)
+            <tr>
+                <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
+                <td>
+                    @if ($pago->patientSubscriptions->isNotEmpty())
+                    {{ $pago->patientSubscriptions->first()->patient->name }} {{ $pago->patientSubscriptions->first()->patient->lastname }}
+                    @else
+                    Sin paciente
+                    @endif
+                </td>
+                <td>{{ $pago->paymentMethod->name }}</td>
+                <td>{{ $pago->status }}</td>
+                <td>
+                    @if ($pago->reference)
+                    {{ $pago->reference }}
+                    @else
+                    Sin referencia
+                    @endif
+                </td>
+
+                <td>
+                    @if ($pago->patientSubscriptions->isNotEmpty())
+                    @foreach ($pago->patientSubscriptions as $subscription)
+                    {{ $subscription->subscription->name }}<br>
+                    @endforeach
+                    @else
+                    Sin suscripción
+                    @endif
+                </td>
+                <td>{{ $pago->amount }}</td>
+            </tr>
+            @endforeach
+            <tr>
+                <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
+                <td><strong>{{ $totalAmountSuscripcion }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="footer">
         @foreach ($settings as $setting)

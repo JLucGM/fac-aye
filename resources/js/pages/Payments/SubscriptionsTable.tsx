@@ -31,6 +31,7 @@ export default function SubscriptionsTable({ pendingSubscriptions, data, toggleS
                                 />
                             </TableCell>
                             <TableCell>
+                                {subscription.id}
                                 {subscription.subscription && subscription.subscription.name ? subscription.subscription.name : 'Nombre no disponible'}
                             </TableCell>
                             <TableCell>

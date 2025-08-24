@@ -18,7 +18,7 @@ class StorePaymentRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+     */    
     public function rules()
     {
         return [
@@ -28,7 +28,7 @@ class StorePaymentRequest extends FormRequest
             'consultation_ids.*' => 'exists:consultations,id',
 
             'subscription_ids' => 'required_if:payment_type,suscripcion|array',
-            'subscription_ids.*' => 'exists:subscriptions,id',
+            'subscription_ids.*' => 'exists:patient_subscriptions,id',
 
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',

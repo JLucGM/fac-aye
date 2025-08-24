@@ -37,16 +37,31 @@ class ClosuresController extends Controller
         $fechaHoy = Carbon::today();
         $auth = Auth::user();
 
-        // Obtener todas las consultas del día
-        $pagos = Payment::with('paymentMethod', 'consultations.patient')->whereDate('created_at', $fechaHoy)->get();
+        // Obtener todos los pagos del día
+        $pagos = Payment::with('paymentMethod', 'consultations.patient', 'patientSubscriptions.subscription', 'patientSubscriptions.patient')
+            ->whereDate('created_at', $fechaHoy)
+            ->get();
+
+        // Filtrar pagos de consulta y de suscripción
+        $pagosConsulta = $pagos->filter(function ($pago) {
+            return $pago->consultations->isNotEmpty();
+        });
+        $pagosSuscripcion = $pagos->filter(function ($pago) {
+            return $pago->patientSubscriptions->isNotEmpty();
+        });
+// dd($pagosSuscripcion);
+        // Calcular totales
+        $totalAmountConsulta = $pagosConsulta->sum('amount');
+        $totalAmountSuscripcion = $pagosSuscripcion->sum('amount');
+
+        // Obtener configuraciones
         $settings = Setting::with('media')->first()->get();
 
-        $totalAmount = $pagos->sum('amount'); // Calcula la suma total de los montos
-
-        // return $pagos;
         // Cargar la vista del PDF
-        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagos', 'fechaHoy', 'settings', 'auth', 'totalAmount'))->setPaper('a4', 'landscape');
-        // // Devolver el PDF para abrir en una nueva pestaña
+        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagosConsulta', 'pagosSuscripcion', 'fechaHoy', 'settings', 'auth', 'totalAmountConsulta', 'totalAmountSuscripcion'))
+            ->setPaper('a4', 'landscape');
+
+        // Devolver el PDF para abrir en una nueva pestaña
         return $pdf->stream($fechaHoy->format('d-m-Y') . '_pagos_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
     }
 
@@ -102,15 +117,26 @@ class ClosuresController extends Controller
 
         $endDate = Carbon::parse($endDate)->endOfDay();
 
-        $pagos = Payment::with('paymentMethod', 'consultations.patient')
+        $pagos = Payment::with('paymentMethod', 'consultations.patient', 'patientSubscriptions.subscription', 'patientSubscriptions.patient')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderBy('created_at', 'asc') // Ordenar por fecha de creación
+            ->orderBy('created_at', 'asc')
             ->get();
 
-        $settings = Setting::with('media')->first()->get();
-        $totalAmount = $pagos->sum('amount');
+        // Filtrar pagos de consulta y de suscripción
+        $pagosConsulta = $pagos->filter(function ($pago) {
+            return $pago->consultations->isNotEmpty();
+        });
+        $pagosSuscripcion = $pagos->filter(function ($pago) {
+            return $pago->patientSubscriptions->isNotEmpty();
+        });
+        // dd($pagosConsulta);
 
-        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagos', 'startDate', 'endDate', 'settings', 'auth', 'totalAmount', 'fechaHoy'))
+        $totalAmountConsulta = $pagosConsulta->sum('amount');
+        $totalAmountSuscripcion = $pagosSuscripcion->sum('amount');
+
+        $settings = Setting::with('media')->first()->get();
+
+        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagosConsulta', 'pagosSuscripcion', 'startDate', 'endDate', 'settings', 'auth', 'totalAmountConsulta', 'totalAmountSuscripcion', 'fechaHoy'))
             ->setPaper('a4', 'landscape');
 
         return $pdf->stream($startDate . '_to_' . $endDate . '_pagos_rango.pdf', ['Attachment' => 0]);
