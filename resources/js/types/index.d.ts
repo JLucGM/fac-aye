@@ -253,7 +253,7 @@ export interface CreateConsultationFormData {
     patient_id?: number;
     service_id: number[]; // Array of service IDs for the many-to-many relationship
     status: 'programado' | 'confirmado' | 'completado' | 'cancelado'; // Allow empty string for form initial state
-    scheduled_at: string;
+    // scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;
     payment_status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado'; // Allow empty string for form initial state

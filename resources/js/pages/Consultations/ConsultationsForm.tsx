@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { CreateConsultationFormData, Patient, Service, Subscription, User } from "@/types";
 import Select from 'react-select';
 import { useEffect } from 'react';
-import { DateTimePicker } from "@/components/DateTimePicker";
 import ServicesTable from "./ServicesTable";
 
 type ConsultationsFormProps = {
@@ -12,13 +11,13 @@ type ConsultationsFormProps = {
     patients: Patient[];
     users: User[];
     services: Service[];
+    activeSubscription?: Subscription | null; // Nueva prop opcional
     setData: (key: string, value: any) => void;
     errors: {
         user_id?: string;
         patient_id?: string;
         service_id?: string;
         status?: string;
-        scheduled_at?: string;
         notes?: string;
         payment_status?: string;
         consultation_type?: string;
@@ -26,26 +25,33 @@ type ConsultationsFormProps = {
     };
 };
 
-export default function ConsultationsForm({ data, patients = [], users, services, setData, errors }: ConsultationsFormProps) {
+export default function ConsultationsForm({
+    data,
+    patients = [],
+    users,
+    services,
+    setData,
+    errors,
+    activeSubscription,
+}: ConsultationsFormProps) {
     const userOptions = users.map(user => ({ value: String(user.id), label: user.name + ' ' + user.lastname }));
     const currentPatient = data.patient || patients.find(p => p.id === data.patient_id);
-    const hasActiveSubscription = currentPatient?.subscriptions?.some((sub: Subscription) => sub.status === 'active');
+    const activeSub = activeSubscription ?? currentPatient?.subscriptions?.find((sub: Subscription) => sub.status === 'active');
+    const hasActiveSubscription = !!activeSub;
 
     const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
         value: String(patient.id),
         label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
     })) : [];
-    const serviceOptions = services.map(service => ({ value: String(service.id), label: service.name + ' - $ ' + service.price }));
 
-    const statusOptions = [
-        { value: 'programado', label: 'Programado' },
-        { value: 'completado', label: 'Completado' },
-        { value: 'cancelado', label: 'Cancelado' },
-    ];
+    const serviceOptions = services.map(service => ({
+        value: String(service.id),
+        label: `${service.name} - $ ${service.price}`
+    }));
 
     // Opciones de estado de pago basadas en si se usa funcional o no
-    const paymentStatusOptions = data.subscription_use === 'yes' 
-        ? [{ value: 'pagado', label: 'Pagado' }] // Solo "Pagado" si se usa funcional
+    const paymentStatusOptions = data.subscription_use === 'yes'
+        ? [{ value: 'pagado', label: 'Pagado' }]
         : [
             { value: 'pendiente', label: 'Pendiente' },
             { value: 'reembolsado', label: 'Reembolsado' },
@@ -59,32 +65,19 @@ export default function ConsultationsForm({ data, patients = [], users, services
     useEffect(() => {
         const total = data.service_id.reduce((total, serviceId) => {
             const service = services.find(s => s.id === serviceId);
-            return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || 0));
+            return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || '0'));
         }, 0);
         setData('amount', total);
     }, [data.service_id, data.subscription_use, services]);
 
-    // Efecto para actualizar automáticamente el estado de pago cuando cambia subscription_use
     useEffect(() => {
         if (data.subscription_use === 'yes') {
+            setData('service_id', []); // Vaciar servicios porque se usa suscripción
             setData('payment_status', 'pagado');
-        } else if (data.payment_status === 'pagado') {
-            // Si estaba en pagado pero ya no se usa funcional, resetear a pendiente
+        } else {
             setData('payment_status', 'pendiente');
         }
     }, [data.subscription_use]);
-
-    const selectedServices = services
-        .filter(service => data.service_id.includes(service.id))
-        .map(service => ({
-            ...service,
-            price: data.subscription_use === 'yes' ? 0 : service.price
-        }));
-
-    const subscriptionOptions = [
-        { value: 'no', label: 'Pagar normalmente (precios completos)' },
-        { value: 'yes', label: 'Usar funcional (precios a 0)' },
-    ];
 
     return (
         <>
@@ -96,7 +89,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     value={userOptions.find(option => option.value === String(data.user_id)) || null}
                     onChange={(selectedOption) => setData('user_id', selectedOption ? Number(selectedOption.value) : null)}
                     isSearchable
-                    placeholder="Select User..."
+                    placeholder="Selecciona un fisioterapeuta..."
                     className="rounded-md"
                 />
                 <InputError message={errors.user_id} />
@@ -111,7 +104,7 @@ export default function ConsultationsForm({ data, patients = [], users, services
                         value={patientOptions.find(option => option.value === String(data.patient_id)) || null}
                         onChange={(selectedOption) => setData('patient_id', selectedOption ? Number(selectedOption.value) : null)}
                         isSearchable
-                        placeholder="Select Patient..."
+                        placeholder="Selecciona un paciente..."
                         className="rounded-md"
                     />
                     <InputError message={errors.patient_id} />
@@ -133,20 +126,6 @@ export default function ConsultationsForm({ data, patients = [], users, services
             </div>
 
             <div>
-                <Label htmlFor="status" className="my-2 block font-semibold text-gray-700">Estado de la asistencia</Label>
-                <Select
-                    id="status"
-                    options={statusOptions}
-                    value={statusOptions.find(option => option.value === data.status) || null}
-                    onChange={(selectedOption) => setData('status', selectedOption?.value ?? '')}
-                    isSearchable
-                    placeholder="Selecciona el estado..."
-                    className="rounded-md"
-                />
-                <InputError message={errors.status} />
-            </div>
-
-            <div>
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
@@ -156,28 +135,22 @@ export default function ConsultationsForm({ data, patients = [], users, services
                     isSearchable
                     placeholder="Selecciona el estado de pago..."
                     className="rounded-md"
-                    isDisabled={data.subscription_use === 'yes'} // Desactivar solo si se usa funcional
+                    isDisabled={data.subscription_use === 'yes'}
                 />
                 <InputError message={errors.payment_status} />
             </div>
 
-            <div>
-                <Label htmlFor="scheduled_at" className="my-2 block font-semibold text-gray-700">Fecha programada</Label>
-                <DateTimePicker
-                    value={data.scheduled_at}
-                    onChange={(newValue) => setData('scheduled_at', newValue)}
-                />
-                <InputError message={errors.scheduled_at} />
-            </div>
-            
             {hasActiveSubscription && (
                 <div className="">
                     <div>
                         <Label htmlFor="subscription_use" className="my-2 block font-semibold text-gray-700">¿Usar Funcional?</Label>
                         <Select
                             id="subscription_use"
-                            options={subscriptionOptions}
-                            value={subscriptionOptions.find(option => option.value === data.subscription_use) || null}
+                            options={[
+                                { value: 'no', label: 'No usar funcional' },
+                                { value: 'yes', label: 'Usar funcional' }
+                            ]}
+                            value={data.subscription_use === 'yes' ? { value: 'yes', label: 'Usar funcional' } : { value: 'no', label: 'No usar funcional' }}
                             onChange={(option) => setData('subscription_use', option?.value || 'no')}
                             isSearchable
                             placeholder="Selecciona..."
@@ -187,11 +160,13 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
                     {data.subscription_use === 'yes' && (
                         <p className="text-sm text-blue-600 mt-2">
-                            Se aplicará la funcional #{
-                                currentPatient.subscriptions.find(s => s.status === 'active')?.id
-                            } (Consultas restantes: {
-                                currentPatient.subscriptions.find(s => s.status === 'active')?.consultations_remaining
-                            })
+                            Se aplicará la funcional #{activeSub?.id} (Consultas restantes: {activeSub?.consultations_remaining})
+                        </p>
+                    )}
+                    {data.subscription_use === 'no' && (
+                        <p className="text-sm text-blue-600 mt-2">
+                            No se aplicará ninguna funcionalidad adicional. <br />
+                            Si eliminas el uso de la funcional, se reintegrará la consulta usada.
                         </p>
                     )}
                 </div>
@@ -199,16 +174,26 @@ export default function ConsultationsForm({ data, patients = [], users, services
 
             <div className="col-span-full">
                 <Label htmlFor="service_id" className="my-2 block font-semibold text-gray-700">Servicios</Label>
-                <Select
-                    id="service_id"
-                    options={serviceOptions}
-                    isMulti
-                    value={serviceOptions.filter(option => data.service_id.map(String).includes(option.value))}
-                    onChange={(selectedOptions) => setData('service_id', (selectedOptions || []).map(option => Number(option.value)))}
-                    isSearchable
-                    placeholder="Select Services..."
-                    className="rounded-md"
-                />
+                {data.subscription_use === 'yes' && activeSub ? (
+                    <input
+                        type="text"
+                        readOnly
+                        value={activeSub.subscription?.name || activeSub.name}
+                        className="w-full rounded-md border border-gray-300 bg-gray-100 p-2"
+                    />
+                ) : (
+                    <Select
+                        id="service_id"
+                        options={serviceOptions}
+                        isMulti
+                        value={serviceOptions.filter(option => data.service_id.map(String).includes(option.value))}
+                        onChange={(selectedOptions) => setData('service_id', (selectedOptions || []).map(option => Number(option.value)))}
+                        isSearchable
+                        placeholder="Selecciona servicios..."
+                        className="rounded-md"
+                        isDisabled={data.subscription_use === 'yes'}
+                    />
+                )}
                 <InputError message={errors.service_id} />
             </div>
 
@@ -224,23 +209,30 @@ export default function ConsultationsForm({ data, patients = [], users, services
                 <InputError message={errors.notes} />
             </div>
 
-            {/* TABLA DE SERVICIOS (mostrar precios según selección) */}
             <ServicesTable
                 className="col-span-full"
-                services={data.service_id.map(id => {
-                    const service = services.find(s => s.id === id);
-                    return {
-                        ...service,
-                        price: data.subscription_use === 'yes' ? 0 : service?.price
-                    };
-                })}
+                services={
+                    data.subscription_use === 'yes' && activeSub
+                        ? [{
+                            id: `subscription-${activeSub.id}`,
+                            name: activeSub.subscription?.name || activeSub.name,
+                            price: 0,
+                        }]
+                        : data.service_id.map(id => {
+                            const service = services.find(s => s.id === id);
+                            return {
+                                ...service,
+                                price: service ? service.price : 0,
+                            };
+                        })
+                }
             />
-            {/* CAMPO TOTAL */}
+
             <div className="">
                 Total: ${
                     data.service_id.reduce((total, serviceId) => {
                         const service = services.find(s => s.id === serviceId);
-                        return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || 0));
+                        return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || '0'));
                     }, 0).toFixed(2)
                 }
             </div>

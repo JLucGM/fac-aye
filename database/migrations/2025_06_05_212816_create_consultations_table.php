@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('consultations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // ID del médico o profesional de la salud
-            $table->string('status')->default('pendiente'); // pendiente, confirmed, completed, cancelled
+            $table->string('status')->default('completado'); // pendiente, confirmed, completed, cancelled
             $table->dateTime('scheduled_at')->nullable(); // Fecha y hora programada
             $table->string('consultation_type')->default('domiciliary'); // domiciliary, office
             $table->text('services')->nullable(); // domiciliary, office

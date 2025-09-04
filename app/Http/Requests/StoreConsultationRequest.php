@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreConsultationRequest extends FormRequest
 {
@@ -24,19 +25,20 @@ class StoreConsultationRequest extends FormRequest
         return [
             'patient_id' => 'required|exists:patients,id',
             'user_id' => 'required|exists:users,id',
-            'service_id' => 'required|exists:services,id',
+            'service_id' => [
+                'array',
+                Rule::exists('services', 'id'),
+                Rule::requiredIf(function () {
+                    return $this->input('subscription_use') !== 'yes';
+                }),
+            ],
+            'subscription_use' => 'nullable|in:yes,no',
             'notes' => 'nullable|string|max:1000',
             'status' => 'required|in:programado,completado,cancelado',
             'payment_status' => 'required|in:pendiente,pagado,reembolsado,incobrable',
             'scheduled_at' => 'nullable|date',
-            // 'completed_at' => 'nullable|date|after_or_equal:scheduled_at',
             'amount' => 'nullable|numeric|min:0',
             'consultation_type' => 'required|in:domiciliaria,consultorio',
-
-
-            // 'payment_method_id' => 'required|integer|exists:payment_methods,id',
-            // 'reference' => 'nullable|string',
-            // 'paid_at' => 'required|date',
         ];
     }
 

@@ -81,7 +81,11 @@ export const columns: ColumnDef<Consultation>[] = [
     header: "Estado",
   },
   {
-    accessorKey: "scheduled_at",
+    accessorKey: "payment_status",
+    header: "Estado de pago",
+  },
+  {
+    accessorKey: "created_at",
     header: "Fecha programada",
     cell: ({ row }) => {
       const scheduledAt = new Date(row.original.scheduled_at); // Convertir a objeto Date
@@ -91,10 +95,6 @@ export const columns: ColumnDef<Consultation>[] = [
         </p>
       );
     },
-  },
-  {
-    accessorKey: "payment_status",
-    header: "Estado de pago",
   },
   {
     id: "actions",

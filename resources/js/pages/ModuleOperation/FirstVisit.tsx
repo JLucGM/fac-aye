@@ -26,6 +26,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
     doctors: Doctor[],
     subscriptions: Subscription[],
 }) {
+
     const { data, setData, errors, post } = useForm({
         // Datos del nuevo usuario
         name: '',
@@ -40,15 +41,17 @@ export default function Index({ users, services, doctors, subscriptions }: {
         // Datos de la asistencia
         user_id: users.length > 0 ? users[0].id : 0, // Asegúrate de que user_id tenga un valor numérico
         service_id: [],
-        status: 'programado' as 'programado', // Asegúrate de que este valor sea uno de los permitidos
-        scheduled_at: new Date().toISOString().slice(0, 19),
-        consultation_type: 'consultorio' as 'consultorio', // Asegúrate de que este valor sea uno de los permitidos
+        status: 'completado', // Asegúrate de que este valor sea uno de los permitidos
+        // scheduled_at: new Date().toISOString().slice(0, 19),
+        consultation_type: 'consultorio', // Asegúrate de que este valor sea uno de los permitidos
         notes: '',
-        payment_status: 'pendiente' as 'pendiente', // Asegúrate de que este valor sea uno de los permitidos
+        payment_status: 'pendiente', // Asegúrate de que este valor sea uno de los permitidos
         amount: 0,
 
         // Datos de la funcional
         subscription_id: '', // Inicializa el campo de funcional
+        subscription_use: 'no', // Nuevo campo para controlar si usa funcional
+
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,6 +65,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
             },
         });
     };
+    const selectedSubscription = subscriptions.find(s => s.id === data.subscription_id) || null;
 
     const subscriptionUseOptions = [
         { value: 'no', label: 'No usar funcional' },
@@ -87,7 +91,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
                     />
                 </div>
 
-                <div className="mt-4">
+                {/* <div className="mt-4">
                     <Label htmlFor="subscription_use" className="block font-semibold text-gray-700">¿Usar funcional?</Label>
                     <Select
                         id="subscription_use"
@@ -98,8 +102,8 @@ export default function Index({ users, services, doctors, subscriptions }: {
                         className="mt-1"
                     />
                     <InputError message={errors.subscription_use} className="mt-2" />
-                </div>
-                
+                </div> */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <h1 className='text-xl col-span-full'>Información de la Consulta</h1>
                     <ConsultationsForm
@@ -109,6 +113,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
                         services={services}
                         setData={setData}
                         errors={errors}
+                        activeSubscription={selectedSubscription} // <-- Aquí
                     />
                 </div>
 
@@ -118,4 +123,5 @@ export default function Index({ users, services, doctors, subscriptions }: {
             </form>
         </ContentLayout>
     );
+
 }

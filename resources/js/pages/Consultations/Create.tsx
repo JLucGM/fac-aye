@@ -26,18 +26,19 @@ export default function Create({ patients, users, services }: {
     users: User[],
     services: Service[],
 }) {
-    // console.log(services)
+    
     const { data, setData, errors, post } = useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,
         service_id: [],
-        status: 'programado',
-        scheduled_at: new Date().toISOString().slice(0, 19),
+        status: 'completado',
+        // scheduled_at: new Date().toISOString().slice(0, 19),
         consultation_type: 'consultorio',
         notes: '',
         payment_status: 'pendiente', // Inicialmente se establece como pendiente
         amount: 0,
-        
+                subscription_use: 'no', // <-- inicializar aquí
+
     });
 
     const [birthdayPatients, setBirthdayPatients] = useState<Patient[]>([]);
@@ -57,13 +58,6 @@ export default function Create({ patients, users, services }: {
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const currentPatient = patients.find(patient => patient.id === data.patient_id);
-        const hasActiveSubscription = currentPatient?.subscriptions?.some(sub => sub.status === 'active');
-
-        if (hasActiveSubscription) {
-            setData('payment_status', 'pagado');
-        }
-
         post(route('consultations.store'), {
             onSuccess: () => {
             },
@@ -72,6 +66,8 @@ export default function Create({ patients, users, services }: {
             },
         });
     };
+
+    console.log(patients);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>

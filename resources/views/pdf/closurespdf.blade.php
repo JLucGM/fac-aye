@@ -108,25 +108,24 @@
         <th>Paciente</th>
         <th>Tratante</th>
         <th>Tipo de Consulta</th>
-        <th>Estado</th>
+        <!-- <th>Estado</th> -->
         <th>Fecha Programada</th>
         <th>Estado de pago</th>
-        <th>Monto</th>
         <th>Servicios</th> <!-- Cambiar el encabezado de la columna -->
+        <th>Monto</th>
       </tr>
     </thead>
     <tbody>
       @foreach ($consultas as $consulta)
       <tr>
-        <td>{{ $consulta->patient->name }} {{ $consulta->patient->lastname }}</td>
+        <td>C.I: {{ $consulta->patient->identification }} - {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}</td>
         <td>
           {{ $consulta->user->name }} {{ $consulta->user->lastname }} <!-- Mostrar el usuario asignado -->
         </td>
         <td>{{ $consulta->consultation_type }}</td>
-        <td>{{ $consulta->status }}</td>
-        <td>{{ \Carbon\Carbon::parse($consulta->scheduled_at)->format('d/m/Y H:i') }}</td>
+        <!-- <td>{{ $consulta->status }}</td> -->
+        <td>{{ \Carbon\Carbon::parse($consulta->created_at)->format('d/m/Y H:i') }}</td>
         <td>{{ $consulta->payment_status }}</td>
-        <td>{{ $consulta->amount }}</td>
         <td>
           @if ($consulta->services)
           @php
@@ -140,6 +139,7 @@
           Sin servicios
           @endif
         </td>
+        <td>{{ $consulta->amount }}</td>
       </tr>
       @endforeach
     </tbody>

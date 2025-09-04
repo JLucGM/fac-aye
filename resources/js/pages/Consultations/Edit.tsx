@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { useState } from 'react'; // Necesitamos useState para controlar la apertura/cierre del modal
 import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Inicio', href: '/dashboard' },
@@ -53,7 +54,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
         patient_id: consultation.patient_id,
         service_id: consultation.services?.map((service: Service) => service.id) ?? [],
         status: consultation.status,
-        scheduled_at: consultation.scheduled_at ? new Date(consultation.scheduled_at).toISOString().slice(0, 16) : '',
+        // scheduled_at: consultation.scheduled_at ? new Date(consultation.scheduled_at).toISOString().slice(0, 16) : '',
         notes: consultation.notes || '',
         payment_status: consultation.payment_status || '',
         consultation_type: consultation.consultation_type || '',
@@ -63,8 +64,15 @@ export default function Edit({ consultation, patients, users, services, paymentM
 
     const submitConsultation = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // console.log(data);
-        put(route('consultations.update', consultation.id));
+        console.log(data);
+        put(route('consultations.update', consultation.id)), {
+            onSuccess: () => {
+                toast.success('Consulta actualizada con éxito');
+            },
+            onError: (errors:any) => {
+                console.error("Error al actualizar la consulta:", errors);
+            }
+        };
     };
 
     // Formulario para crear o actualizar un MedicalRecord
@@ -135,7 +143,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
                     <Dialog open={isMedicalRecordDialogOpen} onOpenChange={setIsMedicalRecordDialogOpen}>
                         <DialogTrigger asChild>
                             {(!consultation.medical_records || consultation.medical_records.length === 0) && (
-                                <Button variant="outline" className='me-4'>Añadir Nuevo Registro Médico</Button>
+                                <Button variant="outline" className='me-4'>Añadir Registro Médico</Button>
                             )}
 
                         </DialogTrigger>

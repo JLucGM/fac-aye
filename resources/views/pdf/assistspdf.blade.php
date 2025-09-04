@@ -7,8 +7,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: -20px;
-            width: 250px;
+            margin: -30px;
+            width: 200px;
         }
 
         h1 {
