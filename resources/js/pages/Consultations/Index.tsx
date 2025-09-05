@@ -33,7 +33,7 @@ export default function Index({ consultations }: { consultations: Consultation[]
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
+console.log(consultations);
   const filteredConsultations = consultations.filter(consultation => {
     const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
     const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;

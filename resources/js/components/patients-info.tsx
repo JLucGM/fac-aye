@@ -1,23 +1,36 @@
 import { Patient } from "@/types";
-import { Button } from "./ui/button";
-import { Link } from "@inertiajs/react";
 
-export default function PatientInfo({ patients }: { patients: Patient[] }) {
-    return (
-        <header>
-            <h3 className="mb-0.5 text-base font-medium">Información del paciente</h3>
-            {patients.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No hay pacientes disponibles.</p>
-            ) : (
-                <div>
-                    <p>Nombre: {patients[0].name} {patients[0].lastname}</p>
-                    <p>C.I: {patients[0].identification}</p>
-                    <p>Teléfono: {patients[0].phone}</p>
-                    <p>Email: {patients[0].email}</p>
-                    <p className='capitalize'>Fecha de Nacimiento: {new Date(patients[0].birthdate).toLocaleDateString()}</p>
-                </div>
-            )
-            }
-        </header >
-    );
+export default function PatientInfo({ patient }: { patient: Patient }) {
+    const calculateAge = (birthdate: string | undefined): number | string => {
+    if (!birthdate) return 'Fecha no disponible';
+    const birthDate = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    return age;
+};
+
+  if (!patient) {
+    return <p className="text-muted-foreground text-sm">No hay paciente disponible.</p>;
+  }
+
+  return (
+    <header>
+      <h3 className="mb-0.5 text-base font-medium">Información del paciente</h3>
+      <div>
+        <p>Nombre: {patient.name} {patient.lastname}</p>
+        <p>C.I: {patient.identification}</p>
+        <p>Teléfono: {patient.phone}</p>
+        <p>Email: {patient.email}</p>
+        <p className='capitalize'>Fecha de Nacimiento: {new Date(patient.birthdate).toLocaleDateString()}</p>
+        <p>Edad: {calculateAge(patient.birthdate)}</p>
+        <p>Dirección: {patient.address || 'No disponible'}</p>
+      </div>
+    </header>
+  );
 }

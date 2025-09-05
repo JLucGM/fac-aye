@@ -17,6 +17,16 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
         },
     },
     {
+        id: "subscriptionPrice", // Cambia el id de la columna
+        header: "Precio",
+        cell: ({ row }) => {
+            const subscription = row.original.subscription; // Accede a la suscripción directamente
+            return subscription && subscription.price // Accede directamente a price
+                ? subscription.price // Mostrar el precio de la suscripción
+                : 'Sin funcional';
+        },
+    },
+    {
         accessorKey: "start_date",
         header: "Fecha de Inicio",
         cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString('es-ES'),
@@ -37,5 +47,18 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
     {
         accessorKey: "status",
         header: "Estado",
+        cell: ({ row }) => {
+            const status = row.original.status;
+            const statusColors: { [key: string]: string } = {
+                active: "text-green-500 capitalize",
+                inactive: "text-red-500 capitalize",
+                pending: "text-yellow-500 capitalize",
+            };
+            return <span className={statusColors[status] || ''}>{status}</span>;
+        },
+    },
+    {
+        accessorKey: "payment_status",
+        header: "Estado de Pago",
     },
 ];

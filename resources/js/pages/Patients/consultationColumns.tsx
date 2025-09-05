@@ -13,10 +13,10 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
       return new Date(row.original.scheduled_at).toLocaleString();
     },
   },
-  {
-    accessorKey: "status",
-    header: "Estado",
-  },
+  // {
+  //   accessorKey: "status",
+  //   header: "Estado",
+  // },
   {
     accessorKey: "consultation_type",
     header: "Tipo de Consulta",
@@ -40,7 +40,7 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
         <ul>
           {services.map((service: Service) => (
             <li key={service.id}>
-              {service.name} - ${service.price}
+              {service.name}
             </li>
           ))}
         </ul>

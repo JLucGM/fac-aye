@@ -46,29 +46,6 @@ class PatientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // public function store(StorePatientRequest $request)
-    // {
-    //     // dd($request->all());
-    //     $validatedData = $request->validated();
-
-    //     // Crear el paciente
-    //     $patient = Patient::create($validatedData);
-
-    //     // Si se proporciona una suscripción, crearla
-    //     if ($request->subscription_id) {
-    //         PatientSubscription::create([
-    //             'patient_id' => $patient->id,
-    //             'subscription_id' => $request->subscription_id,
-    //             'start_date' => now(), // Puedes establecer la fecha de inicio
-    //             'end_date' => null, // O establecer una fecha de finalización si es necesario
-    //             'consultations_used' => 0, // Inicializa según tu lógica
-    //             'consultations_remaining' => 0, // Inicializa según tu lógica
-    //             'status' => 'active', // O el estado que desees
-    //         ]);
-    //     }
-
-    //     return redirect()->route('patients.index');
-    // }
 
     public function store(StorePatientRequest $request)
     {

@@ -6,6 +6,7 @@ import Heading from '@/components/heading';
 import Select from 'react-select';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
+import PatientInfo from '@/components/patients-info';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,15 +40,16 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
             onSuccess: () => {
                 console.log("Suscripción actualizada exitosamente");
             },
-            onError: (err) => {
-                console.error("Error al actualizar la suscripción:", err);
+            onError: (errors) => {
+                console.error("Error al actualizar la suscripción:", errors);
             },
         });
     };
 
     // Encuentra el paciente y la suscripción seleccionados
-    const selectedPatient = patients.find(patient => patient.id === data.patient_id);
-    const selectedSubscription = subscriptions.find(subscription => subscription.id === data.subscription_id);
+    const selectedPatient = patients.find(patient => patient.id === Number(data.patient_id));
+const selectedSubscription = subscriptions.find(subscription => subscription.id === Number(data.subscription_id));
+
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -112,14 +114,7 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
                 <div className="mt-4">
                     {selectedPatient ? (
                         <div className="">
-                            <h3 className="font-semibold text-lg mb-3">Datos del Paciente:</h3>
-                            <div className="space-y-2">
-                                <p><strong>Nombre:</strong> {selectedPatient.name} {selectedPatient.lastname}</p>
-                                <p><strong>C.I:</strong> {selectedPatient.identification}</p>
-                                <p><strong>Teléfono:</strong> {selectedPatient.phone || 'No disponible'}</p>
-                                <p><strong>Email:</strong> {selectedPatient.email || 'No disponible'}</p>
-                                {/* Agrega más campos del paciente según sea necesario */}
-                            </div>
+                            <PatientInfo patient={selectedPatient} />
                         </div>
                     ) : (
                         <div className="bg-gray-100 p-4 rounded-lg text-center">
@@ -134,7 +129,6 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
                                 <p><strong>Nombre:</strong> {selectedSubscription.name}</p>
                                 <p><strong>Tipo:</strong> {selectedSubscription.type}</p>
                                 <p><strong>Precio:</strong> ${selectedSubscription.price}</p>
-                                {/* Agrega más campos de la suscripción según sea necesario */}
                             </div>
                         </div>
                     )}

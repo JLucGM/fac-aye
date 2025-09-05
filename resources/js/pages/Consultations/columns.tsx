@@ -13,6 +13,7 @@ import { Link } from "@inertiajs/react"
 import { Consultation } from "@/types"
 import { format } from 'date-fns'; // Importar la función format
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 
 
 export const columns: ColumnDef<Consultation>[] = [
@@ -48,7 +49,7 @@ export const columns: ColumnDef<Consultation>[] = [
     cell: ({ row }) => {
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.patient?.identification} 
+          {row.original.patient?.identification}
         </p>
       )
     },
@@ -57,14 +58,14 @@ export const columns: ColumnDef<Consultation>[] = [
     accessorKey: "patient_id",
     header: "Paciente",
     cell: ({ row }) => {
-        const patient = row.original.patient; // Asegúrate de que esto esté cargado
-        return (
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                {patient ? `${patient.name} ${patient.lastname}` : 'No disponible'}
-            </p>
-        );
+      const patient = row.original.patient; // Asegúrate de que esto esté cargado
+      return (
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+          {patient ? `${patient.name} ${patient.lastname}` : 'No disponible'}
+        </p>
+      );
     },
-},
+  },
   {
     accessorKey: "user_id",
     header: "Tratante",
@@ -76,14 +77,55 @@ export const columns: ColumnDef<Consultation>[] = [
       )
     },
   },
-  {
-    accessorKey: "status",
-    header: "Estado",
-  },
+  // {
+  //   accessorKey: "status",
+  //   header: "Estado",
+  // },
+
   {
     accessorKey: "payment_status",
     header: "Estado de pago",
+    cell: ({ row }) => {
+      const paymentStatus = row.original.payment_status;
+
+      // Mapear estados a variantes válidas
+      let variant: "default" | "destructive" | "secondary" | "outline" = "default";
+
+      if (paymentStatus === "pagado") variant = "default";       // o "secondary"
+      else if (paymentStatus === "pendiente") variant = "outline";
+      else if (paymentStatus === "reembolsado" || paymentStatus === "incobrable") variant = "destructive";
+
+      return (
+        <Badge variant={variant} className="capitalize">
+          { paymentStatus}
+        </Badge>
+      );
+    },
   },
+
+  // {
+  //   id: "services",
+  //   header: "Servicios",
+  //   cell: ({ row }) => {
+  //     let services = [];
+  //     try {
+  //       services = JSON.parse(row.original.services);
+  //     } catch {
+  //       services = [];
+  //     }
+  //     return (
+  //       <div>
+  //         {services.length > 0 ? (
+  //           services.map((s: any, index: number) => (
+  //             <div key={index}>{s.name}</div>
+  //           ))
+  //         ) : (
+  //           <div>Sin servicios</div>
+  //         )}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "created_at",
     header: "Fecha programada",
