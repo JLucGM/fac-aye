@@ -20,6 +20,7 @@ class Consultation extends Model
         'notes',
         'payment_status',
         'amount',
+        'amount_paid',
         'consultation_type', // domiciliary, office
     ];
 

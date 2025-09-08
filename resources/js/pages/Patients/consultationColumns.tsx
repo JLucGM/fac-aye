@@ -51,16 +51,16 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
     accessorKey: "amount",
     header: "Monto",
   },
-  {
-    id: "subscriptionInfo",
-    header: "Funcional",
-    cell: ({ row }) => {
-      const subscription = row.original.subscription; // Accede a la funcional directamente
-      return subscription && subscription.subscription.name
-        ? subscription.subscription.name // Mostrar el nombre de la funcional
-        : 'Sin funcional';
-    },
-  },
+  // {
+  //   id: "subscriptionInfo",
+  //   header: "Funcional",
+  //   cell: ({ row }) => {
+  //     const subscription = row.original.subscription; // Accede a la funcional directamente
+  //     return subscription && subscription.subscription.name
+  //       ? subscription.subscription.name // Mostrar el nombre de la funcional
+  //       : 'Sin funcional';
+  //   },
+  // },
   {
     id: "actions",
     cell: ({ row }) => {

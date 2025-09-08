@@ -6,6 +6,7 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Models\PatientBalanceTransaction;
 use App\Models\PatientSubscription;
 use App\Models\Setting;
 use App\Models\Subscription;
@@ -54,6 +55,8 @@ class PatientController extends Controller
 
         // Validar datos adicionales para la suscripción si existe
         $validatedSubscriptionData = [];
+        $patientSubscription = null;
+
         if ($request->filled('subscription_id')) {
             $request->validate([
                 'subscription_id' => 'exists:subscriptions,id'
@@ -68,16 +71,34 @@ class PatientController extends Controller
             ];
         }
 
-        // Crear el paciente
-        $patient = Patient::create($validatedPatientData);
+        // Usar transacción para asegurar consistencia
+        DB::transaction(function () use ($validatedPatientData, $request, $validatedSubscriptionData, &$patientSubscription) {
+            // Crear el paciente
+            $patient = Patient::create($validatedPatientData);
 
-        // Crear la relación en la tabla pivote si hay suscripción
-        if ($request->filled('subscription_id')) {
-            $patient->subscriptions()->create(array_merge(
-                ['subscription_id' => $request->subscription_id],
-                $validatedSubscriptionData
-            ));
-        }
+            // Crear la relación en la tabla pivote si hay suscripción
+            if ($request->filled('subscription_id')) {
+                $patientSubscription = $patient->subscriptions()->create(array_merge(
+                    ['subscription_id' => $request->subscription_id],
+                    $validatedSubscriptionData
+                ));
+
+                // Registrar movimiento financiero por la suscripción
+                $subscription = Subscription::find($request->subscription_id);
+                PatientBalanceTransaction::create([
+                    'patient_id' => $patient->id,
+                    'patient_subscription_id' => $patientSubscription->id,
+                    'amount' => -$subscription->price, // deuda por la suscripción
+                    'type' => 'funcional_deuda',
+                    'description' => "Deuda por suscripción #{$patientSubscription->id}",
+                ]);
+
+                // Actualizar el balance del paciente
+                $patient->balance = ($patient->balance ?? 0) - $subscription->price;
+                $patient->save();
+            }
+        });
+
 
         return redirect()->route('patients.index')
             ->with('success', 'Paciente creado exitosamente');
@@ -93,7 +114,6 @@ class PatientController extends Controller
             default => now()->addMonth() // Valor por defecto
         };
     }
-
 
     /**
      * Display the specified resource.
@@ -131,6 +151,8 @@ class PatientController extends Controller
         // 1. Actualizar datos básicos del paciente
         $patient->update($request->validated());
 
+        $message = 'Paciente actualizado exitosamente';
+
         // 2. Manejo de suscripción (si se proporciona subscription_id)
         if ($request->filled('subscription_id')) {
             $subscription = Subscription::findOrFail($request->subscription_id);
@@ -160,6 +182,21 @@ class PatientController extends Controller
                 'consultations_used' => 0, // Resetear consultas usadas
                 'status' => 'active'
             ]);
+
+            // Registrar movimiento financiero por la suscripción
+            PatientBalanceTransaction::create([
+                'patient_id' => $patient->id,
+                'patient_subscription_id' => $newSubscription->id,
+                'amount' => -$subscription->price, // deuda por la suscripción
+                'type' => 'funcional_deuda',
+                'description' => $isRenewal
+                    ? "Deuda por renovación de suscripción #{$newSubscription->id}"
+                    : "Deuda por nueva suscripción #{$newSubscription->id}",
+            ]);
+
+            // Actualizar el balance del paciente
+            $patient->balance = ($patient->balance ?? 0) - $subscription->price;
+            $patient->save();
 
             // Mensaje personalizado según el caso
             $message = $isRenewal
@@ -205,8 +242,6 @@ class PatientController extends Controller
     // Método dedicado solo para actualización/renovación de suscripciones
     public function updateSubscription(Request $request)
     {
-        // dd($request->all()); // Para depurar y ver los datos recibidos
-
         $request->validate([
             'subscription_id' => 'required|exists:subscriptions,id',
             'patient_id' => 'required|exists:patients,id',
@@ -225,7 +260,7 @@ class PatientController extends Controller
         $isRenewal = $currentActiveSubscription &&
             ($currentActiveSubscription->subscription_id == $newSubscription->id);
 
-        DB::transaction(function () use ($patient, $currentActiveSubscription, $newSubscription) {
+        DB::transaction(function () use ($patient, $currentActiveSubscription, $newSubscription, $isRenewal) {
             // 4. Desactivar suscripción actual si existe
             if ($currentActiveSubscription) {
                 $currentActiveSubscription->update([
@@ -235,7 +270,7 @@ class PatientController extends Controller
             }
 
             // 5. Crear siempre nueva suscripción (renovación o nueva)
-            $patient->subscriptions()->create([
+            $createdSubscription = $patient->subscriptions()->create([
                 'subscription_id' => $newSubscription->id,
                 'start_date' => now(),
                 'end_date' => $this->calculateEndDate($newSubscription->type),
@@ -243,10 +278,33 @@ class PatientController extends Controller
                 'consultations_used' => 0,
                 'status' => 'active'
             ]);
+
+            // 6. Registrar movimiento financiero por la suscripción
+            PatientBalanceTransaction::create([
+                'patient_id' => $patient->id,
+                'patient_subscription_id' => $createdSubscription->id,
+                'amount' => -$newSubscription->price,
+                'type' => 'suscripcion',
+                'description' => $isRenewal
+                    ? "Deuda por renovación de suscripción #{$createdSubscription->id}"
+                    : "Deuda por nueva suscripción #{$createdSubscription->id}",
+            ]);
+
+            // 7. Actualizar balance del paciente
+            $patient->balance = ($patient->balance ?? 0) - $newSubscription->price;
+            $patient->save();
         });
 
-        // 6. Respuesta adecuada
-        // return redirect()->back()->with('success', 'Suscripción actualizada exitosamente');
-        return redirect()->route('patients.index');
+        return redirect()->route('patients.index')
+            ->with('success', $isRenewal ? 'Suscripción renovada exitosamente' : 'Nueva suscripción creada exitosamente');
+    }
+
+    public function showBalanceTransactions(Patient $patient)
+    {
+        $patient->load(['patientBalanceTransactions' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }]);
+
+        return Inertia::render('Patients/ShowBalanceTransactions', compact('patient'));
     }
 }

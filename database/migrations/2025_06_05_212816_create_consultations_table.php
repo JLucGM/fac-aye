@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('consultation_type')->default('domiciliary'); // domiciliary, office
             $table->text('services')->nullable(); // domiciliary, office
             $table->decimal('amount', 10, 2)->default(0.00); // Monto del servicio de consulta
+            $table->decimal('amount_paid', 10, 2)->default(0.00);
             $table->text('notes')->nullable(); // Notas adicionales sobre la consulta
             $table->string('payment_status')->default('pendiente'); // pendiente, paid, refunded
             $table->foreignId('patient_id')->constrained()->onDelete('cascade'); // ID del paciente

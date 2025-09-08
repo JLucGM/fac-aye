@@ -33,7 +33,7 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
         notes: '',
         payment_type: 'consulta',
     });
-
+    console.log(patients);
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log(data);
@@ -75,11 +75,11 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
                 </form>
 
                 <div className="mt-4">
-                    {selectedPatient ? (
-                        <PatientInfo patients={[selectedPatient]} />
-                    ) : (
+                    {/* {selectedPatient ? ( */}
+                        <PatientInfo patient={selectedPatient} />
+                    {/* ) : (
                         <p>No se ha seleccionado ningún paciente.</p>
-                    )}
+                    )}*/}
                 </div>
             </div>
         </ContentLayout>

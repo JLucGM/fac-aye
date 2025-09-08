@@ -63,6 +63,11 @@ class Patient extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function patientBalanceTransactions()
+    {
+        return $this->hasMany(PatientBalanceTransaction::class);
+    }
     
     public function activeSubscription()
     {

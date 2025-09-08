@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\PatientBalanceTransaction;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Service;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -42,7 +44,6 @@ class ModuleOperationController extends Controller
 
     public function first_visit_store(Request $request)
     {
-        // Validar los datos recibidos
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
@@ -70,109 +71,150 @@ class ModuleOperationController extends Controller
             'subscription_use' => 'nullable|string|in:yes,no',
         ]);
 
-        // Crear o encontrar el paciente
-        $patient = Patient::firstOrCreate(
-            ['identification' => $validatedData['identification']],
-            [
-                'name' => $validatedData['name'],
-                'lastname' => $validatedData['lastname'],
-                'email' => $validatedData['email'],
-                'phone' => $validatedData['phone'],
-                'birthdate' => $validatedData['birthdate'],
-                'address' => $validatedData['address'] ?? null,
-                'doctor_id' => $validatedData['doctor_id'] ?? null,
-            ]
-        );
+        $useSubscription = ($validatedData['subscription_use'] ?? 'no') === 'yes';
 
-        $patientSubscriptionId = null;
-        $servicesData = collect();
-        $totalAmount = 0;
+        try {
+            $consultation = DB::transaction(function () use ($validatedData, $useSubscription) {
+                // Crear o encontrar paciente
+                $patient = Patient::firstOrCreate(
+                    ['identification' => $validatedData['identification']],
+                    [
+                        'name' => $validatedData['name'],
+                        'lastname' => $validatedData['lastname'],
+                        'email' => $validatedData['email'],
+                        'phone' => $validatedData['phone'],
+                        'birthdate' => $validatedData['birthdate'],
+                        'address' => $validatedData['address'] ?? null,
+                        'doctor_id' => $validatedData['doctor_id'] ?? null,
+                    ]
+                );
 
-        if (($validatedData['subscription_use'] ?? 'no') === 'yes' && !empty($validatedData['subscription_id'])) {
-            $subscription = Subscription::findOrFail($validatedData['subscription_id']);
+                // Crear suscripción del paciente si se indica y no tiene activa del mismo tipo
+                $patientSubscriptionId = null;
+                if (!empty($validatedData['subscription_id'])) {
+                    $subscription = Subscription::findOrFail($validatedData['subscription_id']);
 
-            // Buscar suscripción activa del paciente del mismo tipo
-            $activeSubscription = $patient->subscriptions()
-                ->where('subscription_id', $subscription->id)
-                ->where('status', 'active')
-                ->first();
+                    $activeSubscription = $patient->subscriptions()
+                        ->where('subscription_id', $subscription->id)
+                        ->where('status', 'active')
+                        ->first();
 
-            if ($activeSubscription) {
-                // Consumir 1 consulta
-                $activeSubscription->increment('consultations_used');
-                $activeSubscription->decrement('consultations_remaining');
+                    if (!$activeSubscription) {
+                        // Crear nueva suscripción
+                        $patientSubscription = $patient->subscriptions()->create([
+                            'subscription_id' => $subscription->id,
+                            'start_date' => now(),
+                            'end_date' => $this->calculateEndDate($subscription->type),
+                            'consultations_used' => 0,
+                            'consultations_remaining' => $subscription->consultations_allowed,
+                            'status' => 'active',
+                        ]);
 
-                if ($activeSubscription->consultations_remaining <= 0) {
-                    $activeSubscription->update(['status' => 'inactive']);
+                        // Registrar movimiento financiero por la suscripción
+                        PatientBalanceTransaction::create([
+                            'patient_id' => $patient->id,
+                            'patient_subscription_id' => $patientSubscription->id,
+                            'amount' => -$subscription->price,
+                            'type' => 'funcional_deuda',
+                            'description' => "Deuda por suscripción #{$patientSubscription->id}",
+                        ]);
+
+                        // Actualizar balance del paciente
+                        $patient->balance = ($patient->balance ?? 0) - $subscription->price;
+                        $patient->save();
+
+                        $activeSubscription = $patientSubscription;
+                    }
+                } else {
+                    $activeSubscription = null;
                 }
 
-                $patientSubscriptionId = $activeSubscription->id;
-
-                // Servicios: solo la suscripción con precio 0
-                $servicesData = collect([[
-                    'id' => null,
-                    'name' => $activeSubscription->subscription->name,
-                    'price' => 0,
-                ]]);
-
+                // Preparar servicios y monto para la consulta
+                $servicesData = collect();
                 $totalAmount = 0;
-            } else {
-                // Crear nueva suscripción consumiendo 1 consulta
-                $newSubscription = $patient->subscriptions()->create([
-                    'subscription_id' => $subscription->id,
-                    'start_date' => now(),
-                    'end_date' => $this->calculateEndDate($subscription->type),
-                    'consultations_used' => 1,
-                    'consultations_remaining' => $subscription->consultations_allowed - 1,
-                    'status' => ($subscription->consultations_allowed - 1) > 0 ? 'active' : 'inactive',
+                $paymentStatus = $validatedData['payment_status'] ?? 'pendiente';
+
+                if ($useSubscription && $activeSubscription) {
+                    // Consumir 1 consulta de la suscripción
+                    $activeSubscription->increment('consultations_used');
+                    $activeSubscription->decrement('consultations_remaining');
+
+                    if ($activeSubscription->consultations_remaining <= 0) {
+                        $activeSubscription->update(['status' => 'inactive']);
+                    }
+
+                    $patientSubscriptionId = $activeSubscription->id;
+
+                    $servicesData = collect([[
+                        'id' => null,
+                        'name' => $activeSubscription->subscription->name,
+                        'price' => 0,
+                    ]]);
+
+                    $totalAmount = 0;
+                    $paymentStatus = 'pagado';
+                } else {
+                    // No usa suscripción, servicios normales
+                    if (is_array($validatedData['service_id'])) {
+                        $services = Service::whereIn('id', $validatedData['service_id'])->get();
+
+                        foreach ($services as $service) {
+                            $servicesData->push([
+                                'id' => $service->id,
+                                'name' => $service->name,
+                                'price' => $service->price,
+                            ]);
+                            $totalAmount += $service->price;
+                        }
+                    }
+                    $paymentStatus = 'pendiente';
+                }
+
+                // Crear la consulta
+                $consultation = Consultation::create([
+                    'user_id' => $validatedData['user_id'],
+                    'patient_id' => $patient->id,
+                    'status' => $validatedData['status'],
+                    'scheduled_at' => $validatedData['scheduled_at'] ?? null,
+                    'consultation_type' => $validatedData['consultation_type'],
+                    'notes' => $validatedData['notes'] ?? null,
+                    'payment_status' => $paymentStatus,
+                    'amount' => $totalAmount,
+                    'patient_subscription_id' => $patientSubscriptionId,
                 ]);
 
-                $patientSubscriptionId = $newSubscription->id;
+                // Guardar servicios como JSON
+                $consultation->services = $servicesData->toJson();
+                $consultation->save();
 
-                $servicesData = collect([[
-                    'id' => null,
-                    'name' => $subscription->name,
-                    'price' => 0,
-                ]]);
+                // Ajustar balance y registrar movimiento si no usa suscripción y hay monto
+                if ((!$useSubscription || !$activeSubscription) && $totalAmount > 0) {
+                    $patient->balance = ($patient->balance ?? 0) - $totalAmount;
+                    $patient->save();
 
-                $totalAmount = 0;
-            }
-        } else {
-            // No usa suscripción, servicios normales
-            if (is_array($validatedData['service_id'])) {
-                foreach ($validatedData['service_id'] as $serviceId) {
-                    $service = Service::find($serviceId);
-                    if ($service) {
-                        $servicesData->push([
-                            'id' => $service->id,
-                            'name' => $service->name,
-                            'price' => $service->price,
-                        ]);
-                        $totalAmount += $service->price;
-                    }
+                    PatientBalanceTransaction::create([
+                        'patient_id' => $patient->id,
+                        'consultation_id' => $consultation->id,
+                        'amount' => -$totalAmount,
+                        'type' => 'consulta_deuda',
+                        'description' => "Deuda por consulta #{$consultation->id}",
+                    ]);
                 }
-            }
+
+                return $consultation;
+            });
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
 
-        // Crear la consulta
-        $consultation = Consultation::create([
-            'user_id' => $validatedData['user_id'],
-            'patient_id' => $patient->id,
-            'status' => $validatedData['status'],
-            'scheduled_at' => $validatedData['scheduled_at'] ?? null,
-            'consultation_type' => $validatedData['consultation_type'],
-            'notes' => $validatedData['notes'] ?? null,
-            'payment_status' => $validatedData['payment_status'],
-            'amount' => $totalAmount,
-            'patient_subscription_id' => $patientSubscriptionId,
-        ]);
-
-        // Guardar servicios como JSON
-        $consultation->services = $servicesData->toJson();
-        $consultation->save();
+        if (!$consultation) {
+            return back()->withErrors(['error' => 'No se pudo crear la consulta.']);
+        }
 
         return redirect()->route('consultations.edit', $consultation->id);
     }
+
+
 
     public function profile_patient_index()
     {

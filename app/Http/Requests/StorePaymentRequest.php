@@ -18,10 +18,12 @@ class StorePaymentRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */    
+     */
     public function rules()
     {
         return [
+            'patient_id' => 'required|exists:patients,id',  // <-- agregar esta línea
+
             'payment_type' => 'required|string|in:consulta,suscripcion',
 
             'consultation_ids' => 'required_if:payment_type,consulta|array',
@@ -32,7 +34,7 @@ class StorePaymentRequest extends FormRequest
 
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',
-            'status' => 'required|string',
+            'status' => 'required|string|in:pendiente,parcial,pagado,incobrable,reembolsado',
             'reference' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:255',
             'paid_at' => 'nullable|date',
@@ -43,7 +45,7 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'payment_type.required' => 'El tipo de pago es obligatorio.',
-        'payment_type.in' => 'El tipo de pago debe ser "consulta" o "suscripcion".',
+            'payment_type.in' => 'El tipo de pago debe ser "consulta" o "suscripcion".',
 
             'consultation_ids.required' => 'El campo de consultas es obligatorio.',
             'consultation_ids.array' => 'El campo de consultas debe ser un array.',
@@ -66,10 +68,10 @@ class StorePaymentRequest extends FormRequest
             'notes.max' => 'Las notas no pueden exceder los 255 caracteres.',
 
             'paid_at.date' => 'La fecha de pago debe ser una fecha válida.',
-        
+
             'subscription_ids.required_if' => 'El campo de suscripciones es obligatorio cuando el tipo de pago es suscripción.',
-        'subscription_ids.array' => 'El campo de suscripciones debe ser un array.',
-        'subscription_ids.*.exists' => 'Una o más suscripciones seleccionadas no existen.',
+            'subscription_ids.array' => 'El campo de suscripciones debe ser un array.',
+            'subscription_ids.*.exists' => 'Una o más suscripciones seleccionadas no existen.',
         ];
     }
 }

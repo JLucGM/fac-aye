@@ -35,7 +35,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
   const [endDate, setEndDate] = useState('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('consultas');
-
+console.log(payments)
   // Obtener métodos de pago únicos
   const paymentMethods = [
     ...new Set(payments.map(p => p.payment_method?.name).filter(Boolean))
@@ -102,7 +102,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
     ...payment,
     patientName: getPatientName(payment)
   }));
-// console.log(subscriptionTableData)
+console.log(consultationTableData)
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Lista de Pagos" />

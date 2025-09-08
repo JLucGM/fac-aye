@@ -59,6 +59,8 @@ export interface Patient {
     identification: string;
     phone?: string;
     birthdate?: string; // ISO date string or null
+    balance?: string; // ISO date string or null
+    credit?: string; // ISO date string or null
     created_at: string;
     updated_at: string;
     doctor_id?: number | null; // FK to Doctor, can be null if not associated
@@ -68,7 +70,22 @@ export interface Patient {
     consultations?: Consultation[]; // A Patient can have many Consultations
     subscription?: PatientSubscription; // A Patient can have one Subscription (based on Patient model's
     medical_records?: MedicalRecord[];
+    patient_balance_transactions?: PatientBalanceTransaction[];
 }
+
+export interface PatientBalanceTransaction {
+  id: number;
+  amount: string; // monto como string con decimales, ej. "-40.00"
+  type: string; // tipo de transacción, ej. "pago_consulta", "suscripcion", etc.
+  description: string; // descripción detallada
+  patient_id: number;
+  consultation_id: number | null; // puede ser null si no aplica
+  patient_subscription_id: number | null; // puede ser null si no aplica
+  payment_id: number | null; // puede ser null si no aplica
+  created_at: string; // fecha ISO string
+  updated_at: string; // fecha ISO string
+}
+
 
 
 export interface Doctor {
@@ -145,6 +162,7 @@ export interface PatientSubscription {
     end_date: string; // ISO date string
     consultations_used: number;
     consultations_remaining: number;
+    payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
     status: string;
     subscription: Subscription; // Asegúrate de que esta relación esté definida
 }

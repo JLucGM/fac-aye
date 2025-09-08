@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->date('birthdate')->nullable();
+            $table->decimal('balance', 10, 2)->default(0.00);
+            $table->decimal('credit', 10, 2)->default(0.00);
             $table->foreignId('doctor_id')->nullable()->constrained('doctors')->onDelete('set null');
             $table->timestamps();
         });

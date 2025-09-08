@@ -1,4 +1,3 @@
-
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +42,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
   const statusOptions = [
     { value: 'pendiente', label: 'Pendiente' },
+    { value: 'parcial', label: 'Parcial' },
     { value: 'pagado', label: 'Pagado' },
     { value: 'incobrable', label: 'Incobrable' },
     { value: 'reembolsado', label: 'Reembolsado' },
@@ -70,16 +70,16 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
     setData(dataKey, newSelection);
 
-    // Calcular el monto total basado en el tipo de pago
+    // Calcular el monto total basado en el tipo de pago y saldo pendiente
     const selectedItems = pendingItems.filter(item => newSelection.includes(item.id));
     const totalAmount = selectedItems.reduce((total, item) => {
       let amount = 0;
 
       if (paymentType === 'consulta') {
-        // Para consultas, usar la propiedad amount
-        amount = (typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount))) || 0;
+        const amountNum = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+        const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid));
+        amount = (amountNum - (amountPaidNum || 0)) || 0;
       } else {
-        // Para suscripciones, usar subscription.subscription.price
         const subscription = item as Subscription;
         if (subscription.subscription && subscription.subscription.price !== undefined) {
           amount = typeof subscription.subscription.price === 'number'
@@ -252,20 +252,46 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
         </div>
       )}
 
+      <div className="text-sm text-gray-600 mt-1">
+        Deuda total seleccionada: ${pendingItems
+          .filter(item => {
+            if (paymentType === 'consulta') {
+              return data.consultation_ids.includes(item.id);
+            } else {
+              return data.subscription_ids.includes(item.id);
+            }
+          })
+          .reduce((sum, item) => {
+            if (paymentType === 'consulta') {
+              const amountNum = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+              const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid));
+              return sum + ((amountNum - (amountPaidNum || 0)) || 0);
+            } else {
+              return sum + ((item as Subscription).subscription?.price ?? 0);
+            }
+          }, 0)}
+      </div>
+
       <div>
         <Label htmlFor="amount">Monto a pagar</Label>
         <Input
           id="amount"
-          type="text"
+          type="number"
           name="amount"
-          value={typeof data.amount === 'number' ? data.amount.toFixed(2) : '0.00'}
-          className="mt-1 block w-full bg-gray-200"
-          readOnly
+          value={data.amount}
+          min={0}
+          step="0.01"
+          className="mt-1 block w-full"
+          onChange={e => {
+            const val = e.target.value;
+            const numericVal = val === '' ? 0 : parseFloat(val);
+            if (!isNaN(numericVal) && numericVal >= 0) {
+              setData('amount', numericVal);
+            }
+          }}
         />
         <InputError message={errors.amount} className="mt-2" />
       </div>
-
-
 
       <div>
         <Label htmlFor="notes">Notas</Label>
@@ -282,4 +308,3 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
     </div>
   );
 }
-

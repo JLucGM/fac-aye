@@ -67,8 +67,6 @@ export default function Create({ patients, users, services }: {
         });
     };
 
-    console.log(patients);
-
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Crear Asistencia" />

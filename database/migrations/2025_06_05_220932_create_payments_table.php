@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('reference')->nullable(); // ID de transacción proporcionado por el procesador de pagos
             $table->text('notes')->nullable(); // Notas adicionales sobre el pago
             // $table->timestamp('paid_at')->nullable(); // Fecha y hora en que se realizó el pago
-            // $table->foreignId('patient_id')->constrained()->onDelete('cascade'); // ID del paciente que realiza el pago
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade'); // ID del paciente que realiza el pago
             // $table->foreignId('consultation_id')->constrained()->onDelete('cascade'); // ID de la consulta asociada al pago
             $table->foreignId('payment_method_id')->constrained()->onDelete('cascade'); // ID del método de pago utilizado
             $table->timestamps();

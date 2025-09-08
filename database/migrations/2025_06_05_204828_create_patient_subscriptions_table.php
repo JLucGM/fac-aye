@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('consultations_remaining'); // Este campo indica cuántas consultas le quedan al paciente dentro de su suscripción actual.
             $table->string('status')->default('active');
             $table->string('payment_status')->default('pendiente'); // pendiente, paid, refunded
+            $table->decimal('amount_paid', 8, 2)->default(0);
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('subscription_id')->constrained()->onDelete('cascade');
             $table->timestamps();

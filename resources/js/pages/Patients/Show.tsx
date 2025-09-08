@@ -5,7 +5,7 @@ import { ContentLayout } from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation, PatientSubscription } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
-import { ChevronsDown, ChevronsUp, PenBox } from 'lucide-react';
+import { ChevronsDown, ChevronsUp, List, PenBox } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,7 @@ import PatientInfo from '@/components/patients-info';
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Inicio', href: '/dashboard' },
   { title: 'Listado de Pacientes', href: '/patients' },
-  { title: 'Ver', href: '#' },
+  { title: 'Transacciones de balance', href: '#' },
 ];
 
 /**
@@ -46,7 +46,7 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
   const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
   const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
-
+  console.log(patient);
   const [paymentStatus, setPaymentStatus] = useState<string>('all');
   const [consultationType, setConsultationType] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
@@ -93,18 +93,28 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
   // Suma deuda consultas + deuda suscripciones pendientes
   const consultationsDebt = calculateTotalDebt(consultations);
   const subscriptionsDebt = calculateSubscriptionDebt(subscriptions);
-  const totalDebt = consultationsDebt + subscriptionsDebt;
+  // const totalDebt = consultationsDebt + subscriptionsDebt;
 
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Ver Paciente" />
       <Heading title={`${patient.name} ${patient.lastname}`} description="Detalles del paciente">
+        <div className="flex gap-4">
+
         <Button asChild>
           <Link className="btn btn-primary" href={route('patients.edit', [patient])}>
             <PenBox />
             Actualizar paciente
           </Link>
         </Button>
+        
+        <Button asChild>
+          <Link className="btn btn-primary" href={route('patients.showBalanceTransactions', [patient])}>
+            <List />
+            Ver transacciones de balance
+          </Link>
+        </Button>
+        </div>
       </Heading>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,11 +123,11 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
         </div>
 
         <div className="flex flex-col">
-          <h2 className="text-xl font-bold">Información general de asistencia</h2>
+          <h2 className="text-base font-medium">Información general de asistencia</h2>
           <p>Total de Asistencias: {totalConsultations}</p>
           <p>Asistencias Pagadas: {paidConsultations}</p>
           <p>Asistencias Pendientes: {pendingConsultations}</p>
-          <p>Total de Deuda: ${totalDebt.toFixed(2)}</p>
+          {/* <p>Total de Deuda: ${totalDebt.toFixed(2)}</p> */}
         </div>
       </div>
 
@@ -242,7 +252,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                     }
                     fileName={`reporte_consultas_${patient.id}.pdf`}
                   >
-                    {({ loading }) => (loading ? 'Cargando documento...' : 'PDF Informe de Asistencia')}
+                    {({ loading }) => (loading ? 'Cargando documento...' :  'Informe de Asistencia')}
                   </PDFDownloadLink>
                 </Button>
               </div>
@@ -259,7 +269,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
       </div>
 
       <div className="mt-4">
-        <h2 className="text-xl font-bold mb-2">Historial Médico</h2>
+        <h2 className="text-base font-medium">Historial Médico</h2>
         <MedicalRecordTimeline medicalRecords={patient.medical_records || []} initialVisibleCount={3} />
       </div>
     </ContentLayout>
