@@ -7,6 +7,7 @@ import Select from 'react-select';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import PatientInfo from '@/components/patients-info';
+import { MousePointer, MousePointerClick } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -118,17 +119,18 @@ const selectedSubscription = subscriptions.find(subscription => subscription.id 
                         </div>
                     ) : (
                         <div className="bg-gray-100 p-4 rounded-lg text-center">
+                            <MousePointerClick className="mx-auto mb-2 text-gray-600" size={48} />
                             <p className="text-gray-500">Seleccione un paciente para ver sus datos</p>
                         </div>
                     )}
 
                     {selectedSubscription && (
                         <div className=" mt-4">
-                            <h3 className="font-semibold text-lg mb-3">Datos de la Suscripción:</h3>
+                            <h3 className="text-base font-medium mb-0.5">Datos de la Suscripción</h3>
                             <div className="space-y-2">
                                 <p><strong>Nombre:</strong> {selectedSubscription.name}</p>
-                                <p><strong>Tipo:</strong> {selectedSubscription.type}</p>
-                                <p><strong>Precio:</strong> ${selectedSubscription.price}</p>
+                                <p className='capitalize'><strong>Tipo:</strong> {selectedSubscription.type}</p>
+                                <p><strong>Precio:</strong> {selectedSubscription.price}</p>
                             </div>
                         </div>
                     )}

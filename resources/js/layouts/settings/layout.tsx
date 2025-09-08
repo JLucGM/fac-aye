@@ -17,11 +17,11 @@ const sidebarNavItems: NavItem[] = [
         href: '/settings/password',
         icon: null,
     },
-    {
-        title: 'Apariencia',
-        href: '/settings/appearance',
-        icon: null,
-    },
+    // {
+    //     title: 'Apariencia',
+    //     href: '/settings/appearance',
+    //     icon: null,
+    // },
     {
         title: 'Configuraciones generales',
         href: '/settings/generals',

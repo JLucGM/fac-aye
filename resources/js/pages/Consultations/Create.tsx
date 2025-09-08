@@ -12,11 +12,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Asistencias',
+        title: 'Listado de asistencias',
         href: '/consultations',
     },
     {
-        title: 'Crear Asistencia',
+        title: 'Crear asistencia',
         href: '#',
     },
 ];
@@ -92,7 +92,6 @@ export default function Create({ patients, users, services }: {
 
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <h1 className='text-xl col-span-full'>Información de la Asistencia</h1>
                     <ConsultationsForm
                         data={data}
                         patients={patients}

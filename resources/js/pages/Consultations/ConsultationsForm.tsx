@@ -125,7 +125,7 @@ export default function ConsultationsForm({
                 <InputError message={errors.consultation_type} />
             </div>
 
-            <div>
+            {/* <div>
                 <Label htmlFor="payment_status" className="my-2 block font-semibold text-gray-700">Estado de Pago</Label>
                 <Select
                     id="payment_status"
@@ -138,7 +138,7 @@ export default function ConsultationsForm({
                     isDisabled={data.subscription_use === 'yes'}
                 />
                 <InputError message={errors.payment_status} />
-            </div>
+            </div> */}
 
             {hasActiveSubscription && (
                 <div className="">

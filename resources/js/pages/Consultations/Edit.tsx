@@ -24,8 +24,8 @@ import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Inicio', href: '/dashboard' },
-    { title: 'Consultations', href: '/consultations' },
-    { title: 'Editar Consulta', href: '#' },
+    { title: 'Lista de asistencias', href: '/consultations' },
+    { title: 'Editar asistencia', href: '#' },
 ];
 
 export default function Edit({ consultation, patients, users, services, paymentMethods }: {
@@ -43,7 +43,6 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-    console.log("Consultation Data:", consultation);
     // Estado para controlar la apertura/cierre del Dialog
     const [isMedicalRecordDialogOpen, setIsMedicalRecordDialogOpen] = useState(false);
     const [selectedMedicalRecord, setSelectedMedicalRecord] = useState<MedicalRecord | null>(null);
@@ -67,10 +66,10 @@ export default function Edit({ consultation, patients, users, services, paymentM
         console.log(data);
         put(route('consultations.update', consultation.id)), {
             onSuccess: () => {
-                toast.success('Consulta actualizada con éxito');
+                toast.success('asistencia actualizada con éxito');
             },
             onError: (errors:any) => {
-                console.error("Error al actualizar la consulta:", errors);
+                console.error("Error al actualizar la asistencia:", errors);
             }
         };
     };
@@ -134,10 +133,10 @@ export default function Edit({ consultation, patients, users, services, paymentM
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Editar Consulta" />
+            <Head title={`Editar asistencia ${consultation.id}`} />
             <Heading
-                title="Editar consulta"
-                description="Modifica los detalles de la consulta y la información de pago."
+                title={`Editar Asistencia`}
+                description="Modifica los detalles de la asistencia y la información de pago."
             >
                 <div className="">
                     <Dialog open={isMedicalRecordDialogOpen} onOpenChange={setIsMedicalRecordDialogOpen}>
@@ -178,7 +177,6 @@ export default function Edit({ consultation, patients, users, services, paymentM
 
             {/* Formulario de Actualización de la Consulta */}
             <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">Detalles de la Consulta</h2>
                 <form className="flex flex-col gap-4" onSubmit={submitConsultation}>
                     <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                         <ConsultationsForm

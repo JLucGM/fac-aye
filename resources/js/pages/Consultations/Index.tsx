@@ -33,7 +33,7 @@ export default function Index({ consultations }: { consultations: Consultation[]
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-console.log(consultations);
+
   const filteredConsultations = consultations.filter(consultation => {
     const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
     const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
@@ -110,21 +110,21 @@ console.log(consultations);
                     className="w-full border rounded p-2"
                   >
                     <option value="all">Todos</option>
-                    <option value="paid">Pagadas</option>
-                    <option value="pending">Pendientes</option>
+                    <option value="pagado">Pagadas</option>
+                    <option value="pendiente">Pendientes</option>
                   </select>
                 </div>
 
                 <div>
-                  <Label className="block text-sm font-medium mb-1">Tipo de consulta</Label>
+                  <Label className="block text-sm font-medium mb-1">Tipo de asistencia</Label>
                   <select
                     value={consultationType}
                     onChange={(e) => setConsultationType(e.target.value)}
                     className="w-full border rounded p-2"
                   >
                     <option value="all">Todos</option>
-                    <option value="domiciliary">Domicilio</option>
-                    <option value="office">Oficina</option>
+                    <option value="domiciliaria">Domiciliaria</option>
+                    <option value="consultorio">Consultorio</option>
                   </select>
                 </div>
 
