@@ -175,10 +175,12 @@ export interface Consultation {
     scheduled_at: string; // ISO date string
     consultation_type: 'domiciliaria' | 'consultorio';
     amount: number;
+    amount_paid: number;
     notes?: string;
     payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
     patient_id: number; // FK to Patient
     patient_subscription_id: number;
+    services?: array; // A Consultation can have many Services (many-to-many)
     created_at: string;
     updated_at: string;
     // Relationships

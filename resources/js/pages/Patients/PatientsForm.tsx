@@ -157,7 +157,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
                         { value: '', label: 'Sin Funcionales' },  // Nueva opción explícita
                         ...subscriptions.map(subscription => ({
                             value: subscription.id,
-                            label: `${subscription.name} (${subscription.type})`
+                            label: `${subscription.name} - ${subscription.price} (${subscription.type}) `
                         }))
                     ]}
                     value={data.subscription_id

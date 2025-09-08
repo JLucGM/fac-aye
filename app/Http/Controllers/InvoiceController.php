@@ -123,8 +123,10 @@ class InvoiceController extends Controller
         ]);
         // También necesitamos todas las listas para los selects (pacientes, consultas)
         $patients = Patient::all();
+                $paymentMethods = PaymentMethod::where('active', 1)->get();
+
         // Cargar consultas con su paciente para el select de ítems
-        return Inertia::render('Invoices/Edit', compact('invoice', 'patients'));
+        return Inertia::render('Invoices/Edit', compact('invoice', 'patients', 'paymentMethods'));
     }
 
     /**

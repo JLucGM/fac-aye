@@ -26,11 +26,7 @@ export default function Index({ }: {}) {
                 title="Módulo Operativo"
                 description="Gestiona las operaciones del módulo."
             >
-                {/* <Button asChild>
-                        <Link className="btn btn-primary" href={route('consultations.create')}>
-                            Create paciente
-                        </Link>
-                        </Button> */}
+
             </Heading>
 
             <div className="flex flex-col">
@@ -53,7 +49,7 @@ export default function Index({ }: {}) {
                     className={buttonVariants({ variant: "link" })}
                     href={route('module-operation.profile_patient_index')}
                 >
-                    Consulta de paciente
+                    Búsqueda rápida de paciente
                 </Link>
 
                 <Link

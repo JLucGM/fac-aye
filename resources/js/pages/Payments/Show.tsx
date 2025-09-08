@@ -59,17 +59,17 @@ export default function Show({ payment }: { payment: Payment }) {
                 )}
             </div>
 
-            {/* Consultas o Suscripciones Asociadas */}
+            {/* Asistencias o Funcionales Asociadas */}
             <div className="mb-4">
-                <h2 className="text-xl font-semibold">{isSubscriptionPayment ? 'Suscripciones Asociadas' : 'Consultas Asociadas'}</h2>
+                <h2 className="text-xl font-semibold">{isSubscriptionPayment ? 'Funcionales Asociadas' : 'Asistencias Asociadas'}</h2>
                 {isSubscriptionPayment ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Suscripción ID</TableHead>
                                 <TableHead>Periodo</TableHead>
-                                <TableHead>Consultas Usadas</TableHead>
-                                <TableHead>Consultas Restantes</TableHead>
+                                <TableHead>Asistencias Usadas</TableHead>
+                                <TableHead>Asistencias Restantes</TableHead>
                                 <TableHead>Monto</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -124,7 +124,7 @@ export default function Show({ payment }: { payment: Payment }) {
                             </TableFooter>
                         </Table>
                     ) : (
-                        <p>No hay consultas asociadas a este pago.</p>
+                        <p>No hay asistencias asociadas a este pago.</p>
                     )
                 )}
             </div>

@@ -160,7 +160,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
       </div>
 
       <div>
-        <Label htmlFor="reference">Referencia</Label>
+        <Label htmlFor="reference">Referencia (opcional)</Label>
         <Input
           id="reference"
           type="text"
@@ -169,6 +169,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           className="mt-1 block w-full"
           onChange={e => setData('reference', e.target.value)}
         />
+        <Label htmlFor="reference" className='text-gray-500 text-sm'>Coloque número de referencia del pago.</Label>
         <InputError message={errors.reference} className="mt-2" />
       </div>
 
@@ -294,7 +295,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
       </div>
 
       <div>
-        <Label htmlFor="notes">Notas</Label>
+        <Label htmlFor="notes">Notas (opcional)</Label>
         <Input
           id="notes"
           type="text"
@@ -303,6 +304,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           className="mt-1 block w-full"
           onChange={e => setData('notes', e.target.value)}
         />
+        <Label htmlFor="notes" className='text-gray-500 text-sm'>Notas sobre el pago.</Label>
         <InputError message={errors.notes} className="mt-2" />
       </div>
     </div>

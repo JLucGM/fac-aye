@@ -19,7 +19,7 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
   // },
   {
     accessorKey: "consultation_type",
-    header: "Tipo de Consulta",
+    header: "Tipo de asistencia",
   },
   {
     accessorKey: "payment_status",

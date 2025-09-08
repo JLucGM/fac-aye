@@ -82,7 +82,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
     return (
         <>
             <div>
-                <Label htmlFor="invoice_img">Adjuntar factura</Label>
+                <Label htmlFor="invoice_img">Adjuntar factura (opcional)</Label>
                 <Input
                     id="invoice_img"
                     type="file"
@@ -97,6 +97,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                     }}
                     accept="image/*"
                 />
+                <Label htmlFor="invoice_img" className='text-gray-500 text-sm'>Adjunte foto de la factura fisica.</Label>
                 <InputError message={errors.invoice_img} className="mt-2" />
             </div>
 
@@ -108,9 +109,10 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                         type="text"
                         name="invoice_number"
                         value={data.invoice_number}
-                        className="mt-1 block w-full"
+                        className="block w-full"
                         onChange={(e) => setData('invoice_number', e.target.value)}
                     />
+                    <Label htmlFor="invoice_number" className='text-gray-500 text-sm'>Se auto-generación de números de factura, puede personalizarlo.</Label>
                     <InputError message={errors.invoice_number} className="mt-2" />
 
                 </div>
@@ -162,7 +164,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
             </div>
 
             <div>
-                <Label htmlFor="notes">Notas</Label>
+                <Label htmlFor="notes">Notas (opcional)</Label>
                 <Textarea
                     id="notes"
                     name="notes"
@@ -170,6 +172,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                     className="mt-1 block w-full"
                     onChange={(e) => setData('notes', e.target.value)}
                 />
+                <Label htmlFor="notes" className='text-gray-500 text-sm'>Notas sobre la factura.</Label>
                 <InputError message={errors.notes} className="mt-2" />
             </div>
 
@@ -262,7 +265,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell colSpan={1} className="text-right">
-                                <p>Total: ${calculateTotal().toFixed(2)}</p>
+                                <p>Total: ${calculateTotal()}</p>
 
                             </TableCell>
                         </TableRow>

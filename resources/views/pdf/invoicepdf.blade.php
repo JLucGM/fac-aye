@@ -110,7 +110,7 @@
         <h1>FACTURA</h1>
     </div>
 
-    <div style="margin-top: 120px;" class="clearfix">
+    <div style="margin-top: 100px;" class="clearfix">
         <div class="company-info">
             <h4>Información de la Empresa</h4>
             <p><strong>Nombre:</strong> {{ $settings->name ?? 'N/A' }}</p>
@@ -151,17 +151,7 @@
         <tbody>
             @foreach($invoice->items as $item)
             <tr>
-                {{-- La descripción ahora se genera a partir de la consulta asociada --}}
-                <td>
-                    @if($item->consultation)
-                        Consulta del {{ \Carbon\Carbon::parse($item->consultation->scheduled_at)->format('d/m/Y H:i') }}
-                        @if($item->consultation->notes)
-                            <br><small>Notas: {{ $item->consultation->notes }}</small>
-                        @endif
-                    @else
-                        Ítem de Factura (sin consulta asociada)
-                    @endif
-                </td>
+                <td>{{ $item->service_name }}</td>
                 <td>{{ $item->quantity }}</td>
                 <td>{{ number_format($item->unit_price, 2, ',', '.') }}</td>
                 <td>{{ number_format($item->line_total, 2, ',', '.') }}</td>

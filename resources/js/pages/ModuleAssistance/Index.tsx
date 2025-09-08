@@ -6,11 +6,11 @@ import { Head, Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
     {
-        title: 'consultations',
+        title: 'Módulo asistencia',
         href: '/consultations',
     },
 ];
@@ -18,19 +18,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Index({ }: {}) {
 
     return (
-        // <AppLayout breadcrumbs={breadcrumbs}>
-
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Modulo asistencia" />
+            <Head title="Módulo asistencia" />
             <Heading
-                title="Modulo asistencia"
+                title="Módulo asistencia"
                 description="Gestiona las operaciones de asistencia."
             >
-                {/* <Button asChild>
-                        <Link className="btn btn-primary" href={route('consultations.create')}>
-                            Create paciente
-                        </Link>
-                        </Button> */}
             </Heading>
 
             <div className="flex flex-col">
@@ -50,23 +43,6 @@ export default function Index({ }: {}) {
                 </Link>
 
             </div>
-
-            {/*<Link
-                    className={buttonVariants({ variant: "default" })}
-                    href={route('payments.create')}
-                >
-                    registrar pago
-                </Link>
-                <Link
-                    className={buttonVariants({ variant: "default" })}
-                    href={route('module-operation.profile_patient_index')}
-                >
-                    datos de paciente
-                </Link> */}
-
-
         </ContentLayout>
-
-        // </AppLayout>
     );
 }

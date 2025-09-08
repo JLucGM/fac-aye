@@ -46,7 +46,7 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
   const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
   const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
-  console.log(patient);
+
   const [paymentStatus, setPaymentStatus] = useState<string>('all');
   const [consultationType, setConsultationType] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
@@ -135,13 +135,13 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
         <div className="mt-4">
           <Tabs defaultValue="account" className="w-full">
             <TabsList>
-              <TabsTrigger value="account">Consultas</TabsTrigger>
+              <TabsTrigger value="account">Asistencias</TabsTrigger>
               <TabsTrigger value="password">Funcionales</TabsTrigger>
             </TabsList>
             <TabsContent value="account">
               <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="w-full space-y-2">
                 <div className="flex items-center justify-between space-x-4 px-4 bg-gray-100 p-3 rounded-md">
-                  <h4 className="text-sm font-semibold">Filtros de Consulta</h4>
+                  <h4 className="text-sm font-semibold">Filtros de asistencias</h4>
                   <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="sm">
                       {isFiltersOpen ? (
@@ -176,7 +176,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de consulta:</Label>
+                      <Label htmlFor="consultationType" className="whitespace-nowrap">Tipo de asistencia:</Label>
                       <select
                         id="consultationType"
                         value={consultationType}
@@ -237,7 +237,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
               </Collapsible>
 
               <div className="flex justify-between">
-                <HeadingSmall title='Consultas' description="Lista de consultas del paciente" />
+                <HeadingSmall title='Asistencias' description="Lista de asistencias del paciente" />
                 <Button asChild>
                   <PDFDownloadLink
                     key={pdfKey}

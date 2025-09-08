@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Timer } from 'lucide-react';
 import { useState } from 'react';
@@ -12,7 +12,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Modulo administrativo',
+        title: 'Módulo administrativo',
         href: '/consultations',
     },
 ];
@@ -46,9 +46,9 @@ const Index = () => {
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Modulo administrativo" />
+            <Head title="Módulo administrativo" />
             <Heading
-                title="Modulo administrativo"
+                title="Módulo administrativo"
                 description="Gestiona las operaciones administrativas."
             />
 

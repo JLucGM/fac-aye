@@ -20,6 +20,7 @@ import {
 import { Button } from "./ui/button"
 import React from "react"
 import { Input } from "./ui/input"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -51,7 +52,7 @@ export function DataTable<TData, TValue>({
     <div className="">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Search all columns..."
+          placeholder="Buscar todas las columnas..."
           value={globalFilter ?? ''}
           onChange={(event) => {
             const value = String(event.target.value);
@@ -105,28 +106,28 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
+      <div className="flex items-center justify-end space-x-2 py-4">
+        {/* <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} columna(s) seleccionada.
-        </div>
+        </div> */}
         <div className="">
 
           <Button
-            variant="outline"
+            variant="link"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            <ChevronLeft className="mr-2" />
           </Button>
           <Button
-            variant="outline"
+            variant="link"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            <ChevronRight className="mr-2" />
           </Button>
         </div>
       </div>

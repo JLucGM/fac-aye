@@ -58,8 +58,8 @@ export default function ConsultationsForm({
         ];
 
     const consultationTypeOptions = [
-        { value: 'domiciliaria', label: 'Domiciliaria' },
         { value: 'consultorio', label: 'Consultorio' },
+        { value: 'domiciliaria', label: 'Domiciliaria' },
     ];
 
     useEffect(() => {
@@ -92,6 +92,8 @@ export default function ConsultationsForm({
                     placeholder="Selecciona un fisioterapeuta..."
                     className="rounded-md"
                 />
+                <Label htmlFor="user_id" className='text-gray-500 text-sm'>Fisioterapeuta que tratera al paciente.</Label>
+
                 <InputError message={errors.user_id} />
             </div>
 
@@ -107,6 +109,8 @@ export default function ConsultationsForm({
                         placeholder="Selecciona un paciente..."
                         className="rounded-md"
                     />
+                    <Label htmlFor="patient_id" className='text-gray-500 text-sm'>Seleccione al paciente a tratar.</Label>
+
                     <InputError message={errors.patient_id} />
                 </div>
             )}
@@ -159,14 +163,14 @@ export default function ConsultationsForm({
                     </div>
 
                     {data.subscription_use === 'yes' && (
-                        <p className="text-sm text-blue-600 mt-2">
+                        <p className="text-gray-500 text-sm">
                             Se aplicará la funcional #{activeSub?.id} (Consultas restantes: {activeSub?.consultations_remaining})
                         </p>
                     )}
                     {data.subscription_use === 'no' && (
-                        <p className="text-sm text-blue-600 mt-2">
+                        <p className="text-gray-500 text-sm">
                             No se aplicará ninguna funcionalidad adicional. <br />
-                            Si eliminas el uso de la funcional, se reintegrará la consulta usada.
+                            Una vez creada la asistencia, si eliminas el uso de la funcional, se reintegrará la consulta usada.
                         </p>
                     )}
                 </div>
@@ -194,20 +198,11 @@ export default function ConsultationsForm({
                         isDisabled={data.subscription_use === 'yes'}
                     />
                 )}
+                <Label htmlFor="service_id" className='text-gray-500 text-sm'>Seleccione los servicios a los que se aplicará al paciente.</Label>
                 <InputError message={errors.service_id} />
             </div>
 
-            <div className="col-span-full">
-                <Label htmlFor="notes" className="my-2 block font-semibold text-gray-700">Notas (Opcional)</Label>
-                <Input
-                    id="notes"
-                    type="text"
-                    value={data.notes}
-                    onChange={(e) => setData('notes', e.target.value)}
-                    className="rounded-md"
-                />
-                <InputError message={errors.notes} />
-            </div>
+
 
             <ServicesTable
                 className="col-span-full"
@@ -227,14 +222,26 @@ export default function ConsultationsForm({
                         })
                 }
             />
-
-            <div className="">
+            <div className="flex justify-end font-bold text-lg col-span-full">
                 Total: ${
                     data.service_id.reduce((total, serviceId) => {
                         const service = services.find(s => s.id === serviceId);
                         return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || '0'));
                     }, 0).toFixed(2)
                 }
+            </div>
+
+            <div className="col-span-full">
+                <Label htmlFor="notes" className="my-2 block font-semibold text-gray-700">Notas (Opcional)</Label>
+                <Input
+                    id="notes"
+                    type="text"
+                    value={data.notes}
+                    onChange={(e) => setData('notes', e.target.value)}
+                    className="rounded-md"
+                />
+                <Label htmlFor="notes" className='text-gray-500 text-sm'>Notas de la asistencia.</Label>
+                <InputError message={errors.notes} />
             </div>
         </>
     );

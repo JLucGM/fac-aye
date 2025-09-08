@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import { Invoice, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { ImageIcon } from 'lucide-react';
+import { Download, ImageIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/input-error';
+import PatientInfo from '@/components/patients-info';
 
 // Definición de las migas de pan para la navegación
 const breadcrumbs: BreadcrumbItem[] = [
@@ -78,46 +79,38 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                         <ImageIcon className="mr-2 h-4 w-4" />
                         Ver adjunto
                     </Button>
-                    {/* <Button
+                    <Button
                         variant="default"
                         onClick={() => window.open(route('invoices.pdf', invoice.id), '_blank')}
                     >
                         <Download className="mr-2 h-4 w-4" />
-                        Descargar PDF
-                    </Button> */}
+                        Descargar factura
+                    </Button>
                 </div>
             </Heading>
 
-            <div className="mt-6 space-y-6">
+            <div className=" mt-6 space-y-6">
 
                 {/* Información general */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <div className="mb-4">
-                    <h2 className="text-lg font-semibold mb-4">Información de la Factura</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h2 className="text-base font-semibold">Información de la Factura</h2>
+                    <div >
                         <p>Número: {invoice.invoice_number}</p>
-                        <p>Fecha: {new Date(invoice.invoice_date).toLocaleDateString()}</p>
+                        <p>Fecha de realización: {new Date(invoice.invoice_date).toLocaleDateString()}</p>
                     </div>
                     {invoice.notes && <p className="mt-4">Notas: {invoice.notes}</p>}
                 </div>
 
                 {/* Información del paciente */}
                 <div className="mb-4">
-                    <h2 className="text-lg font-semibold mb-4">Información del Paciente</h2>
                     {invoice.patient ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <p>Nombre: {invoice.patient.name} {invoice.patient.lastname}</p>
-                                <p>Email: {invoice.patient.email}</p>
-                            </div>
-                            <div>
-                                <p>Identificación: {invoice.patient.identification}</p>
-                                <p>Teléfono: {invoice.patient.phone}</p>
-                            </div>
-                            <p className='col-span-full'>Dirección: {invoice.patient.address}</p>
-                        </div>
+                        <PatientInfo patient={invoice.patient} />
                     ) : (
                         <p>No hay información de paciente asociada a esta factura.</p>
                     )}
+                </div>
                 </div>
 
                 {/* Tabla de ítems */}

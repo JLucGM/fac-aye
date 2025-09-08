@@ -2,7 +2,6 @@ import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SuscriptionFormData } from "@/types";
-import { Select } from "@/components/ui/select";
 
 type SuscriptionsFormProps = {
     data: SuscriptionFormData;
@@ -45,18 +44,7 @@ export default function SuscriptionsForm({ data, setData, errors }: Suscriptions
                 <InputError message={errors.price} className="mt-2" />
             </div>
 
-            <div>
-                <Label htmlFor="description">Descripción</Label>
-                <Input
-                    id="description"
-                    type="text"
-                    name="description"
-                    value={data.description}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData('description', e.target.value)}
-                />
-                <InputError message={errors.description} className="mt-2" />
-            </div>
+            
 
             <div>
                 <Label htmlFor="type">Tipo de Funcional</Label>
@@ -77,7 +65,7 @@ export default function SuscriptionsForm({ data, setData, errors }: Suscriptions
             </div>
 
             <div>
-                <Label htmlFor="consultations_allowed">Consultas Permitidas</Label>
+                <Label htmlFor="consultations_allowed">Asistencias Permitidas</Label>
                 <Input
                     id="consultations_allowed"
                     type="number"
@@ -86,7 +74,21 @@ export default function SuscriptionsForm({ data, setData, errors }: Suscriptions
                     className="mt-1 block w-full"
                     onChange={(e) => setData('consultations_allowed', parseInt(e.target.value))}
                 />
+                <Label htmlFor="consultations_allowed" className='text-gray-500 text-sm'>Coloca el número de asistencias permitidas</Label>
                 <InputError message={errors.consultations_allowed} className="mt-2" />
+            </div>
+
+            <div>
+                <Label htmlFor="description">Descripción</Label>
+                <Input
+                    id="description"
+                    type="text"
+                    name="description"
+                    value={data.description}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('description', e.target.value)}
+                />
+                <InputError message={errors.description} className="mt-2" />
             </div>
         </>
     );

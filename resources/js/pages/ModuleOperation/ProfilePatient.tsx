@@ -1,14 +1,14 @@
-import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
 import {ContentLayout} from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
+import PatientInfo from '@/components/patients-info';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -82,11 +82,11 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
         // <AppLayout breadcrumbs={breadcrumbs}>
 
             <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Perfil del Paciente" />
+            <Head title="Búsqueda rápida paciente" />
 
                 <Heading
                     title="Búsqueda rápida paciente"
-                    description="Aquí puedes buscar un paciente por nombre, correo o identificación y ver sus consultas."
+                    description="Aquí puedes buscar un paciente por nombre, correo o identificación y ver sus asistencias."
                 />
                 
                 <Input
@@ -98,34 +98,28 @@ export default function ProfilePatient({ patients }: { patients: Patient[] }) {
 
                 {filteredPatient ? (
                     <div className="mt-4">
-                        <div className="flex justify-between">
-                            <h2>Información del Paciente</h2>
+                        <div className="flex justify-end">
                             <Link className={buttonVariants({ variant: 'outline' }) + ' w-auto'} href={route('patients.show', [filteredPatient.slug ?? filteredPatient.id])}>
-                                <Eye /> Mostrar
+                                <Eye /> Perfil del paciente
                             </Link>
                         </div>
                         <div className="grid grid-cols-2">
                             <div className="">
-                                <p><strong>Nombre:</strong> {filteredPatient.name} {filteredPatient.lastname}</p>
-                                <p><strong>Email:</strong> {filteredPatient.email}</p>
-                                <p><strong>Identificación:</strong> {filteredPatient.identification}</p>
-                                <p><strong>Teléfono:</strong> {filteredPatient.phone}</p>
-                                <p><strong>Fecha de Nacimiento:</strong> {filteredPatient.birthdate ? new Date(filteredPatient.birthdate).toLocaleDateString() : 'Fecha no disponible'}</p>
+                                <PatientInfo patient={filteredPatient} />
                             </div>
 
                             {/* Mostrar totales */}
                             <div className="mt-4">
                                 {filteredPatient.consultations && filteredPatient.consultations.length > 0 && (
                                     <>
-                                        <p><strong>Total de Consultas:</strong> {calculateTotals(filteredPatient.consultations).totalConsultations}</p>
-                                        <p><strong>Consultas Pagadas:</strong> {calculateTotals(filteredPatient.consultations).paidConsultations}</p>
-                                        <p><strong>Consultas No Pagadas:</strong> {calculateTotals(filteredPatient.consultations).pendingConsultations}</p>
+                                        <p>Total de asistencias: {calculateTotals(filteredPatient.consultations).totalConsultations}</p>
+                                        <p>Asistencias Pagadas: {calculateTotals(filteredPatient.consultations).paidConsultations}</p>
+                                        <p>Asistencias No Pagadas: {calculateTotals(filteredPatient.consultations).pendingConsultations}</p>
                                     </>
                                 )}
                             </div>
                         </div>
 
-                        <h3>Consultas</h3>
                         {/* Usar el DataTable para mostrar las consultas */}
                         <DataTable columns={columns} data={filteredPatient.consultations || []} />
                     </div>

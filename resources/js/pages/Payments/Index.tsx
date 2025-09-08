@@ -34,8 +34,8 @@ export default function Index({ payments }: { payments: Payment[] }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('consultas');
-console.log(payments)
+  const [activeTab, setActiveTab] = useState('asistencias');
+
   // Obtener métodos de pago únicos
   const paymentMethods = [
     ...new Set(payments.map(p => p.payment_method?.name).filter(Boolean))
@@ -78,7 +78,7 @@ console.log(payments)
     return methodMatch && statusMatch && dateMatch;
   });
 
-  // Filtrar pagos de consultas y suscripciones
+  // Filtrar pagos de asistencia y funcional
   const consultationPayments = filteredPayments.filter(payment => payment.consultations.length > 0);
   const subscriptionPayments = filteredPayments.filter(payment => payment.patient_subscriptions.length > 0);
 
@@ -102,7 +102,7 @@ console.log(payments)
     ...payment,
     patientName: getPatientName(payment)
   }));
-console.log(consultationTableData)
+
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Lista de Pagos" />
@@ -235,22 +235,16 @@ console.log(consultationTableData)
       {/* Tabs para separar pagos */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
         <TabsList>
-          <TabsTrigger value="consultas">Pagos de Consultas</TabsTrigger>
-          <TabsTrigger value="suscripciones">Pagos de Suscripciones</TabsTrigger>
+          <TabsTrigger value="asistencias">Pagos de Asistencias</TabsTrigger>
+          <TabsTrigger value="funcional">Pagos de funcional</TabsTrigger>
         </TabsList>
-        <TabsContent value="consultas">
-          {/* <p className="text-sm text-gray-500 mb-2">
-            Mostrando {consultationPayments.length} pagos de consultas
-          </p> */}
+        <TabsContent value="asistencias">
           <DataTable
             columns={columns}
             data={consultationTableData}
           />
         </TabsContent>
-        <TabsContent value="suscripciones">
-          {/* <p className="text-sm text-gray-500 mb-2">
-            Mostrando {subscriptionPayments.length} pagos de suscripciones
-          </p> */}
+        <TabsContent value="funcional">
           <DataTable
             columns={columns}
             data={subscriptionTableData}

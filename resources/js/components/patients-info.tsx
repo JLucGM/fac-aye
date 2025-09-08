@@ -1,7 +1,8 @@
 import { Patient } from "@/types";
+import { MousePointerClick } from "lucide-react";
 
 export default function PatientInfo({ patient }: { patient: Patient }) {
-    const calculateAge = (birthdate: string | undefined): number | string => {
+  const calculateAge = (birthdate: string | undefined): number | string => {
     if (!birthdate) return 'Fecha no disponible';
     const birthDate = new Date(birthdate);
     const today = new Date();
@@ -9,14 +10,19 @@ export default function PatientInfo({ patient }: { patient: Patient }) {
     const monthDifference = today.getMonth() - birthDate.getMonth();
 
     if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
+      age--;
     }
 
     return age;
-};
+  };
 
   if (!patient) {
-    return <p className="text-muted-foreground text-sm">No hay paciente disponible.</p>;
+    return (
+      <div className="bg-gray-100 p-4 rounded-lg text-center">
+        <MousePointerClick className="mx-auto mb-2 text-gray-600" size={48} />
+        <p className="text-gray-500">Seleccione un paciente para ver sus datos</p>
+      </div>
+    );
   }
 
   return (

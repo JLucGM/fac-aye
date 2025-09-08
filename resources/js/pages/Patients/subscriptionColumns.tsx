@@ -38,11 +38,11 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
     },
     {
         accessorKey: "consultations_used",
-        header: "Consultas Usadas",
+        header: "Asistencias Usadas",
     },
     {
         accessorKey: "consultations_remaining",
-        header: "Consultas Restantes",
+        header: "Asistencias Restantes",
     },
     {
         accessorKey: "status",

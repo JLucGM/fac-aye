@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
 import InvoicesForm from './InvoicesForm'; 
-import { Invoice, Patient, type BreadcrumbItem, CreateInvoiceFormData } from '@/types';
+import { Invoice, Patient, type BreadcrumbItem, CreateInvoiceFormData, Payment, PaymentMethod } from '@/types';
 import { Download } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -25,9 +25,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 type EditInvoiceProps = {
     invoice: Invoice;
     patients: Patient[];
+    paymentMethods: PaymentMethod[]; // Ajusta el tipo según tus datos reales
 };
 
-export default function Edit({ invoice, patients,  }: EditInvoiceProps) {
+export default function Edit({ invoice, patients, paymentMethods  }: EditInvoiceProps) {
+    console.log("Datos de la factura recibidos:", invoice);
     // Inicializa el formulario con los datos de la factura existente
     const { data, setData, errors, put, processing } = useForm<CreateInvoiceFormData>({
         invoice_number: invoice.invoice_number, // Asegúrate de que el número de factura se mantenga
@@ -74,9 +76,9 @@ export default function Edit({ invoice, patients,  }: EditInvoiceProps) {
                 <InvoicesForm
                     data={data}
                     patients={patients}
+                                        paymentMethods={paymentMethods}
                     setData={setData}
                     errors={errors}
-                    isEditing={true} // Pasa esta prop para indicar modo edición
                 />
 
                 <Button

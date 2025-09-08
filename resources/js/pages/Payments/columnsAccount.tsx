@@ -61,7 +61,7 @@ export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: "status",
-    header: "Estado de la consulta",
+    header: "Estado de la asistencia",
   },
   {
     accessorKey: "amount",
