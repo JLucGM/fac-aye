@@ -5,7 +5,6 @@ import Select from 'react-select';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CreateInvoiceFormData, InvoiceItemFormData, Patient, PaymentMethod } from "@/types";
-import SelectReact from 'react-select';
 import { Trash } from "lucide-react";
 import {
     Table,
@@ -23,6 +22,8 @@ type InvoicesFormProps = {
         patient_id?: string;
         invoice_date?: string;
         notes?: string;
+        payment_method_id?: string;
+        // invoice_img?: string;
         'items.0.service_name'?: string;
         [key: string]: string | undefined;
     };
@@ -76,12 +77,13 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
 
     // Calcular el total de la factura
     const calculateTotal = () => {
-        return data.items.reduce((total, item) => total + item.line_total, 0);
-    };
+    return data.items.reduce((total, item) => total + parseFloat(item.line_total), 0);
+};
+
 
     return (
         <>
-            <div>
+            {/* <div>
                 <Label htmlFor="invoice_img">Adjuntar factura (opcional)</Label>
                 <Input
                     id="invoice_img"
@@ -90,16 +92,16 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                     className="mt-1 block w-full"
                     onChange={(e) => {
                         if (e.target.files && e.target.files.length > 0) {
-                            setData('invoice_img', Array.from(e.target.files));
+                            setData('invoice_img', e.target.files[0]); // SOLO un archivo, no array
                         } else {
                             setData('invoice_img', null);
                         }
                     }}
                     accept="image/*"
                 />
-                <Label htmlFor="invoice_img" className='text-gray-500 text-sm'>Adjunte foto de la factura fisica.</Label>
+                <Label htmlFor="invoice_img" className='text-gray-500 text-sm'>Adjunte foto de la factura física.</Label>
                 <InputError message={errors.invoice_img} className="mt-2" />
-            </div>
+            </div> */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -114,10 +116,8 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                     />
                     <Label htmlFor="invoice_number" className='text-gray-500 text-sm'>Se auto-generación de números de factura, puede personalizarlo.</Label>
                     <InputError message={errors.invoice_number} className="mt-2" />
-
                 </div>
 
-                {/* Campos de la Factura Principal (Fechas, Notas) */}
                 <div>
                     <Label htmlFor="invoice_date">Fecha de Factura</Label>
                     <Input
@@ -125,13 +125,12 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                         type="date"
                         name="invoice_date"
                         value={data.invoice_date}
-                        className=" block w-full"
+                        className="block w-full"
                         onChange={(e) => setData('invoice_date', e.target.value)}
                     />
                     <InputError message={errors.invoice_date} className="mt-2" />
                 </div>
 
-                {/* Campo de Paciente (usando react-select) */}
                 <div>
                     <Label htmlFor="patient_id">Paciente</Label>
                     <Select
@@ -139,7 +138,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                         options={patientOptions}
                         value={patientOptions.find(option => option.value === data.patient_id) || null}
                         onChange={(selectedOption) =>
-                            setData('patient_id', selectedOption ? selectedOption.value : null)
+                            setData('patient_id', selectedOption ? selectedOption.value : (patientOptions[0]?.value || null))
                         }
                         isSearchable
                         placeholder="Selecciona un paciente..."
@@ -154,7 +153,9 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                         id="payment_method_id"
                         options={paymentMethodOptions}
                         value={paymentMethodOptions.find(option => option.value === data.payment_method_id) || null}
-                        onChange={selectedOption => setData('payment_method_id', selectedOption ? selectedOption.value : null)}
+                        onChange={selectedOption =>
+                            setData('payment_method_id', selectedOption ? selectedOption.value : (paymentMethodOptions[0]?.value || null))
+                        }
                         isSearchable
                         placeholder="Selecciona un método de pago..."
                         className="block w-full"
@@ -176,7 +177,6 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                 <InputError message={errors.notes} className="mt-2" />
             </div>
 
-            {/* Sección de Ítems de la Factura en una tabla */}
             <h3 className="text-lg font-semibold mt-6 mb-3">Ítems de la Factura</h3>
             <div className="overflow-x-auto rounded-md border">
                 <Table>
@@ -199,7 +199,6 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                         ) : (
                             data.items.map((item, index) => (
                                 <TableRow key={item.id || `new-${index}`}>
-                                    {/* Cantidad */}
                                     <TableCell className="text-right">
                                         <Input
                                             id={`quantity_${index}`}
@@ -208,11 +207,10 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                                             value={item.quantity}
                                             className="w-full"
                                             onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
-                                            min="1"
+                                            min={1}
                                         />
                                         <InputError message={errors[`items.${index}.quantity`]} className="mt-1" />
                                     </TableCell>
-                                    {/* Descripción */}
                                     <TableCell>
                                         <Input
                                             id={`service_name_${index}`}
@@ -224,7 +222,6 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                                         />
                                         <InputError message={errors[`items.${index}.service_name`]} className="mt-1" />
                                     </TableCell>
-                                    {/* Precio Unitario */}
                                     <TableCell className="text-right">
                                         <Input
                                             id={`unit_price_${index}`}
@@ -233,10 +230,11 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                                             value={item.unit_price}
                                             className="w-full"
                                             onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                                            min={0}
+                                            step="0.01"
                                         />
                                         <InputError message={errors[`items.${index}.unit_price`]} className="mt-1" />
                                     </TableCell>
-                                    {/* Total de Línea */}
                                     <TableCell className="text-right">
                                         <Input
                                             id={`line_total_${index}`}
@@ -246,7 +244,6 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                                             readOnly
                                         />
                                     </TableCell>
-                                    {/* Botón de eliminar */}
                                     <TableCell className="text-right">
                                         <Button
                                             type="button"
@@ -264,16 +261,15 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell></TableCell>
-                            <TableCell colSpan={1} className="text-right">
-                                <p>Total: ${calculateTotal()}</p>
-
+                            <TableCell colSpan={1} className="text-right font-semibold">
+                                Total: ${calculateTotal()}
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
             </div>
             <Button type="button" variant="outline" onClick={addInvoiceItem} className="mt-4">
-                Agregar
+                Agregar Ítem
             </Button>
         </>
     );

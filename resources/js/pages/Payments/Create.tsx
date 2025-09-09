@@ -33,10 +33,10 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
         notes: '',
         payment_type: 'consulta',
     });
-    console.log(patients);
+    // console.log(patients);
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data);
+        // console.log(data);
         post(route('payments.store'), {
             onSuccess: () => {
                 // Manejar éxito

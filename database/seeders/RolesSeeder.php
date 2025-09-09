@@ -60,6 +60,11 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'admin.doctor.edit', 'description' => 'Editar doctors'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.doctor.delete', 'description' => 'Eliminar doctors'])->syncRoles([$rolSuperAdmin]);
         
+        Permission::create(['name' => 'admin.invoice.index', 'description' => 'Ver lista de factura'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.invoice.create', 'description' => 'Crear factura'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.invoice.edit', 'description' => 'Editar factura'])->syncRoles([$rolSuperAdmin]);
+        Permission::create(['name' => 'admin.invoice.delete', 'description' => 'Eliminar factura'])->syncRoles([$rolSuperAdmin]);
+        
         Permission::create(['name' => 'admin.subscription.index', 'description' => 'Ver lista de subscripciones'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.subscription.create', 'description' => 'Crear subscripciones'])->syncRoles([$rolSuperAdmin]);
         Permission::create(['name' => 'admin.subscription.edit', 'description' => 'Editar subscripciones'])->syncRoles([$rolSuperAdmin]);

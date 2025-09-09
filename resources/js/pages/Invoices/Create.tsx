@@ -27,7 +27,7 @@ export default function Create({ patients, paymentMethods }: { patients: Patient
         invoice_date: new Date().toISOString().split('T')[0],
         payment_method_id: paymentMethods.length > 0 ? Number(paymentMethods[0].id) : null, // Cambia a null si no hay métodos de pago
         notes: '',
-        invoice_img: '',
+        // invoice_img: '',
         items: [
             {
                 id: null, // Agregar el campo id
@@ -41,7 +41,7 @@ export default function Create({ patients, paymentMethods }: { patients: Patient
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data)
+        // console.log(data)
         post(route('invoices.store'), {
             onSuccess: () => {
                 // Puedes agregar lógica adicional aquí si es necesario

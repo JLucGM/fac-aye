@@ -67,6 +67,7 @@ Route::get('/balance-transactions/{patient}', [PatientController::class, 'showBa
     Route::get('/pagos/por/rango', [ClosuresController::class, 'pagosPorRango'])->name('pagos.por.rango');
     
 Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'invoicePdf'])->name('invoices.pdf');
+Route::get('/invoices/{invoice}/updateImage', [InvoiceController::class, 'updateImage'])->name('invoices.updateImage');
 
 
     Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');

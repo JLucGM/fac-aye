@@ -139,6 +139,7 @@ export interface Payment {
     consultations?: Consultation[]; // A Payment can be associated with many Consultations (many-to-many)
     payment_method?: PaymentMethod; // A Payment belongs to one PaymentMethod
     patient?: Patient; // A Payment belongs to one Patient (based on Payment model's belongsTo)
+    patient_subscriptions?: PatientSubscription[]; // A Payment can be associated with many PatientSubscriptions (many-to-many)
 }
 
 export interface Subscription {
@@ -202,6 +203,7 @@ export type Invoice = {
     id: number;
     invoice_number: string;
     patient_id: number;
+    payment_method_id: number | null;
     patient?: Patient; // Opcional, si precargas el paciente
     invoice_date: string; // YYYY-MM-DD
     due_date: string; // YYYY-MM-DD

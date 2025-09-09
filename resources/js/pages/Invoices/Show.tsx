@@ -39,31 +39,32 @@ type MediaItem = {
 export default function Show({ invoice }: { invoice: Invoice }) {
     // Busca la imagen de la factura en los medios asociados
     const invoice_img = invoice.media.find((mediaItem: MediaItem) => mediaItem.collection_name === 'invoice_img');
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     // Inicializa el formulario con Inertia.js `useForm`
     // Se añade `_method: 'put'` para el "method spoofing"
-    const { data, setData, errors, post, processing } = useForm({
-        invoice_img: null as File | null,
-        _method: 'put', // Este campo le indica a Laravel que lo trate como una solicitud PUT
-    });
+    // const { data, setData, errors, get, processing } = useForm({
+    //     invoice_img: null as File | null,
+    //     // _method: 'put', // Este campo le indica a Laravel que lo trate como una solicitud PUT
+    // });
 
-    const submit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log("Archivo seleccionado:", data.invoice_img ? data.invoice_img.name : "Ningún archivo");
+    // const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     // console.log("Archivo seleccionado:", data.invoice_img ? data.invoice_img.name : "Ningún archivo");
 
-        // Cambiamos 'put' a 'post' para enviar el archivo correctamente
-        post(route('invoices.update', invoice), {
-            onSuccess: (response) => {
-                console.log("Actualización exitosa:", response);
-                // Cerrar el diálogo después de una subida exitosa
-                setIsDialogOpen(false);
-            },
-            onError: (err) => {
-                console.error("Error al actualizar la factura:", err);
-            },
-        });
-    };
+    //     console.log(data);
+    //     // Cambiamos 'put' a 'post' para enviar el archivo correctamente
+    //     get(route('invoices.updateImage', invoice), {
+    //         onSuccess: (response) => {
+    //             console.log("Actualización exitosa:", response);
+    //             // Cerrar el diálogo después de una subida exitosa
+    //             setIsDialogOpen(false);
+    //         },
+    //         onError: (err) => {
+    //             console.error("Error al actualizar la factura:", err);
+    //         },
+    //     });
+    // };
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -75,10 +76,10 @@ export default function Show({ invoice }: { invoice: Invoice }) {
             >
                 <div className="flex gap-4">
                     {/* Botón para abrir el diálogo, ahora siempre visible */}
-                    <Button onClick={() => setIsDialogOpen(true)}>
+                    {/* <Button onClick={() => setIsDialogOpen(true)}>
                         <ImageIcon className="mr-2 h-4 w-4" />
                         Ver adjunto
-                    </Button>
+                    </Button> */}
                     <Button
                         variant="default"
                         onClick={() => window.open(route('invoices.pdf', invoice.id), '_blank')}
@@ -153,18 +154,15 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                 </div>
             </div>
 
-            {/* Diálogo para ver imagen adjunta y subir nueva */}
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
+            {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
                 <DialogContent className='w-[35rem]'>
                     <DialogHeader>
                         <DialogTitle>Factura {invoice.invoice_number}</DialogTitle>
                     </DialogHeader>
 
-                    {/* Contenido principal del diálogo */}
                     {invoice_img ? (
                         <>
                             <DialogDescription className="mt-4">
-                                {/* Muestra la imagen actual */}
                                 <img
                                     src={invoice_img.original_url}
                                     alt={`Factura ${invoice.invoice_number}`}
@@ -230,7 +228,7 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                         </>
                     )}
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
         </ContentLayout>
     );
 }

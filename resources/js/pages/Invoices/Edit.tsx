@@ -2,7 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import Heading from '@/components/heading';
-import InvoicesForm from './InvoicesForm'; 
+import InvoicesForm from './InvoicesForm';
 import { Invoice, Patient, type BreadcrumbItem, CreateInvoiceFormData, Payment, PaymentMethod } from '@/types';
 import { Download } from 'lucide-react';
 
@@ -28,27 +28,33 @@ type EditInvoiceProps = {
     paymentMethods: PaymentMethod[]; // Ajusta el tipo según tus datos reales
 };
 
-export default function Edit({ invoice, patients, paymentMethods  }: EditInvoiceProps) {
-    console.log("Datos de la factura recibidos:", invoice);
+export default function Edit({ invoice, patients, paymentMethods }: EditInvoiceProps) {
+    // console.log(invoice);
     // Inicializa el formulario con los datos de la factura existente
-    const { data, setData, errors, put, processing } = useForm<CreateInvoiceFormData>({
-        invoice_number: invoice.invoice_number, // Asegúrate de que el número de factura se mantenga
+    const { data, setData, errors, put, processing } = useForm({
+        invoice_number: invoice.invoice_number,
         patient_id: invoice.patient_id,
         invoice_date: invoice.invoice_date,
-        notes: invoice.notes ?? '', // Asegúrate de que notes no sea null
+        payment_method_id: invoice.payment_method_id, // agregar método de pago
+        notes: invoice.notes ?? '',
+        // invoice_img: null, // para la imagen nueva (vacío inicialmente)
         items: (invoice.items ?? []).map(item => ({
-            id: item.id, // Asegúrate de que el ID sea un número o null
+            id: item.id,
+            service_name: item.service_name, // agregar service_name
             quantity: item.quantity,
             unit_price: item.unit_price,
             line_total: item.line_total,
         })),
     });
 
+
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        
         // Usa 'put' para la actualización
         put(route('invoices.update', invoice.id), {
-            onSuccess: () => {
+            // forceFormData: true,
+            onSuccess: (res) => {
             },
             onError: (err) => {
                 console.error("Error al actualizar la factura:", err);
@@ -76,7 +82,7 @@ export default function Edit({ invoice, patients, paymentMethods  }: EditInvoice
                 <InvoicesForm
                     data={data}
                     patients={patients}
-                                        paymentMethods={paymentMethods}
+                    paymentMethods={paymentMethods}
                     setData={setData}
                     errors={errors}
                 />

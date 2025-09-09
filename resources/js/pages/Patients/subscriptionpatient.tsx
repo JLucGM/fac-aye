@@ -39,7 +39,7 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
 
         post(route('patients.subscription.update'), {
             onSuccess: () => {
-                console.log("Suscripción actualizada exitosamente");
+                // console.log("Suscripción actualizada exitosamente");
             },
             onError: (errors) => {
                 console.error("Error al actualizar la suscripción:", errors);

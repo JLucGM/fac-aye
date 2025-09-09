@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
+import { Download, Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { Link } from "@inertiajs/react";
 import { Invoice } from "@/types"; // Importa el tipo Invoice
 
@@ -109,19 +109,30 @@ export const columns: ColumnDef<Invoice>[] = [
             {/* <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuSeparator /> */}
             <DropdownMenuItem>
+
+              <Button
+                variant="ghost"
+                onClick={() => window.open(route('invoices.pdf', [row.original.id]), '_blank')}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Descargar factura
+              </Button>
+            </DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start'} href={route('invoices.show', [row.original.id])} >
                 <Eye className="mr-2 h-4 w-4" /> Mostrar
               </Link>
-            </DropdownMenuItem>
-            {/* <DropdownMenuItem>
+            </DropdownMenuItem> */}
+            <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start'} href={route('invoices.edit', [row.original.id])} >
                 <Edit className="mr-2 h-4 w-4" /> Editar
               </Link>
-            </DropdownMenuItem> */}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
               {/* Asegúrate de que tu ruta 'invoices.destroy' acepte el ID */}
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start text-red-600 hover:text-red-800'} href={route('invoices.destroy', [row.original.id])} method="delete" as="button">
-                <Trash className="mr-2 h-4 w-4" /> Eliminar
+                <Trash className="text-red-600 hover:text-red-800 mr-2 h-4 w-4" /> Eliminar
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

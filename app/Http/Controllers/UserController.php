@@ -26,20 +26,29 @@ class UserController extends Controller
         return Inertia::render('Users/Create');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'lastname' => 'nullable|string|max:255',
-            'identification' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'active' => 'boolean',
-            'phone' => 'nullable|string|max:15',
-        ]);
-        $user = User::create($validated);
-        return redirect()->route('user.edit', compact('user'));
-    }
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'lastname' => 'nullable|string|max:255',
+        'identification' => 'required|string|max:255|unique:users',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8',
+        'active' => 'boolean',
+        'phone' => 'nullable|string|max:15',
+    ]);
+
+    // Hashear la contraseña antes de crear el usuario
+    $validated['password'] = bcrypt($validated['password']);
+
+    $user = User::create($validated);
+
+    // Asignar rol superadmin
+    $user->assignRole('super-admin');
+
+    return redirect()->route('user.edit', compact('user'));
+}
+
 
     public function show(User $user)
     {

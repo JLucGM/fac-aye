@@ -21,7 +21,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Show({ payment }: { payment: Payment }) {
-    console.log(payment);
+    // console.log(payment);
 
     // Determinar si el pago es por consultas o por suscripciones
     const isSubscriptionPayment = payment.patient_subscriptions && payment.patient_subscriptions.length > 0;
@@ -54,7 +54,7 @@ export default function Show({ payment }: { payment: Payment }) {
                 {/* Información del Paciente */}
                 {patient && (
                     <div className="mb-4">
-                        <PatientInfo patients={[patient]} />
+                        <PatientInfo patient={patient} />
                     </div>
                 )}
             </div>
@@ -74,7 +74,7 @@ export default function Show({ payment }: { payment: Payment }) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {payment.patient_subscriptions.map((subscription) => (
+                            {payment.patient_subscriptions?.map((subscription) => (
                                 <TableRow key={subscription.id}>
                                     <TableCell>{subscription.subscription.name}</TableCell>
                                     <TableCell>

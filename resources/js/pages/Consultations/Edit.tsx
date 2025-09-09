@@ -63,7 +63,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
 
     const submitConsultation = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data);
+        // console.log(data);
         put(route('consultations.update', consultation.id)), {
             onSuccess: () => {
                 toast.success('asistencia actualizada con éxito');
