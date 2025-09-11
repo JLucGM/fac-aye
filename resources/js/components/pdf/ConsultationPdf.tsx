@@ -81,12 +81,13 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
                 {patient && (
                     <View style={{ marginBottom: 20 }}>
                         <Text style={{ fontSize: 14 }}>Información del Paciente:</Text>
-                        <Text style={styles.text}>Nombre: {patient.name} {patient.lastname}</Text>
+                        <Text style={styles.text}>C.I: {patient.identification}</Text>
+                        <Text style={styles.text}>Nombre y apellido: {patient.name} {patient.lastname}</Text>
                         <Text style={styles.text}>Email: {patient.email}</Text>
-                        <Text style={styles.text}>Identificación: {patient.identification}</Text>
+                        <Text style={styles.text}>Teléfono: {patient.phone}</Text>
+                        <Text style={styles.text}>Dirección: {patient.address}</Text>
                     </View>
                 )}
-                <Text style={{ fontSize: 14 }}>Reporte de Consultas</Text>
                 <View style={styles.table}>
                     <View style={styles.tableRow}>
                         <Text style={styles.tableColHeader}>C.I</Text>
@@ -106,7 +107,7 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
                             {signatureUrl && (
                         <Image
                             src={signatureUrl} // Usa el componente Image para mostrar la firma
-                            style={{ width: 'auto', height: 25, marginBottom: 10 }} // Ajusta el tamaño según sea necesario
+                            style={{ width: '80px', height: 'auto', marginBottom: 10 }} // Ajusta el tamaño según sea necesario
                         />
                     )}
                         </View>

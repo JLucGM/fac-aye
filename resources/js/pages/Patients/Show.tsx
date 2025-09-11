@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { subscriptionColumns } from './subscriptionColumns';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf, PDFDownloadLink } from '@react-pdf/renderer';
 import ConsultationPDF from '@/components/pdf/ConsultationPdf';
 import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -94,6 +94,22 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
   const consultationsDebt = calculateTotalDebt(consultations);
   const subscriptionsDebt = calculateSubscriptionDebt(subscriptions);
   // const totalDebt = consultationsDebt + subscriptionsDebt;
+
+  const handleOpenPdf = async () => {
+    const blob = await pdf(
+      <ConsultationPDF
+        consultations={filteredConsultations}
+        patient={patient}
+        settings={settings}
+        logoUrl={logoUrl}
+        signatureUrl={signatureUrl}
+      />
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Opcional: liberar URL después de un tiempo
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  };
 
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
@@ -238,23 +254,9 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
 
               <div className="flex justify-between">
                 <HeadingSmall title='Asistencias' description="Lista de asistencias del paciente" />
-                <Button asChild>
-                  <PDFDownloadLink
-                    key={pdfKey}
-                    document={
-                      <ConsultationPDF
-                        consultations={filteredConsultations}
-                        patient={patient}
-                        settings={settings}
-                        logoUrl={logoUrl}
-                        signatureUrl={signatureUrl}
-                      />
-                    }
-                    fileName={`reporte_consultas_${patient.id}.pdf`}
-                  >
-                    {({ loading }) => (loading ? 'Cargando documento...' :  'Informe de Asistencia')}
-                  </PDFDownloadLink>
-                </Button>
+                <Button onClick={handleOpenPdf}>
+            Informe de Asistencia
+          </Button>
               </div>
 
               <DataTable columns={consultationColumns} data={filteredConsultations} />
