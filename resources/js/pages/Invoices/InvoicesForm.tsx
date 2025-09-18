@@ -80,6 +80,10 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
     return data.items.reduce((total, item) => total + parseFloat(item.line_total), 0);
 };
 
+const truncateToTwoDecimals = (num: number) => {
+  return Math.floor(num * 100) / 100;
+};
+
 
     return (
         <>
@@ -262,8 +266,8 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell colSpan={1} className="text-right font-semibold">
-                                Total: ${calculateTotal()}
-                            </TableCell>
+  Total: ${truncateToTwoDecimals(calculateTotal()).toFixed(2)}
+</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>

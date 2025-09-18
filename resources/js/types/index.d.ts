@@ -166,6 +166,7 @@ export interface PatientSubscription {
     payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
     status: string;
     subscription: Subscription; // Asegúrate de que esta relación esté definida
+    patient?: Patient; // A PatientSubscription belongs to one Patient
 }
 
 
@@ -397,4 +398,21 @@ export interface MedicalRecord {
     updated_at: string;
     anamnesis?: string | null; // Puede ser opcional y/o nulo
     pain_behavior?: string | null; // Puede ser opcional y/o nulo
+}
+
+export interface Media {
+    id: number;
+    model_type: string;
+    model_id: number;
+    collection_name: string;
+    name: string;
+    file_name: string;
+    mime_type: string;
+    disk: string;
+    size: number;
+    manipulations?: string | null; // Puede ser nulo
+    custom_properties?: string | null; // Puede ser nulo
+    order_column: number;
+    created_at: string;
+    updated_at: string;
 }

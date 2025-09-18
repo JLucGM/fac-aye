@@ -103,7 +103,7 @@ export default function Create({ patients, users, services }: {
                 </div>
 
                 <Button variant={"default"}>
-                    Crear Consulta
+                    Crear asitencia
                 </Button>
             </form>
         </ContentLayout>

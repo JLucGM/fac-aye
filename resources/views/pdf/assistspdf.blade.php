@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: -30px;
-            width: 200px;
+            width: 140px;
         }
 
         h1 {
@@ -17,11 +17,17 @@
 
         h2 {
             text-align: left;
-            margin-top: 20px;
+            margin-top: 16px;
+        }
+        h4 {
+            text-align: left;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 12px;
         }
 
         p {
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .no-border {
@@ -36,7 +42,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         th,
@@ -44,17 +50,16 @@
             border: 1px solid #000;
             padding: 8px;
             text-align: left;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         th {
             background-color: #f2f2f2;
-            font-size: 12px;
+            font-size: 10px;
         }
 
-        .patient-info,
-        .consultation-info {
-            margin-top: 20px;
+        .notes {
+            font-size: 8px;
         }
 
         .footer {
@@ -63,7 +68,7 @@
             left: 0;
             right: 0;
             text-align: center;
-            font-size: 10px;
+            font-size: 8px;
             border-top: 1px solid #000;
             padding-top: 5px;
         }
@@ -89,47 +94,28 @@
     <p class="m-0">Fecha: {{ $fechaHoy->format('d/m/Y') }}</p> <!-- Formatear la fecha -->
     <p class="m-0">Procesado por: <br> {{$auth->name}} {{$auth->lastname}}</p>
 
-    <h3>Comprobante de Asistencia</h3>
+    <h4>Comprobante de Asistencia</h4>
 
-    <div class="consultation-info">
+    <div class="">
 
         <div class="" style="border-bottom: 3px solid #000; border-top: 3px solid #000; ">
+            <p> <strong>Fecha de asistencia:</strong> {{ $consultation->created_at }}</p>
             <h4>Información del Paciente</h4>
-            <p> <strong>Identificación:</strong> {{ $consultation->patient->identification }}</p>
-            <p> <strong>Nombre:</strong> {{ $consultation->patient->name }}</p>
-            <p> <strong>Apellido:</strong> {{ $consultation->patient->lastname }}</p>
+            <p> <strong>C.I:</strong> {{ $consultation->patient->identification }}</p>
+            <p> <strong>Nombre y apellido:</strong> {{ $consultation->patient->name }} {{ $consultation->patient->lastname }}</p>
+            <!-- <p> <strong>Apellido:</strong> {{ $consultation->patient->lastname }}</p> -->
             <p> <strong>Email:</strong> {{ $consultation->patient->email }}</p>
             <p> <strong>Teléfono:</strong> {{ $consultation->patient->phone }}</p>
             <p> <strong>Dirección:</strong> {{ $consultation->patient->address }}</p>
-            <p> <strong>Fecha de Visita:</strong> {{ $consultation->created_at }}</p>
-            @if ($consultation->patient->subscriptions->isNotEmpty())
+            <!-- @if ($consultation->patient->subscriptions->isNotEmpty())
             <p><strong>Funcional:</strong> {{ $consultation->patient->subscriptions->first()->subscription->name }}</p>
             @else
             <p>Sin funcional</p>
-            @endif
-
+            @endif -->
         </div>
-
-        <!-- <h4>Información de la Consulta</h4>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Monto</th>
-                <th>Estado</th>
-                <th>Referencia</th>
-                <th>Método de Pago</th>
-            </tr>
-            <tr>
-                <td>{{ $consultation->id }}</td>
-                <td>{{ $consultation->amount }}</td>
-                <td>{{ $consultation->payment_status }}</td>
-                <td>{{ $consultation->reference }}</td>
-                <td>{{ $consultation->payment_method_id }}</td>
-            </tr>
-        </table> -->
     </div>
 
-    <div class="services-info">
+    <div class="">
         <h4>Servicios Realizados</h4>
         <table>
             <tr>
@@ -153,24 +139,24 @@
         </table>
     </div>
 
-    <p>
+    <p class="notes">
         <strong>Nota:</strong> Este comprobante es válido como constancia de asistencia a la consulta médica. Por favor, guárdelo para sus registros.
     </p>
 
     <div style="padding-top: 50px;">
 
-        <p style="border-top: 3px solid #000; font-size: 16px; text-align: center; ">
+        <p style="border-top: 3px solid #000; font-size: 12px; text-align: center; ">
             <strong>
                 Firma en aceptación asistencia y su
                 respectivo pago
             </strong>
         </p>
-        <div style="border-top: 3px solid #000; margin-top: 50px;">
+        <!-- <div style="border-top: 3px solid #000; margin-top: 50px;">
             @foreach ($settings as $setting)
             <p>Dirección: {{ $setting->direction }}</p>
             <p>Telef: {{ $setting->phone }} - R.I.F:{{ $setting->rif }}</p>
             @endforeach
-        </div>
+        </div> -->
 
     </div>
 </body>

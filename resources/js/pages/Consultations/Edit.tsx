@@ -1,4 +1,3 @@
-import AppLayout from '@/layouts/app-layout';
 import { ContentLayout } from '@/layouts/content-layout';
 import { Consultation, Patient, PaymentMethod, Service, User, MedicalRecord, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
@@ -211,7 +210,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
             {(!consultation.medical_records || consultation.medical_records.length === 0) && (
                 <div className="mt-8 py-6">
                     <h2 className="text-xl font-bold mb-4">Historial Médico del Paciente</h2>
-                    <p className="text-gray-600">No hay registros médicos asociados a esta consulta.</p>
+                    <p className="text-gray-600">No hay registros médicos asociados a esta asistencia.</p>
                 </div>
             )}
         </ContentLayout>

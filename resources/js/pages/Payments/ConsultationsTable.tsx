@@ -36,10 +36,10 @@ export default function ConsultationsTable({ pendingConsultations, data, toggleC
                   className="form-checkbox h-4 w-4 text-blue-600 rounded-md transition duration-150 ease-in-out"
                 />
               </TableCell>
-              <TableCell>{consultation.services ? JSON.parse(consultation.services).map((s: any) => s.name).join(', ') : `Consulta #${consultation.id}`}</TableCell>
-              <TableCell>${amount.toFixed(2)}</TableCell>
-              <TableCell>${amountPaid.toFixed(2)}</TableCell>
-              <TableCell>${pendingAmount.toFixed(2)}</TableCell>
+              <TableCell>{consultation.services ? JSON.parse(consultation.services).map((s: any) => s.name).join(', ') : `Asistencia #${consultation.id}`}</TableCell>
+              <TableCell>{amount.toFixed(2)}</TableCell>
+              <TableCell>{amountPaid.toFixed(2)}</TableCell>
+              <TableCell>{pendingAmount.toFixed(2)}</TableCell>
             </TableRow>
           );
         })}

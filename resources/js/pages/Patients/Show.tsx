@@ -6,13 +6,13 @@ import { Patient, type BreadcrumbItem, Consultation, PatientSubscription } from 
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, List, PenBox } from 'lucide-react';
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { subscriptionColumns } from './subscriptionColumns';
-import { pdf, PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 import ConsultationPDF from '@/components/pdf/ConsultationPdf';
 import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

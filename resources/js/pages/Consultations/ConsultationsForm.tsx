@@ -65,7 +65,7 @@ export default function ConsultationsForm({
     useEffect(() => {
         const total = data.service_id.reduce((total, serviceId) => {
             const service = services.find(s => s.id === serviceId);
-            return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || '0'));
+            return total + (data.subscription_use === 'yes' ? 0 : parseFloat(String(service?.price ?? '0')));
         }, 0);
         setData('amount', total);
     }, [data.service_id, data.subscription_use, services]);
@@ -116,14 +116,14 @@ export default function ConsultationsForm({
             )}
 
             <div>
-                <Label htmlFor="consultation_type" className="my-2 block font-semibold text-gray-700">Tipo de Consulta</Label>
+                <Label htmlFor="consultation_type" className="my-2 block font-semibold text-gray-700">Tipo de asistencia</Label>
                 <Select
                     id="consultation_type"
                     options={consultationTypeOptions}
                     value={consultationTypeOptions.find(option => option.value === data.consultation_type) || null}
                     onChange={(selectedOption) => setData('consultation_type', selectedOption?.value ?? '')}
                     isSearchable
-                    placeholder="Selecciona el tipo de consulta..."
+                    placeholder="Selecciona el tipo de asistencia..."
                     className="rounded-md"
                 />
                 <InputError message={errors.consultation_type} />
@@ -164,13 +164,13 @@ export default function ConsultationsForm({
 
                     {data.subscription_use === 'yes' && (
                         <p className="text-gray-500 text-sm">
-                            Se aplicará la funcional #{activeSub?.id} (Consultas restantes: {activeSub?.consultations_remaining})
+                            Se aplicará la funcional #{activeSub?.id} (Asistencias restantes: {activeSub?.consultations_remaining})
                         </p>
                     )}
                     {data.subscription_use === 'no' && (
                         <p className="text-gray-500 text-sm">
                             No se aplicará ninguna funcionalidad adicional. <br />
-                            Una vez creada la asistencia, si eliminas el uso de la funcional, se reintegrará la consulta usada.
+                            Una vez creada la asistencia, si eliminas el uso de la funcional, se reintegrará la asistencia usada.
                         </p>
                     )}
                 </div>
@@ -223,12 +223,15 @@ export default function ConsultationsForm({
                 }
             />
             <div className="flex justify-end font-bold text-lg col-span-full">
+                <div className="border px-4 py-2 rounded-sm bg-gray-100">
+
                 Total: ${
                     data.service_id.reduce((total, serviceId) => {
                         const service = services.find(s => s.id === serviceId);
-                        return total + (data.subscription_use === 'yes' ? 0 : parseFloat(service?.price || '0'));
+                        return total + (data.subscription_use === 'yes' ? 0 : parseFloat(String(service?.price ?? '0')));
                     }, 0).toFixed(2)
                 }
+                </div>
             </div>
 
             <div className="col-span-full">

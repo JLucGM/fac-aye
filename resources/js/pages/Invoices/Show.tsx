@@ -1,16 +1,11 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import { Invoice, type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { Download, ImageIcon } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import InputError from '@/components/input-error';
-import PatientInfo from '@/components/patients-info';
+import PatientInfo from "@/components/patients-info";
 
 // Definición de las migas de pan para la navegación
 const breadcrumbs: BreadcrumbItem[] = [
@@ -38,7 +33,7 @@ type MediaItem = {
 // Componente principal de React para la vista de la factura
 export default function Show({ invoice }: { invoice: Invoice }) {
     // Busca la imagen de la factura en los medios asociados
-    const invoice_img = invoice.media.find((mediaItem: MediaItem) => mediaItem.collection_name === 'invoice_img');
+    // const invoice_img = invoice.media.find((mediaItem: MediaItem) => mediaItem.collection_name === 'invoice_img');
     // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     // Inicializa el formulario con Inertia.js `useForm`
@@ -131,8 +126,8 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                                     <TableRow key={item.id}>
                                         <TableCell>{item.quantity}</TableCell>
                                         <TableCell className="text-right">{item.service_name}</TableCell>
-                                        <TableCell className="text-right">${item.unit_price}</TableCell>
-                                        <TableCell className="text-right">${item.line_total}</TableCell>
+                                        <TableCell className="text-right">{item.unit_price}</TableCell>
+                                        <TableCell className="text-right">{item.line_total}</TableCell>
                                     </TableRow>
                                 ))}
                                 <TableRow className="font-bold">
@@ -146,7 +141,7 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                                         )}
                                     </TableCell>
                                     <TableCell colSpan={2} className="text-right">Total:</TableCell>
-                                    <TableCell className="text-right">${invoice.total_amount}</TableCell>
+                                    <TableCell className="text-right">{invoice.total_amount}</TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>

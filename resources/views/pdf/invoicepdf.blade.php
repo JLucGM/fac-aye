@@ -113,8 +113,8 @@
     <div style="margin-top: 100px;" class="clearfix">
         <div class="company-info">
             <h4>Información de la Empresa</h4>
-            <p><strong>Nombre:</strong> {{ $settings->name ?? 'N/A' }}</p>
-            <p><strong>RIF:</strong> {{ $settings->rif ?? 'N/A' }}</p>
+            <p>{{ $settings->name ?? 'N/A' }}</p>
+            <p><strong>R.I.F:</strong> {{ $settings->rif ?? 'N/A' }}</p>
             <p><strong>Dirección:</strong> {{ $settings->direction ?? 'N/A' }}</p>
             <p><strong>Teléfono:</strong> {{ $settings->phone ?? 'N/A' }}</p>
             <p><strong>Email:</strong> {{ $settings->email ?? 'N/A' }}</p>
@@ -142,8 +142,8 @@
     <table>
         <thead>
             <tr>
-                <th>Descripción</th>
                 <th>Cantidad</th>
+                <th>Descripción</th>
                 <th>Precio Unitario</th>
                 <th>Total de Línea</th>
             </tr>
@@ -151,8 +151,8 @@
         <tbody>
             @foreach($invoice->items as $item)
             <tr>
-                <td>{{ $item->service_name }}</td>
                 <td>{{ $item->quantity }}</td>
+                <td>{{ $item->service_name }}</td>
                 <td>{{ number_format($item->unit_price, 2, ',', '.') }}</td>
                 <td>{{ number_format($item->line_total, 2, ',', '.') }}</td>
             </tr>
@@ -186,7 +186,7 @@
     @endif
 
     <div class="footer">
-        <p>Factura generada por {{ $auth->name }} {{ $auth->lastname }} el {{ $fechaHoy->format('d/m/Y') }}</p>
+        <!-- <p>Factura generada por {{ $auth->name }} {{ $auth->lastname }} el {{ $fechaHoy->format('d/m/Y') }}</p> -->
         <p>Gracias por su preferencia.</p>
     </div>
 

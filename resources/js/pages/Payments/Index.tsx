@@ -36,7 +36,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('asistencias');
 
-  // Obtener métodos de pago únicos
+  // Obtener métodos de pago únicoss
   const paymentMethods = [
     ...new Set(payments.map(p => p.payment_method?.name).filter(Boolean))
   ].sort();

@@ -118,11 +118,11 @@ export const columns: ColumnDef<Invoice>[] = [
                 Descargar factura
               </Button>
             </DropdownMenuItem>
-            {/* <DropdownMenuItem>
+            <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start'} href={route('invoices.show', [row.original.id])} >
                 <Eye className="mr-2 h-4 w-4" /> Mostrar
               </Link>
-            </DropdownMenuItem> */}
+            </DropdownMenuItem>
             <DropdownMenuItem>
               <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start'} href={route('invoices.edit', [row.original.id])} >
                 <Edit className="mr-2 h-4 w-4" /> Editar

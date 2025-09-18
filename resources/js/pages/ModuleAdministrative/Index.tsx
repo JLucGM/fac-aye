@@ -55,7 +55,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-4">
 
-                    <h3 className="font-medium">Cierres del día actual:</h3>
+                    <h3 className="font-medium">Pagos</h3>
 
                     <Link
                         className={buttonVariants({ variant: "default" })}
@@ -63,7 +63,7 @@ const Index = () => {
                     >
                         Registros de Pagos
                     </Link>
-                    <h3 className="font-medium">Cierres del día actual:</h3>
+                    <h3 className="font-medium">Cuentas por pagar</h3>
 
                     <Link
                         className={buttonVariants({ variant: "default" })}

@@ -63,7 +63,7 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
     return (
         <Document>
             <Page style={styles.page}>
-                <View style={styles.header}>
+                {/* <View style={styles.header}> 
                     {logoUrl && (
                         <Image
                             src={logoUrl} // Usa el componente Image para mostrar el logo
@@ -74,9 +74,9 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
                     <Text style={{ fontSize: 12 }}>Nombre: {settings.name}</Text>
                     <Text style={{ fontSize: 12 }}>Dirección: {settings.direction}</Text>
                     <Text style={{ fontSize: 12 }}>Teléfono: {settings.phone} - RIF: {settings.rif}</Text>
-                </View>
+                </View>*/}
 
-                <Text style={{ fontSize: 18, marginBottom: 10 }}>Reporte de Consultas del Paciente</Text>
+                <Text style={{ fontSize: 16, marginBottom: 10 }}>Reporte de Consultas del Paciente</Text>
 
                 {patient && (
                     <View style={{ marginBottom: 20 }}>
@@ -114,9 +114,9 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
                     ))}
                 </View>
                 {/* Pie de página con info de Setting */}
-                <View style={styles.footer}>
+                {/* <View style={styles.footer}>
                     <Text>Dirección: {settings.direction} - Teléfono: {settings.phone} - RIF: {settings.rif}</Text>
-                </View>
+                </View> */}
             </Page>
         </Document>
     );

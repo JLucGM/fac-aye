@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreInvoiceRequest;
 use App\Models\Consultation;
 use App\Models\Invoice;
 use App\Models\Patient;
@@ -52,22 +53,16 @@ class InvoiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreInvoiceRequest $request)
     {
         // 1. Validar los datos
-        $validatedData = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'invoice_number' => 'required|string|max:255',
-            'invoice_date' => 'required|date',
-            'notes' => 'nullable|string|max:1000',
-            'payment_method_id' => 'required|exists:payment_methods,id', // Validación para el método de pago
-            'items' => 'required|array|min:1',
-            'items.*.service_name' => 'required|string|max:255', // Validación para el nombre del servicio
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.line_total' => 'required|numeric|min:0',
-            // 'invoice_img' => 'nullable'
-        ]);
+        $validatedData = $request->validated();
+
+        // 2. Calcular subtotal y total_amount
+        $subtotal = 0;
+        foreach ($validatedData['items'] as $item) {
+            $subtotal += $item['line_total'];
+        }
 
         // 2. Calcular subtotal y total_amount
         $subtotal = 0;
