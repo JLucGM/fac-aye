@@ -234,7 +234,7 @@ class PaymentController extends Controller
         $paymentMethods = PaymentMethod::where('active', 1)->get();
         $patients = Patient::all();
         $consultations = Consultation::with('patient', 'user')->get();
-
+// dd($payment);
         return Inertia::render('Payments/Edit', compact('payment', 'paymentMethods', 'patients', 'consultations'));
     }
 

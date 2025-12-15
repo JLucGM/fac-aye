@@ -1,1 +1,0 @@
-import{K as s,j as p}from"./app-efENkHWt.js";function n(r){const{logo:o}=s().props,t=typeof o=="string"?o:"/path/to/default-logo.png";return p.jsx("img",{src:t,alt:"FisioArebolledo",className:"h-20 w-auto"})}export{n as A};

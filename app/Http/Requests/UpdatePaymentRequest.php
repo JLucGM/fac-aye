@@ -11,7 +11,7 @@ class UpdatePaymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,7 +26,7 @@ class UpdatePaymentRequest extends FormRequest
             'consultation_id' => 'nullable|exists:consultations,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',
-            'status' => 'in:pendiente,completado,fallido',
+            'status' => 'in:pendiente,parcial,pagado,incobrable,reembolsado',
             'reference' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:1000',
             'paid_at' => 'nullable|date',

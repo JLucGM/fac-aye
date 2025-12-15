@@ -11,7 +11,8 @@ type PaymentsFormProps = {
   data: CreatePaymentFormData;
   patients: Patient[];
   paymentMethods: PaymentMethod[];
-  consultations?: Consultation[];
+  consultations: Consultation[]; 
+  initialSelectedConsultationIds?: number[];
   setData: (key: string, value: any) => void;
   errors: {
     patient_id?: string;
@@ -25,10 +26,18 @@ type PaymentsFormProps = {
   };
 };
 
-export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], setData, errors }: PaymentsFormProps) {
+export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], initialSelectedConsultationIds = [], setData, errors }: PaymentsFormProps) {
+
+  // --- 1. Inicialización de Estados ---
+  
+  const initialPaymentType = (data.consultation_ids?.length || 0) > 0 
+    ? 'consulta' 
+    : ((data.subscription_ids?.length || 0) > 0 ? 'suscripcion' : 'consulta');
 
   const [pendingItems, setPendingItems] = useState<(Consultation | Subscription)[]>([]);
-  const [paymentType, setPaymentType] = useState<'consulta' | 'suscripcion'>('consulta');
+  const [paymentType, setPaymentType] = useState<'consulta' | 'suscripcion'>(initialPaymentType);
+
+  // --- 2. Opciones de Select ---
 
   const patientOptions = Array.isArray(patients) ? patients.map(patient => ({
     value: Number(patient.id),
@@ -48,9 +57,11 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
     { value: 'reembolsado', label: 'Reembolsado' },
   ];
 
+  // --- 3. Handlers de Eventos ---
+
   const handleItemSelection = (itemId: number) => {
     let newSelection;
-    let dataKey;
+    let dataKey: 'consultation_ids' | 'subscription_ids';
 
     if (paymentType === 'consulta') {
       newSelection = [...(data.consultation_ids || [])];
@@ -70,14 +81,14 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
     setData(dataKey, newSelection);
 
-    // Calcular el monto total basado en el tipo de pago y saldo pendiente
+    // Recalcular el monto total
     const selectedItems = pendingItems.filter(item => newSelection.includes(item.id));
     const totalAmount = selectedItems.reduce((total, item) => {
       let amount = 0;
 
       if (paymentType === 'consulta') {
         const amountNum = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
-        const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid));
+        const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid || 0));
         amount = (amountNum - (amountPaidNum || 0)) || 0;
       } else {
         const subscription = item as Subscription;
@@ -102,29 +113,73 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
     setData('amount', 0);
   };
 
+  // --- 4. useEffects para Lógica Dinámica ---
+
   useEffect(() => {
     setData('payment_type', paymentType);
   }, [paymentType]);
 
+  // Manejar el cambio de paciente o tipo de pago para filtrar items
   useEffect(() => {
-    if (data.patient_id) {
-      const patient = patients.find(p => p.id === data.patient_id);
+    const currentPatientId = data.patient_id;
+
+    // A. Asegurarse de que los IDs seleccionados son NÚMEROS para la comparación
+    const selectedConsultationIds = new Set<number>(
+        (data.consultation_ids || []).map(id => Number(id))
+    );
+    const selectedSubscriptionIds = new Set<number>(
+        (data.subscription_ids || []).map(id => Number(id))
+    );
+
+    if (currentPatientId) {
+      const patient = patients.find(p => p.id === currentPatientId);
+      let filteredItems: (Consultation | Subscription)[] = [];
+
       if (paymentType === 'consulta') {
-        const filtered = consultations.filter(
-          c => c.patient_id === data.patient_id && c.payment_status !== "pagado"
-        );
-        setPendingItems(filtered);
+        
+        // B. Lógica de inclusión: Muestra consultas pendientes O las consultas seleccionadas para este pago
+        const filteredConsultations = consultations
+            .filter(c => c.patient_id === currentPatientId)
+            .filter(c => {
+                // Si ya está seleccionada para este pago, se incluye
+                const isSelectedForThisPayment = selectedConsultationIds.has(c.id);
+                
+                // Si su estado es "pagado" pero NO es la seleccionada, se excluye
+                const isPending = c.payment_status !== "pagado"; 
+
+                return isPending || isSelectedForThisPayment;
+            });
+
+        filteredItems = filteredConsultations;
+        
       } else if (paymentType === 'suscripcion') {
+        
         const subscriptions = patient?.subscriptions || [];
+        
+        // Incluir suscripciones que están pendientes o que ya están seleccionadas en este pago.
         const filteredSubscriptions = subscriptions.filter(
-          s => s.payment_status !== "pagado"
+          s => s.payment_status !== "pagado" || selectedSubscriptionIds.has(s.id)
         );
-        setPendingItems(filteredSubscriptions);
+        filteredItems = filteredSubscriptions;
       }
+      
+      setPendingItems(filteredItems);
+
     } else {
       setPendingItems([]);
     }
-  }, [data.patient_id, consultations, paymentType, patients]);
+  }, [
+    data.patient_id, 
+    consultations, 
+    paymentType, 
+    patients,
+    data.consultation_ids, 
+    data.subscription_ids
+  ]);
+
+  // --- 5. Renderizado ---
+
+  const selectedPatientOption = patientOptions.find(option => option.value === Number(data.patient_id)) || null;
 
   return (
     <div className="space-y-6">
@@ -180,7 +235,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
             <Select
               id="patient_id"
               options={patientOptions}
-              value={patientOptions.find(option => option.value === Number(data.patient_id)) || null}
+              value={selectedPatientOption}
               onChange={handlePatientChange}
               isSearchable
               placeholder="Selecciona un paciente..."
@@ -223,6 +278,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
               pendingConsultations={pendingItems as Consultation[]}
               data={data}
               toggleConsultationSelection={handleItemSelection}
+              initialSelectedConsultationIds={initialSelectedConsultationIds}
             />
           ) : (
             <div className="text-gray-500 text-sm mt-2">
@@ -265,12 +321,12 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           .reduce((sum, item) => {
             if (paymentType === 'consulta') {
               const amountNum = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
-              const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid));
+              const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid || 0));
               return sum + ((amountNum - (amountPaidNum || 0)) || 0);
             } else {
               return sum + ((item as Subscription).subscription?.price ?? 0);
             }
-          }, 0)}
+          }, 0).toFixed(2)}
       </div>
 
       <div>

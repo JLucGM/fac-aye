@@ -75,11 +75,7 @@ export default function Create({ paymentMethods, patients, consultations }: { pa
                 </form>
 
                 <div className="mt-4">
-                    {/* {selectedPatient ? ( */}
                         <PatientInfo patient={selectedPatient} />
-                    {/* ) : (
-                        <p>No se ha seleccionado ningún paciente.</p>
-                    )}*/}
                 </div>
             </div>
         </ContentLayout>

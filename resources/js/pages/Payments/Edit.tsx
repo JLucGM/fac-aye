@@ -4,6 +4,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentsForm from './PaymentsForm';
 import Heading from '@/components/heading';
+import PatientInfo from '@/components/patients-info';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,9 +22,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Edit({ payment, paymentMethods, patients, consultations }: { payment: Payment, paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
+
+    // --- CORRECCIÓN CLAVE: OBTENER IDs DE CONSULTA DE LA RELACIÓN CARGADA ---
+    // Mapeamos la relación 'consultations' para obtener solo los IDs [4]
+    const initialConsultationIds = (payment.consultations || []).map(c => c.id);
+
+    // Tu JSON de ejemplo ya tiene patient_id: 6, por lo que esto debería estar bien
+    const initialPatientId = payment.patient_id ||
+        (payment.consultations?.[0]?.patient_id) ||
+        null;
+
     const { data, setData, errors, put, recentlySuccessful } = useForm({
-        patient_id: payment.patient_id || null, // Agrega esta línea para inicializar patient_id
-        consultation_ids: payment.consultation_ids || [], // Asegúrate de que sea un array
+        patient_id: initialPatientId,
+        // Inicializamos con los IDs de las consultas ya asociadas
+        consultation_ids: initialConsultationIds,
+
         payment_method_id: payment.payment_method_id,
         amount: payment.amount,
         status: payment.status,
@@ -44,6 +57,8 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
         });
     };
 
+    const selectedPatient = patients.find(patient => patient.id === data.patient_id);
+
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
             <Head title="Editar Pago" />
@@ -51,20 +66,28 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
                 title="Editar Pago"
                 description="Aquí puedes editar un pago existente."
             />
-            <form className="flex flex-col gap-4" onSubmit={submit}>
-                <PaymentsForm
-                    data={data}
-                    patients={patients}
-                    paymentMethods={paymentMethods}
-                    consultations={consultations}
-                    setData={setData}
-                    errors={errors}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                <Button variant={"default"}>
-                    Actualizar Pago
-                </Button>
-            </form>
+                <form className="col-span-2 gap-4" onSubmit={submit}>
+                    <PaymentsForm
+                        data={data}
+                        patients={patients}
+                        paymentMethods={paymentMethods}
+                        consultations={consultations}
+                        setData={setData}
+                        errors={errors}
+                        initialSelectedConsultationIds={initialConsultationIds}
+                    />
+
+                    <Button variant={"default"} className='w-full mt-4'>
+                        Actualizar Pago
+                    </Button>
+                </form>
+
+                <div className="mt-4">
+                    <PatientInfo patient={selectedPatient} />
+                </div>
+            </div>
         </ContentLayout>
     );
 }

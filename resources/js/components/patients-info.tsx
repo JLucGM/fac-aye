@@ -26,7 +26,7 @@ export default function PatientInfo({ patient }: { patient: Patient }) {
   }
 
   return (
-    <header>
+    <header className="bg-gray-100 p-4 rounded-lg border">
       <h3 className="mb-0.5 text-base font-medium">Información del paciente</h3>
       <div>
         <p>Nombre: {patient.name} {patient.lastname}</p>
