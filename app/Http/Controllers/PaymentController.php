@@ -51,6 +51,7 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
 {
+    // dd($request->all());
     DB::transaction(function () use ($request) {
         $patientId = $request->patient_id;
         $paymentAmount = $request->amount;
@@ -69,7 +70,7 @@ class PaymentController extends Controller
             'patient_id' => $patientId,
             'payment_method_id' => $request->payment_method_id,
             'amount' => $paymentAmount,
-            'status' => 'pendiente',
+            'status' => $request->status,
             'reference' => $request->reference,
             'notes' => $request->notes,
             'payment_type' => $paymentType,
