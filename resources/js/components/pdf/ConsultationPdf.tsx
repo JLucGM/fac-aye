@@ -93,7 +93,7 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
                         <Text style={styles.tableColHeader}>C.I</Text>
                         <Text style={styles.tableColHeader}>Nombre</Text>
                         <Text style={styles.tableColHeader}>Apellido</Text>
-                        <Text style={styles.tableColHeader}>Fecha Programada</Text>
+                        <Text style={styles.tableColHeader}>Fecha</Text>
                         <Text style={styles.tableColHeader}>Estado de Pago</Text>
                         <Text style={styles.tableColHeader}>Firma</Text>
                     </View>
@@ -102,7 +102,7 @@ const ConsultationPDF = ({ consultations, patient, settings, logoUrl, signatureU
                             <Text style={styles.tableCol}>{patient.identification}</Text>
                             <Text style={styles.tableCol}>{patient.name}</Text>
                             <Text style={styles.tableCol}>{patient.lastname}</Text>
-                            <Text style={styles.tableCol}>{new Date(consulta.scheduled_at).toLocaleString()}</Text>
+                            <Text style={styles.tableCol}>{new Date(consulta.created_at).toLocaleString()}</Text>
                             <Text style={styles.tableCol}>{consulta.payment_status}</Text>
                             {signatureUrl && (
                         <Image

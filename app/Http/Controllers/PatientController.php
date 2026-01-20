@@ -307,4 +307,58 @@ class PatientController extends Controller
 
         return Inertia::render('Patients/ShowBalanceTransactions', compact('patient'));
     }
+
+    /**
+     * Update patient balance and credit.
+     */
+    public function updateBalance(Request $request, Patient $patient)
+    {
+        $request->validate([
+            'balance' => 'required|numeric|min:-999999.99|max:999999.99',
+            'credit' => 'required|numeric|min:0|max:999999.99',
+            'description' => 'required|string|max:1000',
+        ]);
+        // dd($request->all());
+
+        DB::transaction(function () use ($request, $patient) {
+            // Calcular diferencias
+            $balanceDifference = bcsub($request->balance, $patient->balance, 2);
+            $creditDifference = bcsub($request->credit, $patient->credit, 2);
+
+            // Registrar transacción para balance si hay cambio
+            if ($balanceDifference != '0.00') {
+                PatientBalanceTransaction::create([
+                    'patient_id' => $patient->id,
+                    'amount' => $balanceDifference,
+                    'type' => 'balance_adjustment',
+                    'description' => $request->description . ' (Ajuste de balance: ' .
+                        ($balanceDifference > 0 ? '+' : '') . $balanceDifference . ')',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Registrar transacción para crédito si hay cambio
+            if ($creditDifference != '0.00') {
+                PatientBalanceTransaction::create([
+                    'patient_id' => $patient->id,
+                    'amount' => $creditDifference,
+                    'type' => 'credit_adjustment',
+                    'description' => $request->description . ' (Ajuste de crédito: ' .
+                        ($creditDifference > 0 ? '+' : '') . $creditDifference . ')',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Actualizar paciente
+            $patient->update([
+                'balance' => $request->balance,
+                'credit' => $request->credit,
+            ]);
+        });
+
+        return redirect()->back()
+            ->with('success', 'Balance y crédito actualizados exitosamente.');
+    }
 }

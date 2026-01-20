@@ -5,7 +5,7 @@ import { ContentLayout } from '@/layouts/content-layout';
 import { Patient, type BreadcrumbItem, Consultation, PatientSubscription } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
-import { ChevronsDown, ChevronsUp, List, PenBox } from 'lucide-react';
+import { ChevronsDown, ChevronsUp, EllipsisVertical, List, PenBox } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,8 @@ import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HeadingSmall from '@/components/heading-small';
 import PatientInfo from '@/components/patients-info';
+import UpdateBalanceDialog from '@/components/patients/UpdateBalanceDialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Inicio', href: '/dashboard' },
@@ -46,7 +48,7 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
   const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
   const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
-
+  console.log(patient)
   const [paymentStatus, setPaymentStatus] = useState<string>('all');
   const [consultationType, setConsultationType] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
@@ -114,22 +116,40 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Ver Paciente" />
-      <Heading title={`${patient.name} ${patient.lastname}`} description="Detalles del paciente">
+      <Heading title={`${patient.name} ${patient.lastname} C.I: ${patient.identification}`} description="Detalles del paciente">
         <div className="flex gap-4">
+          <UpdateBalanceDialog
+            patient={patient}
+          />
 
-        <Button asChild>
-          <Link className="btn btn-primary" href={route('patients.edit', [patient])}>
-            <PenBox />
-            Actualizar paciente
-          </Link>
-        </Button>
-        
-        <Button asChild>
-          <Link className="btn btn-primary" href={route('patients.showBalanceTransactions', [patient])}>
-            <List />
-            Ver transacciones de balance
-          </Link>
-        </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Button asChild variant={'ghost'}>
+                    <Link href={route('patients.edit', [patient])}>
+                      <PenBox />
+                      Actualizar paciente
+                    </Link>
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Button asChild variant={'ghost'}>
+                    <Link href={route('patients.showBalanceTransactions', [patient])}>
+                      <List />
+                      Ver transacciones de balance
+                    </Link>
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
         </div>
       </Heading>
 
@@ -255,8 +275,8 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
               <div className="flex justify-between">
                 <HeadingSmall title='Asistencias' description="Lista de asistencias del paciente" />
                 <Button onClick={handleOpenPdf}>
-            Informe de Asistencia
-          </Button>
+                  Informe de Asistencia
+                </Button>
               </div>
 
               <DataTable columns={consultationColumns} data={filteredConsultations} />
