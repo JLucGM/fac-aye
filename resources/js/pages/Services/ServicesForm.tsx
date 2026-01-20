@@ -1,7 +1,7 @@
 import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Service, ServiceFormData } from "@/types";
+import { ServiceFormData } from "@/types";
 
 type ServicesFormProps = {
     data: ServiceFormData;
@@ -10,8 +10,10 @@ type ServicesFormProps = {
         name?: string;
         description?: string;
         price?: string;
+        is_courtesy?: string;
     };
 };
+
 export default function ServicesForm({ data, setData, errors }: ServicesFormProps) {
     return (
         <>
@@ -54,6 +56,18 @@ export default function ServicesForm({ data, setData, errors }: ServicesFormProp
                 <InputError message={errors.description} className="mt-2" />
             </div>
 
+            <div className="flex items-center space-x-2">
+                <input
+                    type="checkbox"
+                    id="is_courtesy"
+                    name="is_courtesy"
+                    checked={data.is_courtesy || false}
+                    onChange={(e) => setData('is_courtesy', e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
+                />
+                <Label htmlFor="is_courtesy">¿Es de cortesía? (gratis)</Label>
+                <InputError message={errors.is_courtesy} className="mt-2" />
+            </div>
         </>
     );
 }

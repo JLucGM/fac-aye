@@ -39,9 +39,9 @@ class ServiceController extends Controller
      */
     public function store(StoreServiceRequest $request)
     {
-        Service::create($request->validated());
+        $service = Service::create($request->validated());
 
-        return redirect()->route('services.index');
+        return route('services.edit', $service);
     }
 
 
@@ -69,7 +69,7 @@ class ServiceController extends Controller
     {
         // dd($request->validated());
         $service->update($request->validated());
-        return redirect()->route('services.index');
+        return back();
     }
 
     /**

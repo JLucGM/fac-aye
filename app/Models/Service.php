@@ -17,6 +17,7 @@ class Service extends Model
         'slug',
         'price',
         'description',
+        'is_courtesy',
     ];
 
     protected $casts = [

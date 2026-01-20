@@ -25,6 +25,7 @@ class UpdateServiceRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
+            'is_courtesy' => 'nullable|boolean',
         ];
     }
 
@@ -41,6 +42,8 @@ class UpdateServiceRequest extends FormRequest
             'price.required' => 'El campo precio es obligatorio.',
             'price.numeric' => 'El precio debe ser un número.',
             'price.min' => 'El precio no puede ser menor que 0.',
+
+            'is_courtesy.boolean' => 'Debe ser un campo booleano'
         ];
     }
 }

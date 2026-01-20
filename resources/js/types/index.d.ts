@@ -74,16 +74,16 @@ export interface Patient {
 }
 
 export interface PatientBalanceTransaction {
-  id: number;
-  amount: string; // monto como string con decimales, ej. "-40.00"
-  type: string; // tipo de transacción, ej. "pago_consulta", "suscripcion", etc.
-  description: string; // descripción detallada
-  patient_id: number;
-  consultation_id: number | null; // puede ser null si no aplica
-  patient_subscription_id: number | null; // puede ser null si no aplica
-  payment_id: number | null; // puede ser null si no aplica
-  created_at: string; // fecha ISO string
-  updated_at: string; // fecha ISO string
+    id: number;
+    amount: string; // monto como string con decimales, ej. "-40.00"
+    type: string; // tipo de transacción, ej. "pago_consulta", "suscripcion", etc.
+    description: string; // descripción detallada
+    patient_id: number;
+    consultation_id: number | null; // puede ser null si no aplica
+    patient_subscription_id: number | null; // puede ser null si no aplica
+    payment_id: number | null; // puede ser null si no aplica
+    created_at: string; // fecha ISO string
+    updated_at: string; // fecha ISO string
 }
 
 
@@ -105,6 +105,7 @@ export interface Service {
     slug: string;
     price: number; // decimal e.g. 10.50
     description?: string;
+    is_courtesy: boolean;
     created_at: string;
     updated_at: string;
     // Relationships
@@ -333,7 +334,7 @@ export type CreateInvoiceFormData = {
     invoice_number: string; // Generado automáticamente en el backend
     patient_id: number | null;
     invoice_date: string; // YYYY-MM-DD
-payment_method_id: number | null;
+    payment_method_id: number | null;
     notes: string;
     items: InvoiceItemFormData[]; // Array de ítems de la factura
 };
@@ -368,6 +369,7 @@ export interface ServiceFormData {
     description: string; // La descripción del servicio. Aunque en el backend pueda ser opcional,
     // en el formulario lo manejamos como un string (posiblemente vacío).
     price: number; // El precio del servicio
+    is_courtesy?: boolean;
     [key: string]: any; // Una firma de índice que permite que la interfaz sea más flexible,
     // útil cuando se trabaja con funciones como `setData` que pueden acceder
     // a las propiedades mediante claves de cadena.

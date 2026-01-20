@@ -49,13 +49,29 @@ export default function ConsultationsForm({
         label: `${service.name} - $ ${service.price}`
     }));
 
-    // Opciones de estado de pago basadas en si se usa funcional o no
+    const hasCourtesyService = data.service_id.some(serviceId => {
+        const service = services.find(s => s.id === serviceId);
+        return service?.is_courtesy;
+    });
+
+    // Efecto para manejar cambios cuando hay servicios de cortesía
+    useEffect(() => {
+        // Si hay un servicio de cortesía, establecer como pagado
+        if (hasCourtesyService && data.subscription_use === 'no') {
+            setData('payment_status', 'pagado');
+        }
+    }, [hasCourtesyService, data.subscription_use]);
+
+    // Opciones de estado de pago (modificadas)
     const paymentStatusOptions = data.subscription_use === 'yes'
         ? [{ value: 'pagado', label: 'Pagado' }]
-        : [
-            { value: 'pendiente', label: 'Pendiente' },
-            { value: 'reembolsado', label: 'Reembolsado' },
-        ];
+        : hasCourtesyService
+            ? [{ value: 'pagado', label: 'Pagado (Cortesía)' }]
+            : [
+                { value: 'pendiente', label: 'Pendiente' },
+                { value: 'pagado', label: 'Pagado' },
+                { value: 'reembolsado', label: 'Reembolsado' },
+            ];
 
     const consultationTypeOptions = [
         { value: 'consultorio', label: 'Consultorio' },
@@ -139,8 +155,13 @@ export default function ConsultationsForm({
                     isSearchable
                     placeholder="Selecciona el estado de pago..."
                     className="rounded-md"
-                    isDisabled={data.subscription_use === 'yes'}
+                    isDisabled={data.subscription_use === 'yes' || hasCourtesyService}
                 />
+                {hasCourtesyService && (
+                    <p className="text-sm text-green-600 mt-1">
+                        Esta consulta es de cortesía. Se marcará automáticamente como pagada.
+                    </p>
+                )}
                 <InputError message={errors.payment_status} />
             </div> */}
 
@@ -225,12 +246,12 @@ export default function ConsultationsForm({
             <div className="flex justify-end font-bold text-lg col-span-full">
                 <div className="border px-4 py-2 rounded-sm bg-gray-100">
 
-                Total: ${
-                    data.service_id.reduce((total, serviceId) => {
-                        const service = services.find(s => s.id === serviceId);
-                        return total + (data.subscription_use === 'yes' ? 0 : parseFloat(String(service?.price ?? '0')));
-                    }, 0).toFixed(2)
-                }
+                    Total: ${
+                        data.service_id.reduce((total, serviceId) => {
+                            const service = services.find(s => s.id === serviceId);
+                            return total + (data.subscription_use === 'yes' ? 0 : parseFloat(String(service?.price ?? '0')));
+                        }, 0).toFixed(2)
+                    }
                 </div>
             </div>
 

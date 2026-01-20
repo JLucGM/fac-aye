@@ -25,6 +25,7 @@ export default function Create() {
         name: '',
         description: '',
         price: 0,
+        is_courtesy: false,
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {

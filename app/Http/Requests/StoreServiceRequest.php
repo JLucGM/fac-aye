@@ -25,6 +25,7 @@ class StoreServiceRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'is_courtesy' => 'nullable|boolean',
             // 'duration' => 'required|integer|min:1',
             // 'category_id' => 'required|exists:categories,id',
             // 'active' => 'boolean',
@@ -44,6 +45,7 @@ class StoreServiceRequest extends FormRequest
             'price.numeric' => 'El precio debe ser un número.',
             'price.min' => 'El precio no puede ser menor que 0.',
 
+            'is_courtesy.boolean' => 'Debe ser un campo booleano'
             // Si decides habilitar las siguientes reglas, puedes agregar sus mensajes aquí:
             // 'duration.required' => 'El campo duración es obligatorio.',
             // 'duration.integer' => 'La duración debe ser un número entero.',

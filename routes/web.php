@@ -45,9 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ]);
 
     Route::get('subscription-patient', [PatientController::class, 'subscriptionpatientstore'])->name('subscriptionpatient.store');
-Route::post('/patients/subscription', [PatientController::class, 'updateSubscription'])->name('patients.subscription.update');
-Route::get('/balance-transactions/{patient}', [PatientController::class, 'showBalanceTransactions'])->name('patients.showBalanceTransactions');
-Route::post('/patients/{patient}/update-balance', [PatientController::class, 'updateBalance'])->name('patients.updateBalance');
+    Route::post('/patients/subscription', [PatientController::class, 'updateSubscription'])->name('patients.subscription.update');
+    Route::get('/balance-transactions/{patient}', [PatientController::class, 'showBalanceTransactions'])->name('patients.showBalanceTransactions');
+    Route::post('/patients/{patient}/update-balance', [PatientController::class, 'updateBalance'])->name('patients.updateBalance');
 
     Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');
     Route::get('first-visit', [ModuleOperationController::class, 'first_visit_index'])->name('module-operation.first_visit_index');
@@ -66,11 +66,11 @@ Route::post('/patients/{patient}/update-balance', [PatientController::class, 'up
     Route::get('/pagos-del-dia', [ClosuresController::class, 'pagosDelDia'])->name('pagos.del.dia');
     Route::get('/cierre/por/rango', [ClosuresController::class, 'cierrePorRango'])->name('cierre.por.rango');
     Route::get('/pagos/por/rango', [ClosuresController::class, 'pagosPorRango'])->name('pagos.por.rango');
-    
-Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'invoicePdf'])->name('invoices.pdf');
-Route::get('/invoices/{invoice}/updateImage', [InvoiceController::class, 'updateImage'])->name('invoices.updateImage');
 
+    Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'invoicePdf'])->name('invoices.pdf');
+    Route::get('/invoices/{invoice}/updateImage', [InvoiceController::class, 'updateImage'])->name('invoices.updateImage');
 
+    Route::post('/consultations/{consultation}/fix-courtesy', [ConsultationController::class, 'fixCourtesyPayment'])->name('consultations.fixCourtesy');
     Route::get('/consultation-pdf/{consultation}', [ClosuresController::class, 'consultationpdf'])->name('consultationpdf');
 
     // Route::get('services', [ServiceController::class, 'index'])->name('services.index');

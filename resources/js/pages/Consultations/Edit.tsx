@@ -20,6 +20,7 @@ import {
 import { useState } from 'react'; // Necesitamos useState para controlar la apertura/cierre del modal
 import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
 import { toast } from 'sonner';
+import FixCourtesyButton from '@/components/consultations/FixCourtesyButton';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Inicio', href: '/dashboard' },
@@ -42,6 +43,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
+    console.log(consultation)
     // Estado para controlar la apertura/cierre del Dialog
     const [isMedicalRecordDialogOpen, setIsMedicalRecordDialogOpen] = useState(false);
     const [selectedMedicalRecord, setSelectedMedicalRecord] = useState<MedicalRecord | null>(null);
@@ -67,7 +69,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
             onSuccess: () => {
                 toast.success('asistencia actualizada con éxito');
             },
-            onError: (errors:any) => {
+            onError: (errors: any) => {
                 console.error("Error al actualizar la asistencia:", errors);
             }
         };
@@ -138,12 +140,12 @@ export default function Edit({ consultation, patients, users, services, paymentM
                 description="Modifica los detalles de la asistencia y la información de pago."
             >
                 <div className="">
+
                     <Dialog open={isMedicalRecordDialogOpen} onOpenChange={setIsMedicalRecordDialogOpen}>
                         <DialogTrigger asChild>
                             {(!consultation.medical_records || consultation.medical_records.length === 0) && (
                                 <Button variant="outline" className='me-4'>Añadir Registro Médico</Button>
                             )}
-
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[550px]">
                             <DialogHeader>
@@ -173,6 +175,8 @@ export default function Edit({ consultation, patients, users, services, paymentM
                     </Button>
                 </div>
             </Heading>
+            
+            <FixCourtesyButton consultation={consultation} services={services} />
 
             {/* Formulario de Actualización de la Consulta */}
             <div className="mb-8">
