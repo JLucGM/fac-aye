@@ -7,10 +7,10 @@ import { Edit, MoreHorizontal } from "lucide-react";
 
 export const consultationColumns: ColumnDef<Consultation>[] = [
   {
-    accessorKey: "scheduled_at",
-    header: "Fecha Programada",
+    accessorKey: "created_at",
+    header: "Creado",
     cell: ({ row }) => {
-      return new Date(row.original.scheduled_at).toLocaleString();
+      return new Date(row.original.created_at).toLocaleString();
     },
   },
   // {
