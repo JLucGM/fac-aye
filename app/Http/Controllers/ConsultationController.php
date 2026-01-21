@@ -29,7 +29,9 @@ class ConsultationController extends Controller
      */
     public function index()
     {
-        $consultations = Consultation::with(['patient', 'user'])->get();
+        $consultations = Consultation::with(['patient', 'user'])
+            ->latest()
+            ->get();
         return Inertia::render('Consultations/Index', compact('consultations'));
     }
 
@@ -308,75 +310,75 @@ class ConsultationController extends Controller
      * Corregir estado de pago para consultas con servicios de cortesía.
      */
     public function fixCourtesyPayment(Consultation $consultation)
-{
-    // Verificar que la consulta tenga servicios
-    $consultationServices = json_decode($consultation->services, true) ?? [];
-    
-    if (empty($consultationServices)) {
-        return redirect()->back()
-            ->with('error', 'Esta consulta no tiene servicios.');
-    }
+    {
+        // Verificar que la consulta tenga servicios
+        $consultationServices = json_decode($consultation->services, true) ?? [];
 
-    // Extraer IDs de servicios de la consulta
-    $serviceIds = array_filter(array_column($consultationServices, 'id'));
-    
-    if (empty($serviceIds)) {
-        return redirect()->back()
-            ->with('error', 'No se pudieron identificar los servicios de esta consulta.');
-    }
-
-    // Buscar en la base de datos si alguno de estos servicios es de cortesía
-    $courtesyServices = Service::whereIn('id', $serviceIds)
-        ->where('is_courtesy', true)
-        ->get();
-
-    if ($courtesyServices->isEmpty()) {
-        return redirect()->back()
-            ->with('error', 'Esta consulta no contiene servicios marcados como cortesía en la base de datos.');
-    }
-
-    // Solo corregir si está pendiente
-    if ($consultation->payment_status !== 'pendiente') {
-        return redirect()->back()
-            ->with('info', 'Solo se pueden corregir consultas pendientes.');
-    }
-
-    DB::transaction(function () use ($consultation) {
-        $patient = $consultation->patient;
-        $oldAmount = $consultation->amount;
-
-        // Si había deuda registrada, corregirla
-        if ($oldAmount > 0) {
-            $debtTransactions = PatientBalanceTransaction::where('consultation_id', $consultation->id)
-                ->where('type', 'consulta_deuda')
-                ->get();
-
-            foreach ($debtTransactions as $transaction) {
-                if ($transaction->amount < 0) {
-                    $patient->balance += abs($transaction->amount);
-                }
-            }
-            $patient->save();
-
-            PatientBalanceTransaction::create([
-                'patient_id' => $patient->id,
-                'consultation_id' => $consultation->id,
-                'amount' => $oldAmount,
-                'type' => 'cortesia_ajuste',
-                'description' => 'Ajuste por consulta de cortesía #' . $consultation->id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        if (empty($consultationServices)) {
+            return redirect()->back()
+                ->with('error', 'Esta consulta no tiene servicios.');
         }
 
-        // Actualizar la consulta
-        $consultation->update([
-            'payment_status' => 'pagado',
-            'amount_paid' => $oldAmount,
-        ]);
-    });
+        // Extraer IDs de servicios de la consulta
+        $serviceIds = array_filter(array_column($consultationServices, 'id'));
 
-    return redirect()->back()
-        ->with('success', 'Consulta de cortesía corregida exitosamente.');
-}
+        if (empty($serviceIds)) {
+            return redirect()->back()
+                ->with('error', 'No se pudieron identificar los servicios de esta consulta.');
+        }
+
+        // Buscar en la base de datos si alguno de estos servicios es de cortesía
+        $courtesyServices = Service::whereIn('id', $serviceIds)
+            ->where('is_courtesy', true)
+            ->get();
+
+        if ($courtesyServices->isEmpty()) {
+            return redirect()->back()
+                ->with('error', 'Esta consulta no contiene servicios marcados como cortesía en la base de datos.');
+        }
+
+        // Solo corregir si está pendiente
+        if ($consultation->payment_status !== 'pendiente') {
+            return redirect()->back()
+                ->with('info', 'Solo se pueden corregir consultas pendientes.');
+        }
+
+        DB::transaction(function () use ($consultation) {
+            $patient = $consultation->patient;
+            $oldAmount = $consultation->amount;
+
+            // Si había deuda registrada, corregirla
+            if ($oldAmount > 0) {
+                $debtTransactions = PatientBalanceTransaction::where('consultation_id', $consultation->id)
+                    ->where('type', 'consulta_deuda')
+                    ->get();
+
+                foreach ($debtTransactions as $transaction) {
+                    if ($transaction->amount < 0) {
+                        $patient->balance += abs($transaction->amount);
+                    }
+                }
+                $patient->save();
+
+                PatientBalanceTransaction::create([
+                    'patient_id' => $patient->id,
+                    'consultation_id' => $consultation->id,
+                    'amount' => $oldAmount,
+                    'type' => 'cortesia_ajuste',
+                    'description' => 'Ajuste por consulta de cortesía #' . $consultation->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Actualizar la consulta
+            $consultation->update([
+                'payment_status' => 'pagado',
+                'amount_paid' => $oldAmount,
+            ]);
+        });
+
+        return redirect()->back()
+            ->with('success', 'Consulta de cortesía corregida exitosamente.');
+    }
 }
