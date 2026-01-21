@@ -130,7 +130,7 @@ export const columns: ColumnDef<Consultation>[] = [
     accessorKey: "created_at",
     header: "Realizado",
     cell: ({ row }) => {
-      const scheduledAt = new Date(row.original.scheduled_at); // Convertir a objeto Date
+      const scheduledAt = new Date(row.original.created_at); // Convertir a objeto Date
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
           {format(scheduledAt, 'dd/MM/yyyy HH:mm')} {/* Formato deseado */}
