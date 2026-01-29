@@ -20,7 +20,7 @@
         }
 
         table {
-            width: 100%;
+            width: 80%;
             border-collapse: collapse;
             margin-top: 20px;
         }
