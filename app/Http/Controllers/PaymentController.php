@@ -50,169 +50,173 @@ class PaymentController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StorePaymentRequest $request)
-    {
-        // dd($request->all());
-        DB::transaction(function () use ($request) {
-            $patientId = $request->patient_id;
-            $paymentAmount = $request->amount;
-            $paymentType = $request->payment_type;
+{
+    DB::transaction(function () use ($request) {
 
-            $patient = Patient::findOrFail($patientId);
+        $patient = Patient::lockForUpdate()->findOrFail($request->patient_id);
 
-            // Crédito disponible antes del pago
-            $initialCredit = $patient->credit ?? 0;
+        $paymentType   = $request->payment_type;
+        $paymentAmount = (float) $request->amount;
+        $initialCredit = (float) ($patient->credit ?? 0);
 
-            // Total disponible para pagar = crédito + monto pagado ahora
-            $totalAvailable = $initialCredit + $paymentAmount;
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Obtener ítems seleccionados
+        |--------------------------------------------------------------------------
+        */
+        if ($paymentType === 'consulta') {
+            $items = Consultation::whereIn('id', $request->consultation_ids)
+                ->where('patient_id', $patient->id)
+                ->orderBy('id')
+                ->get();
+        } else {
+            $items = PatientSubscription::whereIn('id', $request->subscription_ids)
+                ->where('patient_id', $patient->id)
+                ->with('subscription')
+                ->get();
+        }
 
-            // Crear el pago con monto real pagado (sin incluir crédito)
-            $payment = Payment::create([
-                'patient_id' => $patientId,
-                'payment_method_id' => $request->payment_method_id,
-                'amount' => $paymentAmount,
-                'status' => $request->status,
-                'reference' => $request->reference,
-                'notes' => $request->notes,
-                'payment_type' => $paymentType,
-            ]);
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Calcular deuda total seleccionada
+        |--------------------------------------------------------------------------
+        */
+        $totalDebtSelected = 0;
 
-            $remainingPayment = $totalAvailable; // Usamos crédito + pago actual
-
-            // Obtener ítems seleccionados antes de aplicar pago
+        foreach ($items as $item) {
             if ($paymentType === 'consulta') {
-                $items = Consultation::whereIn('id', $request->consultation_ids)
-                    ->where('patient_id', $patientId)
-                    ->orderBy('id')
-                    ->get();
+                $totalDebtSelected += max(0, $item->amount - $item->amount_paid);
             } else {
-                $items = PatientSubscription::whereIn('id', $request->subscription_ids)
-                    ->where('patient_id', $patientId)
-                    ->with('subscription')
-                    ->get();
+                $price = (float) ($item->subscription->price ?? 0);
+                $totalDebtSelected += max(0, $price - $item->amount_paid);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Usar crédito existente primero
+        |--------------------------------------------------------------------------
+        */
+        $creditUsed = min($initialCredit, $totalDebtSelected);
+        $patient->credit = $initialCredit - $creditUsed;
+
+        $remainingDebt = $totalDebtSelected - $creditUsed;
+        $remainingPayment = $paymentAmount;
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Crear el pago (SOLO dinero nuevo)
+        |--------------------------------------------------------------------------
+        */
+        $payment = Payment::create([
+            'patient_id'        => $patient->id,
+            'payment_method_id'=> $request->payment_method_id,
+            'amount'            => $paymentAmount,
+            'status'            => $request->status,
+            'reference'         => $request->reference,
+            'notes'             => $request->notes,
+            'payment_type'      => $paymentType,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Aplicar pago a los ítems
+        |--------------------------------------------------------------------------
+        */
+        foreach ($items as $item) {
+
+            if ($remainingPayment <= 0) {
+                break;
             }
 
-            // Calcular total seleccionado y total pagado antes de este pago
-            $totalSelectedAmount = 0;
-            $totalPaidBefore = 0;
-
-            foreach ($items as $item) {
-                if ($paymentType === 'consulta') {
-                    $totalSelectedAmount += $item->amount;
-                    $totalPaidBefore += $item->amount_paid;
-                } else {
-                    $price = $item->subscription->price ?? 0;
-                    $totalSelectedAmount += $price;
-                    $totalPaidBefore += $item->amount_paid;
-                }
-            }
-
-            // Aplicar el pago (crédito + pago actual) a cada ítem y actualizar estado
-            foreach ($items as $item) {
-                if ($paymentType === 'consulta') {
-                    $pendingAmount = $item->amount - $item->amount_paid;
-                } else {
-                    $price = $item->subscription->price ?? 0;
-                    $pendingAmount = $price - $item->amount_paid;
-                }
-
-                if ($remainingPayment <= 0) {
-                    break;
-                }
-
-                if ($pendingAmount <= 0) {
-                    continue; // Ya pagado
-                }
-
-                if ($remainingPayment >= $pendingAmount) {
-                    if ($paymentType === 'consulta') {
-                        $item->amount_paid = $item->amount;
-                        $item->payment_status = 'pagado';
-                    } else {
-                        $item->amount_paid = $price;
-                        $item->payment_status = 'pagado';
-                    }
-                    $remainingPayment -= $pendingAmount;
-                } else {
-                    if ($paymentType === 'consulta') {
-                        $item->amount_paid += $remainingPayment;
-                        $item->payment_status = 'parcial';
-                    } else {
-                        $item->amount_paid += $remainingPayment;
-                        $item->payment_status = 'parcial';
-                    }
-                    $remainingPayment = 0;
-                }
-
-                $item->save();
-            }
-
-            // Sincronizar relaciones entre pago y consultas o suscripciones
             if ($paymentType === 'consulta') {
-                $payment->consultations()->sync($request->consultation_ids);
+                $pending = $item->amount - $item->amount_paid;
             } else {
-                $payment->patientSubscriptions()->sync($request->subscription_ids);
+                $price   = (float) ($item->subscription->price ?? 0);
+                $pending = $price - $item->amount_paid;
             }
 
-            // Crédito usado = crédito inicial menos crédito restante (o 0)
-            $usedCredit = max(0, $initialCredit - max(0, $remainingPayment));
-
-            // Actualizar crédito del paciente
-            $patient->credit = max(0, $initialCredit - $usedCredit);
-
-            // Si quedó saldo a favor (después de usar crédito y pago actual), acumularlo
-            if ($remainingPayment > 0) {
-                $patient->credit += $remainingPayment;
+            if ($pending <= 0) {
+                continue;
             }
 
-            // Calcular deuda pendiente actualizada
-            $totalConsultationsDebt = Consultation::where('patient_id', $patientId)
-                ->sum(DB::raw('amount - amount_paid'));
+            $paying = min($pending, $remainingPayment);
 
-            $totalSubscriptionsDebt = PatientSubscription::where('patient_id', $patientId)
-                ->join('subscriptions', 'patient_subscriptions.subscription_id', '=', 'subscriptions.id')
-                ->sum(DB::raw('subscriptions.price - patient_subscriptions.amount_paid'));
+            $item->amount_paid += $paying;
+            $remainingPayment -= $paying;
 
-            $totalDebt = $totalConsultationsDebt + $totalSubscriptionsDebt;
-
-            // Guardar balance como deuda pendiente (negativa o cero)
-            $patient->balance = $totalDebt > 0 ? -$totalDebt : 0;
-
-            $patient->save();
-
-            // Construir mensaje específico para pagos parciales acumulativos con crédito usado
-            $message = "Pago de {$paymentType}s: total = $" . number_format($totalSelectedAmount, 2) .
-                ", pagado antes = $" . number_format($totalPaidBefore, 2) .
-                ", pagado en este pago = $" . number_format($paymentAmount, 2) . ". ";
-
-            if ($usedCredit > 0) {
-                $message .= "Crédito usado en este pago: $" . number_format($usedCredit, 2) . ". ";
+            if ($item->amount_paid >= ($paymentType === 'consulta'
+                ? $item->amount
+                : $price)) {
+                $item->payment_status = 'pagado';
+            } else {
+                $item->payment_status = 'parcial';
             }
 
-            $totalPaidAfter = $totalPaidBefore + $paymentAmount + $usedCredit;
+            $item->save();
+        }
 
-            if ($totalPaidAfter < $totalSelectedAmount) {
-                $restante = $totalSelectedAmount - $totalPaidAfter;
-                $message .= "Pago parcial, restante por pagar $" . number_format($restante, 2) . ".";
-            } elseif ($totalPaidAfter == $totalSelectedAmount) {
-                $message .= "Pago completo.";
-            } elseif ($totalPaidAfter > $totalSelectedAmount) {
-                $aFavor = $totalPaidAfter - $totalSelectedAmount;
-                $message .= "Pago completo, $" . number_format($aFavor, 2) . " a favor de crédito.";
-            }
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Si sobra dinero, se convierte en crédito
+        |--------------------------------------------------------------------------
+        */
+        if ($remainingPayment > 0) {
+            $patient->credit += $remainingPayment;
+        }
 
-            $message .= " Crédito disponible: $" . number_format($patient->credit ?? 0, 2) . ".";
+        /*
+        |--------------------------------------------------------------------------
+        | 7. Recalcular balance total (deuda real)
+        |--------------------------------------------------------------------------
+        */
+        $consultationsDebt = Consultation::where('patient_id', $patient->id)
+            ->sum(DB::raw('amount - amount_paid'));
 
-            PatientBalanceTransaction::create([
-                'patient_id' => $patient->id,
-                'payment_id' => $payment->id,
-                'amount' => $paymentAmount,
-                'type' => $paymentType === 'consulta' ? 'pago_consulta' : 'pago_suscripcion',
-                'description' => $message,
-            ]);
-        });
+        $subscriptionsDebt = PatientSubscription::where('patient_id', $patient->id)
+            ->join('subscriptions', 'patient_subscriptions.subscription_id', '=', 'subscriptions.id')
+            ->sum(DB::raw('subscriptions.price - patient_subscriptions.amount_paid'));
 
-        return redirect()->route('payments.index')->with('success', 'Pago creado con éxito.');
-    }
+        $totalDebt = $consultationsDebt + $subscriptionsDebt;
+
+        $patient->balance = $totalDebt > 0 ? -$totalDebt : 0;
+        $patient->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | 8. Sincronizar relaciones
+        |--------------------------------------------------------------------------
+        */
+        if ($paymentType === 'consulta') {
+            $payment->consultations()->sync($request->consultation_ids);
+        } else {
+            $payment->patientSubscriptions()->sync($request->subscription_ids);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 9. Log de balance
+        |--------------------------------------------------------------------------
+        */
+        PatientBalanceTransaction::create([
+            'patient_id' => $patient->id,
+            'payment_id' => $payment->id,
+            'amount'     => $paymentAmount,
+            'type'       => $paymentType === 'consulta'
+                ? 'pago_consulta'
+                : 'pago_suscripcion',
+            'description'=> "Pago aplicado. Crédito usado: $"
+                . number_format($creditUsed, 2)
+                . ". Crédito actual: $"
+                . number_format($patient->credit, 2),
+        ]);
+    });
+
+    return redirect()
+        ->route('payments.index')
+        ->with('success', 'Pago creado con éxito.');
+}
+
 
 
 

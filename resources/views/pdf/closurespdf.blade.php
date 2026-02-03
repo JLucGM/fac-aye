@@ -17,7 +17,7 @@
     }
 
     table {
-      width: 100%;
+      width: 90%;
       border-collapse: collapse;
       margin-top: 20px;
     }
@@ -105,6 +105,7 @@
   <table>
     <thead>
       <tr>
+        <th>Cédula de identidad</th>
         <th>Paciente</th>
         <th>Tratante</th>
         <th>Tipo de Consulta</th>
@@ -118,7 +119,8 @@
     <tbody>
       @foreach ($consultas as $consulta)
       <tr>
-        <td>C.I: {{ $consulta->patient->identification }} - {{ $consulta->patient->name }} {{ $consulta->patient->lastname }}</td>
+        <td>{{ $consulta->patient->identification }}</td>
+        <td>{{ $consulta->patient->name }} {{ $consulta->patient->lastname }}</td>
         <td>
           {{ $consulta->user->name }} {{ $consulta->user->lastname }} <!-- Mostrar el usuario asignado -->
         </td>
