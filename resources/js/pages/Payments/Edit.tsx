@@ -1,10 +1,12 @@
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, Patient, Payment, PaymentMethod, type BreadcrumbItem } from '@/types';
+import { Consultation, Patient, Payment, PaymentMethod, Subscription, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentsForm from './PaymentsForm';
 import Heading from '@/components/heading';
 import PatientInfo from '@/components/patients-info';
+import { useState } from 'react';
+import { ConfirmPaymentDialog } from '@/components/payments/ConfirmPaymentDialog'; // Ajusta la ruta según tu estructura
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,43 +23,73 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Edit({ payment, paymentMethods, patients, consultations }: { payment: Payment, paymentMethods: PaymentMethod[], patients: Patient[], consultations: Consultation[] }) {
-
-    // --- CORRECCIÓN CLAVE: OBTENER IDs DE CONSULTA DE LA RELACIÓN CARGADA ---
-    // Mapeamos la relación 'consultations' para obtener solo los IDs [4]
+export default function Edit({ payment, paymentMethods, patients, consultations }: { 
+    payment: Payment, 
+    paymentMethods: PaymentMethod[], 
+    patients: Patient[], 
+    consultations: Consultation[] 
+}) {
+    // Obtener IDs de consulta de la relación cargada
     const initialConsultationIds = (payment.consultations || []).map(c => c.id);
-
-    // Tu JSON de ejemplo ya tiene patient_id: 6, por lo que esto debería estar bien
+    
     const initialPatientId = payment.patient_id ||
         (payment.consultations?.[0]?.patient_id) ||
         null;
 
-    const { data, setData, errors, put, recentlySuccessful } = useForm({
+    const { data, setData, errors, put, processing } = useForm({
         patient_id: initialPatientId,
-        // Inicializamos con los IDs de las consultas ya asociadas
         consultation_ids: initialConsultationIds,
-
+        subscription_ids: payment.subscription_ids || [],
         payment_method_id: payment.payment_method_id,
         amount: payment.amount,
         status: payment.status,
         reference: payment.reference,
         notes: payment.notes,
-        // paid_at: payment.paid_at,
+        payment_type: payment.payment_type || 'consulta',
     });
+
+    // Estados para el diálogo de confirmación
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [pendingItems, setPendingItems] = useState<(Consultation | Subscription)[]>([]);
+    const [allSubscriptions, setAllSubscriptions] = useState<Subscription[]>([]);
+
+    // Obtener todas las suscripciones de los pacientes
+    const getAllSubscriptions = () => {
+        const allSubs: Subscription[] = [];
+        patients.forEach(patient => {
+            if (patient.subscriptions) {
+                allSubs.push(...patient.subscriptions);
+            }
+        });
+        return allSubs;
+    };
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // Obtener todas las suscripciones antes de mostrar el diálogo
+        setAllSubscriptions(getAllSubscriptions());
+        setIsConfirmDialogOpen(true);
+    };
 
-        put(route('payments.update', payment.id), { // Asegúrate de que la ruta sea correcta
+    const handleConfirmUpdate = () => {
+        put(route('payments.update', payment.id), {
             onSuccess: () => {
+                setIsConfirmDialogOpen(false);
             },
             onError: (err) => {
                 console.error("Error al actualizar el pago:", err);
+                setIsConfirmDialogOpen(false);
             },
         });
     };
 
     const selectedPatient = patients.find(patient => patient.id === data.patient_id);
+
+    // Obtener las suscripciones del paciente seleccionado
+    const getPatientSubscriptions = () => {
+        if (!selectedPatient || !selectedPatient.subscriptions) return [];
+        return selectedPatient.subscriptions;
+    };
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -67,7 +99,6 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
                 description="Aquí puedes editar un pago existente."
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
                 <form className="col-span-2 gap-4" onSubmit={submit}>
                     <PaymentsForm
                         data={data}
@@ -77,10 +108,11 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
                         setData={setData}
                         errors={errors}
                         initialSelectedConsultationIds={initialConsultationIds}
+                        onPendingItemsChange={setPendingItems}
                     />
 
-                    <Button variant={"default"} className='w-full mt-4'>
-                        Actualizar Pago
+                    <Button variant={"default"} className='w-full mt-4' disabled={processing}>
+                        {processing ? 'Actualizando...' : 'Actualizar Pago'}
                     </Button>
                 </form>
 
@@ -88,6 +120,24 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
                     <PatientInfo patient={selectedPatient} />
                 </div>
             </div>
+
+            {/* Diálogo de confirmación para actualizar */}
+            <ConfirmPaymentDialog
+                open={isConfirmDialogOpen}
+                onOpenChange={setIsConfirmDialogOpen}
+                onConfirm={handleConfirmUpdate}
+                title="Confirmar Actualización de Pago"
+                description="Por favor, revisa los cambios antes de actualizar el pago."
+                confirmButtonText="Confirmar Cambios"
+                processing={processing}
+                type="update"
+                data={data}
+                patients={patients}
+                paymentMethods={paymentMethods}
+                consultations={consultations}
+                subscriptions={getPatientSubscriptions()}
+                selectedItems={pendingItems}
+            />
         </ContentLayout>
     );
 }

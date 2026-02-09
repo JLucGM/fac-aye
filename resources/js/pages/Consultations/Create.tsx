@@ -5,6 +5,7 @@ import { ContentLayout } from '@/layouts/content-layout';
 import ConsultationsForm from './ConsultationsForm';
 import Heading from '@/components/heading';
 import { useEffect, useState } from 'react';
+import { ConfirmConsultationDialog } from '@/components/consultations/ConfirmConsultationDialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,7 +28,7 @@ export default function Create({ patients, users, services }: {
     services: Service[],
 }) {
     
-    const { data, setData, errors, post } = useForm<CreateConsultationFormData>({
+    const { data, setData, errors, post, processing } = useForm<CreateConsultationFormData>({
         user_id: users[0].id,
         patient_id: patients[0].id,
         service_id: [],
@@ -42,7 +43,8 @@ export default function Create({ patients, users, services }: {
     });
 
     const [birthdayPatients, setBirthdayPatients] = useState<Patient[]>([]);
-    
+        const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+
         useEffect(() => {
             const today = new Date().toLocaleDateString('en-CA', { month: '2-digit', day: '2-digit' });
             const birthdayList = patients.filter(patient => {
@@ -57,12 +59,17 @@ export default function Create({ patients, users, services }: {
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsConfirmDialogOpen(true);
+    };
 
+    const handleConfirmCreate = () => {
         post(route('consultations.store'), {
             onSuccess: () => {
+                setIsConfirmDialogOpen(false);
             },
             onError: (err) => {
                 console.error("Error al crear la Asistencia:", err);
+                setIsConfirmDialogOpen(false);
             },
         });
     };
@@ -102,10 +109,27 @@ export default function Create({ patients, users, services }: {
                     />
                 </div>
 
-                <Button variant={"default"}>
-                    Crear asitencia
+                <Button variant={"default"} type="submit" disabled={processing}>
+                    {processing ? 'Creando...' : 'Crear Asistencia'}
                 </Button>
             </form>
+
+            {/* Diálogo de confirmación para crear usando el componente reutilizable */}
+            <ConfirmConsultationDialog
+                open={isConfirmDialogOpen}
+                onOpenChange={setIsConfirmDialogOpen}
+                onConfirm={handleConfirmCreate}
+                title="Confirmar Creación de Asistencia"
+                description="Por favor, revisa los datos antes de crear la nueva asistencia."
+                confirmButtonText="Confirmar y Crear"
+                processing={processing}
+                type="create"
+                data={data}
+                patients={patients}
+                users={users}
+                services={services}
+            />
+
         </ContentLayout>
     );
 }

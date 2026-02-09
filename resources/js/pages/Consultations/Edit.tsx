@@ -21,6 +21,7 @@ import { useState } from 'react'; // Necesitamos useState para controlar la aper
 import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
 import { toast } from 'sonner';
 import FixCourtesyButton from '@/components/consultations/FixCourtesyButton';
+import { ConfirmConsultationDialog } from '@/components/consultations/ConfirmConsultationDialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Inicio', href: '/dashboard' },
@@ -29,6 +30,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Edit({ consultation, patients, users, services, paymentMethods }: {
+    
     consultation: Consultation & {
         payment?: Array<{
             id: number;
@@ -43,13 +45,14 @@ export default function Edit({ consultation, patients, users, services, paymentM
     services: Service[],
     paymentMethods: PaymentMethod[]
 }) {
-    console.log(consultation)
+    // console.log(consultation)
     // Estado para controlar la apertura/cierre del Dialog
     const [isMedicalRecordDialogOpen, setIsMedicalRecordDialogOpen] = useState(false);
     const [selectedMedicalRecord, setSelectedMedicalRecord] = useState<MedicalRecord | null>(null);
+    const [isConfirmUpdateDialogOpen, setIsConfirmUpdateDialogOpen] = useState(false);
 
     // Formulario para la Consulta (existente)
-    const { data, setData, errors, put } = useForm({
+    const { data, setData, errors, put, processing  } = useForm({
         user_id: consultation.user_id,
         patient_id: consultation.patient_id,
         service_id: consultation.services?.map((service: Service) => service.id) ?? [],
@@ -64,15 +67,20 @@ export default function Edit({ consultation, patients, users, services, paymentM
 
     const submitConsultation = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // console.log(data);
-        put(route('consultations.update', consultation.id)), {
+        setIsConfirmUpdateDialogOpen(true);
+    };
+
+    const handleConfirmUpdate = () => {
+        put(route('consultations.update', consultation.id), {
             onSuccess: () => {
                 toast.success('asistencia actualizada con éxito');
+                setIsConfirmUpdateDialogOpen(false);
             },
             onError: (errors: any) => {
                 console.error("Error al actualizar la asistencia:", errors);
+                setIsConfirmUpdateDialogOpen(false);
             }
-        };
+        });
     };
 
     // Formulario para crear o actualizar un MedicalRecord
@@ -194,11 +202,28 @@ export default function Edit({ consultation, patients, users, services, paymentM
                             errors={errors}
                         />
                     </div>
-                    <Button type="submit" variant="default">
-                        Actualizar Consulta
+                     <Button type="submit" variant="default" disabled={processing}>
+                        {processing ? 'Actualizando...' : 'Actualizar Consulta'}
                     </Button>
                 </form>
             </div>
+
+            {/* Diálogo de confirmación para actualizar usando el componente reutilizable */}
+            <ConfirmConsultationDialog
+                open={isConfirmUpdateDialogOpen}
+                onOpenChange={setIsConfirmUpdateDialogOpen}
+                onConfirm={handleConfirmUpdate}
+                title="Confirmar Actualización"
+                description="Por favor, revisa los cambios antes de actualizar la asistencia."
+                confirmButtonText="Confirmar Cambios"
+                processing={processing}
+                type="update"
+                data={data}
+                patients={patients}
+                users={users}
+                services={services}
+            />
+
 
             {/* Sección de Línea de Tiempo del Historial Médico */}
             {consultation.medical_records && consultation.medical_records.length > 0 && (

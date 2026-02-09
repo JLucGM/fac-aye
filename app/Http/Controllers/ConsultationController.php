@@ -178,7 +178,11 @@ class ConsultationController extends Controller
         $hadSubscription = $consultation->patient_subscription_id !== null;
         $usingSubscriptionNow = $data['subscription_use'] === 'yes';
 
-        $patient = Patient::with('activeSubscription.subscription')->find($data['patient_id']);
+        $oldPatientId = $consultation->patient_id; // Guardar ID del paciente anterior
+        $newPatientId = $data['patient_id'];
+        $patientChanged = $oldPatientId != $newPatientId;
+
+        $patient = Patient::with('activeSubscription.subscription')->find($newPatientId);
         $subscription = $patient?->activeSubscription;
 
         $newPatientSubscriptionId = $consultation->patient_subscription_id;
@@ -186,6 +190,11 @@ class ConsultationController extends Controller
         // Guardar monto y servicios anteriores para comparar
         $oldAmount = $consultation->amount;
         $oldServices = json_decode($consultation->services, true) ?? [];
+
+        // Determinar si la consulta original tenía deuda
+        $oldHadDebt = !$hadSubscription &&
+            !(collect($oldServices)->where('is_courtesy', true)->isNotEmpty()) &&
+            $oldAmount > 0;
 
         // 1. Manejar cambio de uso de suscripción (mantener lógica existente)
         if ($usingSubscriptionNow && !$hadSubscription) {
@@ -233,6 +242,7 @@ class ConsultationController extends Controller
                 $newAmount = 0;
                 $paymentStatus = 'pagado';
             }
+            $hasCourtesyService = false;
         } else {
             $services = Service::whereIn('id', $data['service_id'])->get();
 
@@ -259,7 +269,29 @@ class ConsultationController extends Controller
             }
         }
 
-        // 3. Actualizar consulta con nuevos datos
+        // 3. ANTES de actualizar: Manejar transferencia de deuda entre pacientes
+        if ($patientChanged) {
+            // Si la consulta original tenía deuda, revertirla del paciente anterior
+            if ($oldHadDebt) {
+                $oldPatient = Patient::find($oldPatientId);
+                if ($oldPatient) {
+                    // Revertir la deuda (sumar el monto ya que la deuda es negativa)
+                    $oldPatient->balance += $oldAmount;
+                    $oldPatient->save();
+
+                    // Registrar transacción de reversión
+                    PatientBalanceTransaction::create([
+                        'patient_id' => $oldPatient->id,
+                        'consultation_id' => $consultation->id,
+                        'amount' => $oldAmount, // Monto positivo para revertir
+                        'type' => 'consulta_deuda_reversada',
+                        'description' => "Reversión de deuda por cambio de paciente en consulta #{$consultation->id}",
+                    ]);
+                }
+            }
+        }
+
+        // 4. Actualizar la consulta con los nuevos datos
         $consultation->update([
             'user_id' => $data['user_id'],
             'patient_id' => $data['patient_id'],
@@ -273,22 +305,37 @@ class ConsultationController extends Controller
             'patient_subscription_id' => $newPatientSubscriptionId,
         ]);
 
-        // 4. Ajustar balance y registrar movimientos financieros si hay diferencia
+        // 5. Aplicar la deuda al nuevo paciente si corresponde
         // SOLO si NO es de cortesía y NO usa suscripción
-        if (!$hasCourtesyService && !$usingSubscriptionNow) {
-            $debtDifference = $newAmount - $oldAmount;
-
-            if ($debtDifference != 0) {
-                $patient->balance = ($patient->balance ?? 0) - $debtDifference;
+        if (!$hasCourtesyService && !$usingSubscriptionNow && $newAmount > 0) {
+            if ($patientChanged) {
+                // Aplicar deuda completa al nuevo paciente
+                $patient->balance -= $newAmount;
                 $patient->save();
 
                 PatientBalanceTransaction::create([
                     'patient_id' => $patient->id,
                     'consultation_id' => $consultation->id,
-                    'amount' => -$debtDifference,
+                    'amount' => -$newAmount,
                     'type' => 'consulta_deuda',
-                    'description' => "Ajuste de deuda por consulta #{$consultation->id}",
+                    'description' => "Deuda por consulta #{$consultation->id} (transferida de paciente anterior)",
                 ]);
+            } else {
+                // Mismo paciente, ajustar por diferencia
+                $debtDifference = $newAmount - $oldAmount;
+
+                if ($debtDifference != 0) {
+                    $patient->balance = ($patient->balance ?? 0) - $debtDifference;
+                    $patient->save();
+
+                    PatientBalanceTransaction::create([
+                        'patient_id' => $patient->id,
+                        'consultation_id' => $consultation->id,
+                        'amount' => -$debtDifference,
+                        'type' => 'consulta_deuda',
+                        'description' => "Ajuste de deuda por consulta #{$consultation->id}",
+                    ]);
+                }
             }
         }
 

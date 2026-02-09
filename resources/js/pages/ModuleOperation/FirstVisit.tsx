@@ -5,6 +5,8 @@ import { Doctor, Service, Subscription, User, type BreadcrumbItem } from '@/type
 import { Head, useForm } from '@inertiajs/react';
 import PatientsForm from '../Patients/PatientsForm';
 import ConsultationsForm from '../Consultations/ConsultationsForm';
+import { useState } from 'react';
+import { ConfirmFirstVisitDialog } from '@/components/ConfirmFirstVisitDialog'; // Ajusta la ruta según tu estructura
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,8 +25,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
     doctors: Doctor[],
     subscriptions: Subscription[],
 }) {
-
-    const { data, setData, errors, post } = useForm({
+    const { data, setData, errors, post, processing } = useForm({
         // Datos del nuevo usuario
         name: '',
         lastname: '',
@@ -32,35 +33,44 @@ export default function Index({ users, services, doctors, subscriptions }: {
         phone: '',
         birthdate: '',
         identification: '',
-        address: '', // Asegúrate de que este campo esté incluido si es necesario
-        doctor_id: doctors.length > 0 ? doctors[0].id : null, // Default to the first doctor if available
+        address: '',
+        doctor_id: doctors.length > 0 ? doctors[0].id : null,
 
         // Datos de la asistencia
-        user_id: users.length > 0 ? users[0].id : 0, // Asegúrate de que user_id tenga un valor numérico
+        user_id: users.length > 0 ? users[0].id : 0,
         service_id: [],
-        status: 'completado', // Asegúrate de que este valor sea uno de los permitidos
-        // scheduled_at: new Date().toISOString().slice(0, 19),
-        consultation_type: 'consultorio', // Asegúrate de que este valor sea uno de los permitidos
+        status: 'completado',
+        consultation_type: 'consultorio',
         notes: '',
-        payment_status: 'pendiente', // Asegúrate de que este valor sea uno de los permitidos
+        payment_status: 'pendiente',
         amount: 0,
 
         // Datos de la funcional
-        subscription_id: '', // Inicializa el campo de funcional
-        subscription_use: 'no', // Nuevo campo para controlar si usa funcional
+        subscription_id: '',
+        subscription_use: 'no',
     });
+
+    // Estado para controlar el diálogo de confirmación
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // Mostrar diálogo de confirmación en lugar de enviar directamente
+        setIsConfirmDialogOpen(true);
+    };
+
+    const handleConfirmFirstVisit = () => {
         post(route('module-operation.first_visit_store'), {
             onSuccess: () => {
-                // Manejar el éxito
+                setIsConfirmDialogOpen(false);
             },
             onError: (err) => {
                 console.error("Error al crear el paciente:", err);
+                setIsConfirmDialogOpen(false);
             },
         });
     };
+
     const selectedSubscription = subscriptions.find(s => s.id === data.subscription_id) || null;
 
     return (
@@ -70,6 +80,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
                 title="Primera visita"
                 description="Gestión de primera visita"
             />
+            
             <form className="flex flex-col gap-4" onSubmit={submit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <h1 className='text-xl col-span-full'> Información del Paciente</h1>
@@ -87,19 +98,54 @@ export default function Index({ users, services, doctors, subscriptions }: {
                     <ConsultationsForm
                         data={data}
                         users={users}
-                        patients={[]} // No se selecciona un paciente aquí
+                        patients={[]}
                         services={services}
                         setData={setData}
                         errors={errors}
-                        activeSubscription={selectedSubscription} // <-- Aquí
+                        activeSubscription={selectedSubscription}
                     />
                 </div>
 
-                <Button variant={"default"}>
-                    Crear Primera Visita
+                <Button variant={"default"} disabled={processing}>
+                    {processing ? 'Creando...' : 'Crear Primera Visita'}
                 </Button>
             </form>
+
+            {/* Diálogo de confirmación para la primera visita */}
+            <ConfirmFirstVisitDialog
+                open={isConfirmDialogOpen}
+                onOpenChange={setIsConfirmDialogOpen}
+                onConfirm={handleConfirmFirstVisit}
+                title="Confirmar Primera Visita"
+                description="Por favor, revisa los datos antes de crear el nuevo paciente y su primera consulta."
+                confirmButtonText="Confirmar y Crear"
+                processing={processing}
+                patientData={{
+                    name: data.name,
+                    lastname: data.lastname,
+                    email: data.email,
+                    phone: data.phone,
+                    birthdate: data.birthdate,
+                    identification: data.identification,
+                    address: data.address,
+                    doctor_id: data.doctor_id,
+                    subscription_id: data.subscription_id,
+                }}
+                consultationData={{
+                    user_id: data.user_id,
+                    service_id: data.service_id,
+                    status: data.status,
+                    consultation_type: data.consultation_type,
+                    notes: data.notes,
+                    payment_status: data.payment_status,
+                    amount: data.amount,
+                    subscription_use: data.subscription_use,
+                }}
+                users={users}
+                services={services}
+                doctors={doctors}
+                subscriptions={subscriptions}
+            />
         </ContentLayout>
     );
-
 }

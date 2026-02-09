@@ -48,7 +48,7 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
   const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
   const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
-  console.log(patient)
+  // console.log(patient)
   const [paymentStatus, setPaymentStatus] = useState<string>('all');
   const [consultationType, setConsultationType] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
