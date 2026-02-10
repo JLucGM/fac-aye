@@ -348,8 +348,41 @@ class ConsultationController extends Controller
      */
     public function destroy(Consultation $consultation)
     {
-        $consultation->delete();
-        return redirect()->route('consultations.index');
+        // 1. Validar que solo se elimine si está pendiente
+        if ($consultation->payment_status !== 'pendiente') {
+            return redirect()->back()->with('error', 'Solo se pueden eliminar consultas con pago pendiente.');
+        }
+
+        try {
+            DB::transaction(function () use ($consultation) {
+                $patient = $consultation->patient;
+                $amountToRestore = $consultation->amount;
+
+                // 2. Si la consulta generó una deuda (monto > 0), revertirla
+                if ($amountToRestore > 0) {
+                    // Devolver el saldo al paciente
+                    $patient->balance += $amountToRestore;
+                    $patient->save();
+
+                    // Registrar la transacción de reversión para mantener el historial
+                    PatientBalanceTransaction::create([
+                        'patient_id' => $patient->id,
+                        'consultation_id' => $consultation->id,
+                        'amount' => $amountToRestore,
+                        'type' => 'ajuste_eliminacion', // Un tipo descriptivo
+                        'description' => "Reversión de deuda por eliminación de consulta #{$consultation->id}",
+                    ]);
+                }
+
+                // 3. Eliminar la consulta
+                $consultation->delete();
+            });
+
+            return redirect()->route('consultations.index')
+                ->with('success', 'Consulta eliminada y balance del paciente actualizado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al eliminar la consulta: ' . $e->getMessage());
+        }
     }
 
 

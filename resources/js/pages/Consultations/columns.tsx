@@ -9,12 +9,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
-import { Link } from "@inertiajs/react"
+import { Link, useForm } from "@inertiajs/react"
 import { Consultation } from "@/types"
 import { format } from 'date-fns'; // Importar la función format
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { useState } from "react"
 
 export const columns: ColumnDef<Consultation>[] = [
   // {
@@ -97,35 +105,11 @@ export const columns: ColumnDef<Consultation>[] = [
 
       return (
         <Badge variant={variant} className="capitalize">
-          { paymentStatus}
+          {paymentStatus}
         </Badge>
       );
     },
   },
-
-  // {
-  //   id: "services",
-  //   header: "Servicios",
-  //   cell: ({ row }) => {
-  //     let services = [];
-  //     try {
-  //       services = JSON.parse(row.original.services);
-  //     } catch {
-  //       services = [];
-  //     }
-  //     return (
-  //       <div>
-  //         {services.length > 0 ? (
-  //           services.map((s: any, index: number) => (
-  //             <div key={index}>{s.name}</div>
-  //           ))
-  //         ) : (
-  //           <div>Sin servicios</div>
-  //         )}
-  //       </div>
-  //     );
-  //   },
-  // },
   {
     accessorKey: "created_at",
     header: "Realizado",
@@ -141,35 +125,86 @@ export const columns: ColumnDef<Consultation>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+      const { delete: destroy, processing } = useForm();
+
+      const isPending = row.original.payment_status === "pendiente";
+
+      const handleDelete = () => {
+        destroy(route('consultations.destroy', [row.original.id]), {
+          onSuccess: () => setShowDeleteDialog(false),
+        });
+      };
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/*<DropdownMenuLabel>Actions</DropdownMenuLabel>
-             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(Consultation.id)}
-            >
-              Copy Consultation ID
-            </DropdownMenuItem> 
-            <DropdownMenuSeparator />*/}
-            <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.edit', [row.original.id])} >
-                Editar
-              </Link>
-            </DropdownMenuItem>
-            {/* <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('consultations.destroy', [row.original.id])} method="delete">
-                Eliminar
-              </Link>
-            </DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link
+                  className={buttonVariants({ variant: 'ghost' }) + ' w-full'}
+                  href={route('consultations.edit', [row.original.id])}
+                >
+                  Editar
+                </Link>
+              </DropdownMenuItem>
+
+              {isPending && (
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault(); // Evita que el dropdown cause comportamientos extraños
+                    setShowDeleteDialog(true);
+                  }}
+                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                >
+                  {/* Mantenemos el estilo visual de tus otros botones 
+                           pero dentro del ítem del menú 
+                        */}
+                  <div className={buttonVariants({ variant: 'ghost' }) + ' w-full text-red-600 hover:text-red-600'}>
+                    Eliminar
+                  </div>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>¿Confirmar eliminación?</DialogTitle>
+                <DialogDescription>
+                  Esta acción eliminará la consulta y descontara **${row.original.amount}** al balance del paciente.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2">
+                {/* Mantenemos tus estilos de botones aquí también */}
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={processing}
+                  className={buttonVariants({ variant: 'outline' })}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={processing}
+                  className={buttonVariants({ variant: 'destructive' })}
+                >
+                  {processing ? "Eliminando..." : "Eliminar Consulta"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      );
     },
-  },
+  }
 ]
