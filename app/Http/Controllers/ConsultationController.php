@@ -58,15 +58,29 @@ class ConsultationController extends Controller
 
         try {
             $consultation = DB::transaction(function () use ($validated, $useSubscription) {
+                // Variables que se usarán según el flujo
+                $servicesData = collect();
+                $totalAmount = 0;
+                $paymentStatus = 'pendiente';
+                $hasCourtesyService = false;
+
                 if ($useSubscription) {
-                    // Lógica existente para suscripciones...
+                    // Obtener paciente con su suscripción activa
                     $patient = Patient::with('activeSubscription')->find($validated['patient_id']);
 
                     if (!$patient || !$patient->activeSubscription) {
                         throw new \Exception('No hay suscripción activa para este paciente.');
                     }
 
+                    // Verificar que no existan múltiples suscripciones activas (integridad de datos)
+                    $activeCount = $patient->subscriptions()->where('status', 'active')->count();
+                    if ($activeCount > 1) {
+                        throw new \Exception('El paciente tiene múltiples suscripciones activas. Contacte al administrador para regularizar.');
+                    }
+
                     $subscription = $patient->activeSubscription;
+
+                    // Consumir una consulta de la suscripción
                     $subscription->increment('consultations_used');
                     $subscription->decrement('consultations_remaining');
 
@@ -76,7 +90,7 @@ class ConsultationController extends Controller
 
                     $validated['patient_subscription_id'] = $subscription->id;
 
-                    $services = collect([[
+                    $servicesData = collect([[
                         'id' => null,
                         'name' => $subscription->subscription->name,
                         'price' => 0,
@@ -101,7 +115,7 @@ class ConsultationController extends Controller
                     }
 
                     // Transformar servicios para guardar
-                    $services = $services->map(fn($service) => [
+                    $servicesData = $services->map(fn($service) => [
                         'id' => $service->id,
                         'name' => $service->name,
                         'price' => $service->price,
@@ -113,7 +127,7 @@ class ConsultationController extends Controller
                 $consultation = Consultation::create(array_merge($validated, [
                     'amount' => $totalAmount,
                     'payment_status' => $paymentStatus,
-                    'services' => json_encode($services),
+                    'services' => json_encode($servicesData),
                 ]));
 
                 // Solo registrar deuda si NO es suscripción y NO es de cortesía

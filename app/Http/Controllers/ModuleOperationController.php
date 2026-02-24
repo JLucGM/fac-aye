@@ -89,44 +89,50 @@ class ModuleOperationController extends Controller
                     ]
                 );
 
-                // Crear suscripción del paciente si se indica y no tiene activa del mismo tipo
-                $patientSubscriptionId = null;
+                // Variable para guardar la suscripción del paciente que se usará (si corresponde)
+                $patientSubscription = null;
+
+                // Si se proporcionó subscription_id (asignar nueva suscripción)
                 if (!empty($validatedData['subscription_id'])) {
+                    // Verificar si el paciente ya tiene alguna suscripción activa
+                    if ($patient->subscriptions()->where('status', 'active')->exists()) {
+                        throw new \Exception('El paciente ya tiene una suscripción activa. No puede adquirir una nueva hasta que la actual se agote.');
+                    }
+
                     $subscription = Subscription::findOrFail($validatedData['subscription_id']);
 
-                    $activeSubscription = $patient->subscriptions()
-                        ->where('subscription_id', $subscription->id)
-                        ->where('status', 'active')
-                        ->first();
+                    // Crear nueva suscripción
+                    $patientSubscription = $patient->subscriptions()->create([
+                        'subscription_id' => $subscription->id,
+                        'start_date' => now(),
+                        'end_date' => $this->calculateEndDate($subscription->type),
+                        'consultations_used' => 0,
+                        'consultations_remaining' => $subscription->consultations_allowed,
+                        'status' => 'active',
+                    ]);
 
+                    // Registrar movimiento financiero por la suscripción
+                    PatientBalanceTransaction::create([
+                        'patient_id' => $patient->id,
+                        'patient_subscription_id' => $patientSubscription->id,
+                        'amount' => -$subscription->price,
+                        'type' => 'funcional_deuda',
+                        'description' => "Deuda por suscripción #{$patientSubscription->id}",
+                    ]);
+
+                    // Actualizar balance del paciente
+                    $patient->balance = ($patient->balance ?? 0) - $subscription->price;
+                    $patient->save();
+                }
+
+                // Si se quiere usar suscripción en la consulta, obtener la activa
+                if ($useSubscription) {
+                    // Buscar la suscripción activa del paciente (puede ser la recién creada o una existente)
+                    $activeSubscription = $patient->subscriptions()->where('status', 'active')->first();
                     if (!$activeSubscription) {
-                        // Crear nueva suscripción
-                        $patientSubscription = $patient->subscriptions()->create([
-                            'subscription_id' => $subscription->id,
-                            'start_date' => now(),
-                            'end_date' => $this->calculateEndDate($subscription->type),
-                            'consultations_used' => 0,
-                            'consultations_remaining' => $subscription->consultations_allowed,
-                            'status' => 'active',
-                        ]);
-
-                        // Registrar movimiento financiero por la suscripción
-                        PatientBalanceTransaction::create([
-                            'patient_id' => $patient->id,
-                            'patient_subscription_id' => $patientSubscription->id,
-                            'amount' => -$subscription->price,
-                            'type' => 'funcional_deuda',
-                            'description' => "Deuda por suscripción #{$patientSubscription->id}",
-                        ]);
-
-                        // Actualizar balance del paciente
-                        $patient->balance = ($patient->balance ?? 0) - $subscription->price;
-                        $patient->save();
-
-                        $activeSubscription = $patientSubscription;
+                        throw new \Exception('El paciente no tiene una suscripción activa para usar en la consulta.');
                     }
-                } else {
-                    $activeSubscription = null;
+                    $patientSubscription = $activeSubscription;
                 }
 
                 // Preparar servicios y monto para la consulta
@@ -134,20 +140,18 @@ class ModuleOperationController extends Controller
                 $totalAmount = 0;
                 $paymentStatus = $validatedData['payment_status'] ?? 'pendiente';
 
-                if ($useSubscription && $activeSubscription) {
+                if ($useSubscription && $patientSubscription) {
                     // Consumir 1 consulta de la suscripción
-                    $activeSubscription->increment('consultations_used');
-                    $activeSubscription->decrement('consultations_remaining');
+                    $patientSubscription->increment('consultations_used');
+                    $patientSubscription->decrement('consultations_remaining');
 
-                    if ($activeSubscription->consultations_remaining <= 0) {
-                        $activeSubscription->update(['status' => 'inactive']);
+                    if ($patientSubscription->consultations_remaining <= 0) {
+                        $patientSubscription->update(['status' => 'inactive']);
                     }
-
-                    $patientSubscriptionId = $activeSubscription->id;
 
                     $servicesData = collect([[
                         'id' => null,
-                        'name' => $activeSubscription->subscription->name,
+                        'name' => $patientSubscription->subscription->name,
                         'price' => 0,
                     ]]);
 
@@ -157,7 +161,6 @@ class ModuleOperationController extends Controller
                     // No usa suscripción, servicios normales
                     if (is_array($validatedData['service_id'])) {
                         $services = Service::whereIn('id', $validatedData['service_id'])->get();
-
                         foreach ($services as $service) {
                             $servicesData->push([
                                 'id' => $service->id,
@@ -180,7 +183,7 @@ class ModuleOperationController extends Controller
                     'notes' => $validatedData['notes'] ?? null,
                     'payment_status' => $paymentStatus,
                     'amount' => $totalAmount,
-                    'patient_subscription_id' => $patientSubscriptionId,
+                    'patient_subscription_id' => $patientSubscription->id ?? null,
                 ]);
 
                 // Guardar servicios como JSON
@@ -188,7 +191,7 @@ class ModuleOperationController extends Controller
                 $consultation->save();
 
                 // Ajustar balance y registrar movimiento si no usa suscripción y hay monto
-                if ((!$useSubscription || !$activeSubscription) && $totalAmount > 0) {
+                if (!$useSubscription && $totalAmount > 0) {
                     $patient->balance = ($patient->balance ?? 0) - $totalAmount;
                     $patient->save();
 
@@ -213,7 +216,6 @@ class ModuleOperationController extends Controller
 
         return redirect()->route('consultations.edit', $consultation->id);
     }
-
 
 
     public function profile_patient_index()

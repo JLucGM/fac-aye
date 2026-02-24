@@ -239,7 +239,11 @@ class PatientController extends Controller
         return Inertia::render('Patients/subscriptionpatient', compact('patients', 'subscriptions'));
     }
 
-    // Método dedicado solo para actualización/renovación de suscripciones
+    /**
+     * Método dedicado solo para actualización/renovación de suscripciones
+     * Verifica que no existan múltiples activas y crea una nueva suscripción,
+     * desactivando la anterior si existía.
+     */
     public function updateSubscription(Request $request)
     {
         $request->validate([
@@ -247,56 +251,68 @@ class PatientController extends Controller
             'patient_id' => 'required|exists:patients,id',
         ]);
 
-        // 1. Buscar la suscripción seleccionada
+        // Buscar la suscripción seleccionada
         $newSubscription = Subscription::findOrFail($request->subscription_id);
         $patient = Patient::findOrFail($request->patient_id);
 
-        // 2. Buscar suscripción activa actual (si existe)
+        // Buscar suscripción activa actual (si existe)
         $currentActiveSubscription = $patient->subscriptions()
             ->where('status', 'active')
             ->first();
 
-        // 3. Determinar tipo de operación
+        // Verificar integridad: no debe haber más de una activa
+        if ($patient->subscriptions()->where('status', 'active')->count() > 1) {
+            return back()->withErrors(['error' => 'El paciente tiene múltiples suscripciones activas. Contacte al administrador.']);
+        }
+
+        // Determinar tipo de operación (renovación si es la misma suscripción)
         $isRenewal = $currentActiveSubscription &&
             ($currentActiveSubscription->subscription_id == $newSubscription->id);
 
-        DB::transaction(function () use ($patient, $currentActiveSubscription, $newSubscription, $isRenewal) {
-            // 4. Desactivar suscripción actual si existe
-            if ($currentActiveSubscription) {
-                $currentActiveSubscription->update([
-                    'status' => 'inactive',
-                    'end_date' => now()
+        try {
+            DB::transaction(function () use ($patient, $currentActiveSubscription, $newSubscription, $isRenewal) {
+                // Desactivar suscripción actual si existe
+                if ($currentActiveSubscription) {
+                    $currentActiveSubscription->update([
+                        'status' => 'inactive',
+                        'end_date' => now(),
+                    ]);
+                }
+
+                // Crear siempre nueva suscripción (renovación o nueva)
+                $createdSubscription = $patient->subscriptions()->create([
+                    'subscription_id' => $newSubscription->id,
+                    'start_date' => now(),
+                    'end_date' => $this->calculateEndDate($newSubscription->type),
+                    'consultations_remaining' => $newSubscription->consultations_allowed,
+                    'consultations_used' => 0,
+                    'status' => 'active',
                 ]);
-            }
 
-            // 5. Crear siempre nueva suscripción (renovación o nueva)
-            $createdSubscription = $patient->subscriptions()->create([
-                'subscription_id' => $newSubscription->id,
-                'start_date' => now(),
-                'end_date' => $this->calculateEndDate($newSubscription->type),
-                'consultations_remaining' => $newSubscription->consultations_allowed,
-                'consultations_used' => 0,
-                'status' => 'active'
-            ]);
+                // Registrar movimiento financiero por la suscripción
+                PatientBalanceTransaction::create([
+                    'patient_id' => $patient->id,
+                    'patient_subscription_id' => $createdSubscription->id,
+                    'amount' => -$newSubscription->price,
+                    'type' => 'suscripcion',
+                    'description' => $isRenewal
+                        ? "Deuda por renovación de suscripción #{$createdSubscription->id}"
+                        : "Deuda por nueva suscripción #{$createdSubscription->id}",
+                ]);
 
-            // 6. Registrar movimiento financiero por la suscripción
-            PatientBalanceTransaction::create([
-                'patient_id' => $patient->id,
-                'patient_subscription_id' => $createdSubscription->id,
-                'amount' => -$newSubscription->price,
-                'type' => 'suscripcion',
-                'description' => $isRenewal
-                    ? "Deuda por renovación de suscripción #{$createdSubscription->id}"
-                    : "Deuda por nueva suscripción #{$createdSubscription->id}",
-            ]);
+                // Actualizar balance del paciente
+                $patient->balance = ($patient->balance ?? 0) - $newSubscription->price;
+                $patient->save();
+            });
 
-            // 7. Actualizar balance del paciente
-            $patient->balance = ($patient->balance ?? 0) - $newSubscription->price;
-            $patient->save();
-        });
+            $message = $isRenewal
+                ? 'Suscripción renovada exitosamente.'
+                : 'Nueva suscripción creada exitosamente.';
 
-        return redirect()->route('patients.index')
-            ->with('success', $isRenewal ? 'Suscripción renovada exitosamente' : 'Nueva suscripción creada exitosamente');
+            return redirect()->route('patients.index')->with('success', $message);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al procesar la suscripción: ' . $e->getMessage()]);
+        }
     }
 
     public function showBalanceTransactions(Patient $patient)

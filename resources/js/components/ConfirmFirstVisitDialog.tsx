@@ -62,30 +62,29 @@ export function ConfirmFirstVisitDialog({
     subscriptions,
 }: ConfirmFirstVisitDialogProps) {
     
-    // Función para obtener el nombre del fisioterapeuta
+    // Obtener el fisioterapeuta
     const getTherapistName = () => {
         const therapist = users.find(u => u.id === consultationData.user_id);
         return therapist ? `${therapist.name} ${therapist.lastname}` : 'No seleccionado';
     };
 
-    // Función para obtener el nombre del médico
+    // Obtener el médico tratante
     const getDoctorName = () => {
         if (!patientData.doctor_id) return 'No seleccionado';
         const doctor = doctors.find(d => d.id === patientData.doctor_id);
         return doctor ? `${doctor.name} ${doctor.lastname}` : 'No encontrado';
     };
 
-    // Función para obtener el nombre de la funcional
-    const getSubscriptionName = () => {
-        if (!patientData.subscription_id) return 'No seleccionada';
-        const subscription = subscriptions.find(s => s.id === patientData.subscription_id);
-        return subscription ? subscription.name : 'No encontrada';
-    };
+    // Obtener la suscripción seleccionada y su precio
+    const selectedSubscription = patientData.subscription_id
+        ? subscriptions.find(s => s.id === patientData.subscription_id)
+        : null;
+    const subscriptionPrice = selectedSubscription?.price || 0;
 
-    // Función para obtener los detalles de los servicios con precio formateado
+    // Detalles de los servicios de la consulta
     const getServiceDetails = () => {
         if (consultationData.subscription_use === 'yes') {
-            return [{ name: 'Funcional', price: 0, rawPrice: 0 }];
+            return [{ name: 'Funcional (usada en esta consulta)', price: 0 }];
         }
         
         if (consultationData.service_id.length === 0) {
@@ -95,40 +94,34 @@ export function ConfirmFirstVisitDialog({
         return consultationData.service_id.map(serviceId => {
             const service = services.find(s => s.id === serviceId);
             const price = service?.price || 0;
-            // Convertir precio a número si es string
             const numericPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
             
             return {
                 name: service ? service.name : 'Servicio no encontrado',
                 price: numericPrice,
-                rawPrice: price
             };
         });
     };
 
-    // Función para formatear el precio
+    // Formatear precio
     const formatPrice = (price: number | string): string => {
         if (typeof price === 'string') {
-            // Intentar convertir string a número
             const num = parseFloat(price);
             return isNaN(num) ? '0.00' : num.toFixed(2);
         }
         return price.toFixed(2);
     };
 
-    // Calcular el monto total
-    const calculateTotalAmount = () => {
+    // Calcular total de la consulta (solo servicios)
+    const calculateConsultationTotal = () => {
         if (consultationData.subscription_use === 'yes') {
             return 0;
         }
-        
         const serviceDetails = getServiceDetails();
-        return serviceDetails.reduce((total, service) => {
-            return total + service.price;
-        }, 0);
+        return serviceDetails.reduce((total, service) => total + service.price, 0);
     };
 
-    // Formatear fecha de nacimiento
+    // Formatear fecha
     const formatBirthdate = (date: string) => {
         if (!date) return 'No especificada';
         return new Date(date).toLocaleDateString('es-CA', {
@@ -139,7 +132,8 @@ export function ConfirmFirstVisitDialog({
     };
 
     const serviceDetails = getServiceDetails();
-    const totalAmount = calculateTotalAmount();
+    const consultationTotal = calculateConsultationTotal();
+    const totalDue = consultationTotal + subscriptionPrice; // Deuda total del paciente
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -150,7 +144,7 @@ export function ConfirmFirstVisitDialog({
                 </DialogHeader>
                 
                 <div className="space-y-6 py-4">
-                    {/* Sección de Información del Paciente */}
+                    {/* Información del Paciente */}
                     <div className="border-b pb-4">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">Información del Nuevo Paciente</h3>
                         <div className="grid grid-cols-2 gap-4">
@@ -186,12 +180,22 @@ export function ConfirmFirstVisitDialog({
                             </div>
                             <div>
                                 <h4 className="font-semibold text-sm text-gray-500">Funcional Asignada</h4>
-                                <p className="text-base">{getSubscriptionName()}</p>
+                                <p className="text-base">
+                                    {selectedSubscription ? selectedSubscription.name : 'No seleccionada'}
+                                </p>
                             </div>
+                            {selectedSubscription && (
+                                <div>
+                                    <h4 className="font-semibold text-sm text-gray-500">Costo de Funcional</h4>
+                                    <p className="text-base font-medium text-red-600">
+                                        ${formatPrice(subscriptionPrice)} (pendiente)
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Sección de Información de la Consulta */}
+                    {/* Información de la Consulta */}
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">Información de la Primera Consulta</h3>
                         <div className="grid grid-cols-2 gap-4">
@@ -206,7 +210,7 @@ export function ConfirmFirstVisitDialog({
                                 </p>
                             </div>
                             <div>
-                                <h4 className="font-semibold text-sm text-gray-500">Estado de Pago</h4>
+                                <h4 className="font-semibold text-sm text-gray-500">Estado de Pago (consulta)</h4>
                                 <p className="text-base capitalize">{consultationData.payment_status}</p>
                             </div>
                             <div>
@@ -241,24 +245,14 @@ export function ConfirmFirstVisitDialog({
                                     )}
                                     {consultationData.subscription_use !== 'yes' && serviceDetails.length > 1 && (
                                         <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
-                                            <span className="font-medium">Total:</span>
+                                            <span className="font-medium">Total consulta:</span>
                                             <span className="font-bold text-lg">
-                                                ${formatPrice(totalAmount)}
+                                                ${formatPrice(consultationTotal)}
                                             </span>
                                         </div>
                                     )}
                                 </div>
                             </div>
-
-                            {/* Monto Total */}
-                            {/* <div className="col-span-2">
-                                <h4 className="font-semibold text-sm text-gray-500">Monto Total de la Consulta</h4>
-                                <div className={`p-3 rounded-lg border ${totalAmount > 0 ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'}`}>
-                                    <p className={`text-2xl font-bold text-center ${totalAmount > 0 ? 'text-blue-700' : 'text-green-700'}`}>
-                                        ${totalAmount > 0 ? formatPrice(totalAmount) : '0.00 (Funcional)'}
-                                    </p>
-                                </div>
-                            </div> */}
 
                             {/* Notas */}
                             {consultationData.notes && (
@@ -272,14 +266,34 @@ export function ConfirmFirstVisitDialog({
                         </div>
                     </div>
 
-                    {/* Resumen */}
+                    {/* Resumen de cargos */}
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                        <h4 className="font-semibold text-lg text-gray-800 mb-2">Resumen</h4>
-                        <p className="text-sm text-gray-600">
-                            Se creará un nuevo paciente con los datos proporcionados y se registrará su primera consulta 
-                            {consultationData.subscription_use === 'yes' ? ' utilizando su funcional asignada.' : '.'}
-                            {patientData.subscription_id && consultationData.subscription_use !== 'yes' && 
-                             ' El paciente tendrá una funcional asignada para futuras consultas.'}
+                        <h4 className="font-semibold text-lg text-gray-800 mb-2">Resumen de cargos</h4>
+                        <div className="space-y-2">
+                            {consultationTotal > 0 && (
+                                <div className="flex justify-between">
+                                    <span>Total consulta:</span>
+                                    <span className="font-medium">${formatPrice(consultationTotal)}</span>
+                                </div>
+                            )}
+                            {selectedSubscription && subscriptionPrice > 0 && (
+                                <div className="flex justify-between text-red-600">
+                                    <span>Costo de funcional (pendiente):</span>
+                                    <span className="font-medium">${formatPrice(subscriptionPrice)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
+                                <span>Total a deber:</span>
+                                <span>${formatPrice(totalDue)}</span>
+                            </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-3">
+                            {selectedSubscription
+                                ? 'La funcional asignada generará una deuda por su costo. La consulta '
+                                : 'La consulta '}
+                            {consultationData.subscription_use === 'yes'
+                                ? 'está cubierta por la funcional (costo 0).'
+                                : 'generará deuda por los servicios seleccionados.'}
                         </p>
                     </div>
                 </div>
