@@ -25,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function AccountsReceivable({ payments, subscriptions }: { payments: Payment[], subscriptions: PatientSubscription[] }) {
-  console.log(subscriptions);
+  // console.log(subscriptions);
   const [activeTab, setActiveTab] = useState('consultas');
 
   // Preparar datos para tabla de suscripciones: agregar nombre completo del paciente

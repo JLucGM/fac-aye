@@ -70,13 +70,20 @@ export const columnsAccountsReceivableSubscription: ColumnDef<PatientSubscriptio
     },
   },
   {
-    accessorKey: "amount",
-    header: "Monto",
-    cell: ({ row }) => {
-      // Formatear como moneda
-      {row.original.subscription.price}
-    }
+  accessorKey: "subscription.price", // Esto no funcionará directamente porque tanstack-table busca esa ruta en el objeto plano. Es mejor usar accessorFn.
+  header: "Monto",
+  cell: ({ row }) => {
+    const price = row.original.subscription?.price;
+    // Formatear como moneda (ejemplo en USD, ajusta según tu locale)
+    const formattedPrice = new Intl.NumberFormat('es-VE', {
+      // style: 'currency',
+      // currency: 'VES', // o 'USD' según corresponda
+      minimumFractionDigits: 2
+    }).format(parseFloat(price || '0'));
+    
+    return <span className="text-sm font-medium">{formattedPrice}</span>;
   },
+}
   // {
   //   id: "actions",
   //   cell: ({ row }) => {
