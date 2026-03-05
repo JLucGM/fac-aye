@@ -25,7 +25,7 @@ export default function ClosuresPDF() {
                 <Text style={styles.title}>Reporte Diario - {new Date().toLocaleDateString()}</Text>
                 {consultas?.map((consulta, index) => (
                     <View key={index} style={{ marginBottom: 10 }}>
-                        <Text>Consulta #{index + 1}</Text>
+                        <Text>Asistencia #{index + 1}</Text>
                         <Text>Fecha: {new Date(consulta.created_at).toLocaleString()}</Text>
                         {/* Agrega más campos según necesites */}
                     </View>

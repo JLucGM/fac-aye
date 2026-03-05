@@ -15,21 +15,22 @@ use Inertia\Inertia;
 class ClosuresController extends Controller
 {
     public function cierreDelDia(Request $request)
-    {
-        // Obtener la fecha actual
-        $fechaHoy = Carbon::today();
-        $auth = Auth::user();
+{
+    $fechaHoy = Carbon::today();
+    $auth = Auth::user();
 
-        // Obtener todas las consultas del día
-        $consultas = Consultation::with('patient', 'user', 'subscription')->whereDate('created_at', $fechaHoy)->get();
-        $settings = Setting::with('media')->first()->get();
-        // return $auth;
-        // dd($consultas);
-        // Cargar la vista del PDF
-        $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth'))->setPaper('a4', 'landscape');
-        // // Devolver el PDF para abrir en una nueva pestaña
-        return $pdf->stream($fechaHoy->format('d-m-Y') . '_cierre_dia.pdf', ['Attachment' => 0]); // Cambia el Attachment a 0
-    }
+    // Obtener consultas del día con sus relaciones
+    $consultas = Consultation::with('patient', 'user', 'subscription')
+        ->whereDate('created_at', $fechaHoy)
+        ->get();
+
+    $settings = Setting::with('media')->first();
+
+    $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth'))
+        ->setPaper('a4', 'landscape');
+
+    return $pdf->stream($fechaHoy->format('d-m-Y') . '_cierre_dia.pdf', ['Attachment' => 0]);
+}
 
     public function pagosDelDia()
     {
@@ -49,7 +50,7 @@ class ClosuresController extends Controller
         $pagosSuscripcion = $pagos->filter(function ($pago) {
             return $pago->patientSubscriptions->isNotEmpty();
         });
-// dd($pagosSuscripcion);
+        // dd($pagosSuscripcion);
         // Calcular totales
         $totalAmountConsulta = $pagosConsulta->sum('amount');
         $totalAmountSuscripcion = $pagosSuscripcion->sum('amount');
@@ -84,27 +85,27 @@ class ClosuresController extends Controller
     }
 
     public function cierrePorRango(Request $request)
-    {
-        $startDate = $request->input('start');
-        $endDate = $request->input('end');
-        $auth = Auth::user();
-        $fechaHoy = Carbon::today();
+{
+    $startDate = $request->input('start');
+    $endDate = $request->input('end');
+    $auth = Auth::user();
+    $fechaHoy = Carbon::today();
 
-        // Ajustar endDate para incluir todo el día
-        $endDate = Carbon::parse($endDate)->endOfDay();
+    // Ajustar endDate para incluir todo el día
+    $endDate = Carbon::parse($endDate)->endOfDay();
 
-        $consultas = Consultation::with('patient', 'user')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderBy('scheduled_at', 'asc') // Ordenar por fecha de creación
-            ->get();
+    $consultas = Consultation::with('patient', 'user', 'subscription')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->orderBy('created_at', 'asc')
+        ->get();
+// dd($consultas);
+    $settings = Setting::with('media')->first();
 
-        $settings = Setting::with('media')->first()->get();
+    $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'startDate', 'endDate', 'settings', 'auth', 'fechaHoy'))
+        ->setPaper('a4', 'landscape');
 
-        $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'startDate', 'endDate', 'settings', 'auth', 'fechaHoy'))
-            ->setPaper('a4', 'landscape');
-
-        return $pdf->stream($startDate . '_to_' . $endDate . '_cierre_rango.pdf', ['Attachment' => 0]);
-    }
+    return $pdf->stream($startDate . '_to_' . $endDate . '_cierre_rango.pdf', ['Attachment' => 0]);
+}
 
 
 

@@ -48,7 +48,7 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
 export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
   const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
   const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
-  // console.log(patient)
+
   const [paymentStatus, setPaymentStatus] = useState<string>('all');
   const [consultationType, setConsultationType] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
@@ -70,15 +70,22 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
 
       let dateMatch = true;
       if (startDate || endDate) {
-        const consultationDate = parseISO(consultation.scheduled_at);
-        const formattedConsultationDate = format(consultationDate, 'yyyy-MM-dd');
+        // Usar scheduled_at si existe, sino created_at
+        const fechaConsulta = consultation.scheduled_at || consultation.created_at;
 
-        if (startDate && endDate) {
-          dateMatch = formattedConsultationDate >= startDate && formattedConsultationDate <= endDate;
-        } else if (startDate) {
-          dateMatch = formattedConsultationDate >= startDate;
-        } else if (endDate) {
-          dateMatch = formattedConsultationDate <= endDate;
+        if (!fechaConsulta) {
+          dateMatch = false;
+        } else {
+          const consultationDate = parseISO(fechaConsulta);
+          const formattedConsultationDate = format(consultationDate, 'yyyy-MM-dd');
+
+          if (startDate && endDate) {
+            dateMatch = formattedConsultationDate >= startDate && formattedConsultationDate <= endDate;
+          } else if (startDate) {
+            dateMatch = formattedConsultationDate >= startDate;
+          } else if (endDate) {
+            dateMatch = formattedConsultationDate <= endDate;
+          }
         }
       }
 

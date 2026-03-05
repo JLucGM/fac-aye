@@ -266,7 +266,7 @@ const truncateToTwoDecimals = (num: number) => {
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell colSpan={1} className="text-right font-semibold">
-  Total: ${truncateToTwoDecimals(calculateTotal()).toFixed(2)}
+  Total: {truncateToTwoDecimals(calculateTotal()).toFixed(2)}
 </TableCell>
                         </TableRow>
                     </TableBody>

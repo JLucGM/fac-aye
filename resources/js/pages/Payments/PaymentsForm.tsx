@@ -326,7 +326,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
             } else {
               return sum + ((item as Subscription).subscription?.price ?? 0);
             }
-          }, 0).toFixed(2)}
+          }, 0)}
       </div>
 
       <div>

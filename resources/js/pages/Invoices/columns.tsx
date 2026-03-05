@@ -54,7 +54,7 @@ export const columns: ColumnDef<Invoice>[] = [
     header: "Monto Total",
     cell: ({ row }) => {
       // Formatear como moneda
-      return new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(row.original.total_amount);
+      return row.original.total_amount;
     },
   },
   // {
