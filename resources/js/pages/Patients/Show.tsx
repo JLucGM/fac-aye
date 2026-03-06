@@ -6,7 +6,7 @@ import { Patient, type BreadcrumbItem, Consultation, PatientSubscription } from 
 import { Head, Link } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, EllipsisVertical, List, PenBox } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
