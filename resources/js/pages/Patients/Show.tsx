@@ -45,9 +45,17 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
     .reduce((total, s) => total + parseFloat(s.subscription?.price || '0'), 0);
 };
 
-export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any[] }) {
-  const logoUrl = settings.media.find(media => media.collection_name === 'logo')?.original_url || null;
-  const signatureUrl = settings.media.find(media => media.collection_name === 'signature')?.original_url || null;
+export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any }) {
+  // Evitar errores de SSR si settings o media no existen
+  const logoUrl = settings?.media?.find((media: any) => media.collection_name === 'logo')?.original_url || null;
+  const signatureUrl = settings?.media?.find((media: any) => media.collection_name === 'signature')?.original_url || null;
+
+  // Estado para verificar si estamos en el cliente
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const [paymentStatus, setPaymentStatus] = useState<string>('all');
   const [consultationType, setConsultationType] = useState<string>('all');
@@ -281,9 +289,11 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
 
               <div className="flex justify-between">
                 <HeadingSmall title='Asistencias' description="Lista de asistencias del paciente" />
-                <Button onClick={handleOpenPdf}>
-                  Informe de Asistencia
-                </Button>
+                {isClient && (
+                  <Button onClick={handleOpenPdf}>
+                    Informe de Asistencia
+                  </Button>
+                )}
               </div>
 
               <DataTable columns={consultationColumns} data={filteredConsultations} />

@@ -39,7 +39,9 @@ class PaymentController extends Controller
     public function create()
     {
         $paymentMethods = PaymentMethod::where('active', 1)->get();
-        $patients = Patient::with(['subscriptions.subscription'])->get(); // Cargar suscripciones con la relación de suscripción
+        $patients = Patient::with(['subscriptions' => function($query) {
+            $query->where('status', 'active')->with('subscription');
+        }])->get();
         $consultations = Consultation::with('patient', 'user')->get();
         // $subscriptions = Subscription::all();
 
@@ -72,6 +74,7 @@ class PaymentController extends Controller
         } else {
             $items = PatientSubscription::whereIn('id', $request->subscription_ids)
                 ->where('patient_id', $patient->id)
+                ->where('status', 'active')
                 ->with('subscription')
                 ->get();
         }
@@ -265,7 +268,10 @@ class PaymentController extends Controller
     public function accounts_receivable_index()
     {
         $payments = Consultation::with('patient', 'user')->where('payment_status', 'pendiente')->get();
-        $subscriptions = PatientSubscription::with('patient', 'subscription')->where('payment_status', 'pendiente')->get();
+        $subscriptions = PatientSubscription::with('patient', 'subscription')
+            ->where('payment_status', 'pendiente')
+            ->where('status', 'active')
+            ->get();
         // dd($subscriptions);
         return Inertia::render('Payments/AccountsReceivable', compact('payments', 'subscriptions'));
     }

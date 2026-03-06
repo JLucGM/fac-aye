@@ -154,7 +154,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
         
       } else if (paymentType === 'suscripcion') {
         
-        const subscriptions = patient?.subscriptions || [];
+        const subscriptions = (patient?.subscriptions || []).filter(s => s.status === 'active');
         
         // Incluir suscripciones que están pendientes o que ya están seleccionadas en este pago.
         const filteredSubscriptions = subscriptions.filter(

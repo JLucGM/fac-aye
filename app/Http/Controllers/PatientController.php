@@ -115,18 +115,32 @@ class PatientController extends Controller
         };
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Patient $patient)
     {
-        $patient->load('consultations', 'consultations.subscription.subscription', 'consultations.payment', 'medicalRecords');
-        $subscriptions = $patient->subscriptions()->with('subscription')->get();
+        // Cargar solo los últimos 10 registros para no saturar el SSR
+        $patient->load([
+            'consultations' => function($query) {
+                $query->with(['subscription.subscription', 'payment'])
+                      ->latest()
+                      ->limit(10);
+            },
+            'medicalRecords' => function($query) {
+                $query->latest()->limit(5);
+            }
+        ]);
 
-        // Cargar la configuración y sus medios
-        $settings = Setting::with('media')->first(); // Obtiene el primer registro como un objeto
+        $subscriptions = $patient->subscriptions()
+            ->with('subscription')
+            ->latest()
+            ->get();
 
-        return Inertia::render('Patients/Show', compact('patient', 'subscriptions', 'settings'));
+        $settings = Setting::with('media')->first(); 
+
+        return Inertia::render('Patients/Show', [
+            'patient' => $patient,
+            'subscriptions' => $subscriptions,
+            'settings' => $settings
+        ]);
     }
 
 
