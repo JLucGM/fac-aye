@@ -122,8 +122,9 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Paciente</th>
                     <th>C.I.</th>
+                    <th>Paciente</th>
+                    <th>Tratante</th>
                     <th>Tipo</th>
                     <th>Estado pago</th>
                     <th>Monto</th>
@@ -134,8 +135,11 @@
                     @php $c = $item['consulta']; @endphp
                     <tr>
                         <td>{{ \Carbon\Carbon::parse($c->created_at)->format('d/m/Y H:i') }}</td>
-                        <td>{{ $c->patient->name ?? '' }} {{ $c->patient->lastname ?? '' }}</td>
                         <td>{{ $c->patient->identification ?? '' }}</td>
+                        <td>{{ $c->patient->name ?? '' }} {{ $c->patient->lastname ?? '' }}</td>
+                        <td>
+            {{ $consulta->user->name }} {{ $consulta->user->lastname }} <!-- Mostrar el usuario asignado -->
+        </td>
                         <td>{{ $c->consultation_type }}</td>
                         <td>{{ $c->payment_status }}</td>
                         <td>${{ number_format($item['precio'], 2) }}</td>
