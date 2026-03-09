@@ -84,31 +84,47 @@ export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
     accessorKey: "amount",
     header: "Monto",
   },
-  // {
-  //   id: "actions",
-  //   cell: ({ row }) => {
-  //     return (
-  //       <DropdownMenu>
-  //         <DropdownMenuTrigger asChild>
-  //           <Button variant="ghost" className="h-8 w-8 p-0">
-  //             <span className="sr-only">Open menu</span>
-  //             <MoreHorizontal className="h-4 w-4" />
-  //           </Button>
-  //         </DropdownMenuTrigger>
-  //         <DropdownMenuContent align="end">
-  //           <DropdownMenuItem>
-  //             <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.show', [row.original.id])}>
-  //               Mostrar
-  //             </Link>
-  //           </DropdownMenuItem>
-  //           <DropdownMenuItem>
-  //             <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('payments.destroy', [row.original.id])} method="delete">
-  //               Eliminar
-  //             </Link>
-  //           </DropdownMenuItem>
-  //         </DropdownMenuContent>
-  //       </DropdownMenu>
-  //     );
-  //   },
-  // },
+  {
+  id: "actions",
+  cell: ({ row }) => {
+    const payment = row.original; // Este es el objeto que mostraste en el console.log
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Abrir menú</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {/* <DropdownMenuLabel>Opciones</DropdownMenuLabel> */}
+          
+          {/* USAMOS EL ID DIRECTO DEL OBJETO */}
+          <DropdownMenuItem asChild>
+            <Link 
+              className="w-full cursor-pointer" 
+              href={route('consultations.edit', payment.id)}
+            >
+              Editar asistencia
+            </Link>
+          </DropdownMenuItem>
+
+          {/* <DropdownMenuSeparator />
+
+          <DropdownMenuItem asChild>
+            <Link 
+              className="w-full cursor-pointer text-destructive" 
+              href={route('payments.destroy', payment.id)} 
+              method="delete" 
+              as="button"
+            >
+              Eliminar
+            </Link>
+          </DropdownMenuItem> */}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  },
+},
 ];
