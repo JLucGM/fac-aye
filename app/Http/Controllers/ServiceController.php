@@ -7,6 +7,7 @@ use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
@@ -20,10 +21,21 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $services = Service::all();
-        return Inertia::render('Services/Index', compact('services'));
+        $search = $request->input('search');
+
+        $services = Service::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Services/Index', [
+            'services' => $services,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     /**
@@ -41,7 +53,7 @@ class ServiceController extends Controller
     {
         $service = Service::create($request->validated());
 
-        return route('services.edit', $service);
+        return redirect()->route('services.edit', $service);
     }
 
 

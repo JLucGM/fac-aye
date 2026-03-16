@@ -27,10 +27,24 @@ class PatientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $patients = Patient::with('subscriptions')->get();
-        return Inertia::render('Patients/Index', compact('patients'));
+        $search = $request->input('search');
+
+        $patients = Patient::query()
+            ->with('subscriptions')
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%")
+                      ->orWhere('identification', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Patients/Index', [
+            'patients' => $patients,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     /**
@@ -331,11 +345,14 @@ class PatientController extends Controller
 
     public function showBalanceTransactions(Patient $patient)
     {
-        $patient->load(['patientBalanceTransactions' => function ($query) {
-            $query->orderBy('created_at', 'desc');
-        }]);
+        $transactions = $patient->patientBalanceTransactions()
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
-        return Inertia::render('Patients/ShowBalanceTransactions', compact('patient'));
+        return Inertia::render('Patients/ShowBalanceTransactions', [
+            'patient' => $patient,
+            'transactions' => $transactions
+        ]);
     }
 
     /**

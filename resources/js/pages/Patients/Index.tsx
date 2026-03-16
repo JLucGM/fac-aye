@@ -28,7 +28,7 @@ export default function Index({ patients }: { patients: Patient[] }) {
                 const birthday = new Date(patient.birthdate).toLocaleDateString('en-CA', { month: '2-digit', day: '2-digit' });
                 return birthday === today;
             }
-            return false; // Si birthdate es undefined, no incluir en la lista
+            return false;
         });
         setBirthdayPatients(birthdayList);
     }, [patients]);
@@ -64,7 +64,6 @@ export default function Index({ patients }: { patients: Patient[] }) {
                                 {patient.name} {patient.lastname} - {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('es-CA', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Fecha no disponible'}
                             </li>
                         ))}
-
                     </ul>
                 </div>
             )}

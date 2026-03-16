@@ -10,7 +10,7 @@ use App\Models\Patient;
 use App\Models\PatientBalanceTransaction;
 use App\Models\PatientSubscription;
 use App\Models\PaymentMethod;
-use App\Models\Subscription;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -27,10 +27,36 @@ class PaymentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $payments = Payment::with('paymentMethod', 'consultations.patient', 'patientSubscriptions.patient')->latest()->get();
-        return Inertia::render('Payments/Index', compact('payments'));
+        $method = $request->input('method', 'all');
+        $status = $request->input('status', 'all');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $payments = Payment::query()
+            ->with(['paymentMethod', 'consultations.patient', 'patientSubscriptions.patient'])
+            ->when($method !== 'all', function ($query) use ($method) {
+                $query->whereHas('paymentMethod', function ($q) use ($method) {
+                    $q->where('name', $method);
+                });
+            })
+            ->when($status !== 'all', function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Payments/Index', [
+            'payments' => $payments,
+            'filters' => $request->only(['method', 'status', 'start_date', 'end_date'])
+        ]);
     }
 
     /**

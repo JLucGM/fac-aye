@@ -4,58 +4,90 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
-import { Link } from "@inertiajs/react"
-import { Service } from "@/types"
+import { MoreHorizontal, Edit } from "lucide-react"
+import { Link, useForm } from "@inertiajs/react"
+import { Subscription } from "@/types"
+import { useState } from "react"
 
-export const columns: ColumnDef<Service>[] = [
-  // {
-  //   accessorKey: "id",
-  //   header: "ID",
-  // },
+export const columns: ColumnDef<Subscription>[] = [
   {
     accessorKey: "name",
-    header: "name",
+    header: "Nombre",
   },
   {
     accessorKey: "price",
-    header: "price",
+    header: "Precio",
   },
   {
     id: "actions",
     cell: ({ row }) => {
+      const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+      const { delete: destroy, processing } = useForm();
+
+      // const handleDelete = () => {
+      //   destroy(route('subscriptions.destroy', [row.original.slug ?? row.original.id]), {
+      //     onSuccess: () => setShowDeleteDialog(false),
+      //   });
+      // };
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/*<DropdownMenuLabel>Actions</DropdownMenuLabel>
-             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(service.id)}
-            >
-              Copy service ID
-            </DropdownMenuItem> 
-            <DropdownMenuSeparator />*/}
-            <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('subscriptions.edit', [row.original.slug ?? row.original.id])} >
-                Editar
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('subscriptions.destroy', [row.original.slug ?? row.original.id])} method="delete">
-                Eliminar
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start'} href={route('subscriptions.edit', [row.original.slug ?? row.original.id])} >
+                  <Edit className="mr-2 h-4 w-4" /> Editar
+                </Link>
+              </DropdownMenuItem>
+              {/* <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setShowDeleteDialog(true);
+                }}
+                className="text-red-600 focus:text-red-600 cursor-pointer"
+              >
+                <div className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start text-red-600 hover:text-red-600'}>
+                  <Trash className="mr-2 h-4 w-4" /> Eliminar
+                </div>
+              </DropdownMenuItem> */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>¿Confirmar eliminación?</DialogTitle>
+                <DialogDescription>
+                  Esta acción eliminará permanentemente el plan funcional **{row.original.name}**. Esta acción no se puede deshacer.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={processing}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={processing}
+                >
+                  {processing ? "Eliminando..." : "Eliminar Plan"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog> */}
+        </>
       )
     },
   },

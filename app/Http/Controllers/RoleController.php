@@ -22,10 +22,21 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::all();
-        return Inertia::render('Roles/Index', compact('roles'));
+        $search = $request->input('search');
+
+        $roles = Role::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Roles/Index', [
+            'roles' => $roles,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     /**

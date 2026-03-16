@@ -218,11 +218,24 @@ class ModuleOperationController extends Controller
     }
 
 
-    public function profile_patient_index()
+    public function profile_patient_index(Request $request)
     {
-        $patients = Patient::with('consultations')->get();
+        $search = $request->input('search');
 
-        return Inertia::render('ModuleOperation/ProfilePatient', compact('patients'));
+        $patients = Patient::query()
+            ->with('consultations')
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%")
+                      ->orWhere('identification', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('ModuleOperation/ProfilePatient', [
+            'patients' => $patients,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     // Método auxiliar para calcular la fecha de fin

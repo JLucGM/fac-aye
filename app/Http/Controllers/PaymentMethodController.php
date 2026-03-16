@@ -7,6 +7,7 @@ use App\Http\Requests\StorePaymentMethodRequest;
 use App\Http\Requests\UpdatePaymentMethodRequest;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class PaymentMethodController extends Controller
 {
@@ -20,10 +21,21 @@ class PaymentMethodController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $paymentMethods = PaymentMethod::all();
-        return Inertia::render('PaymentMethods/Index', compact('paymentMethods'));
+        $search = $request->input('search');
+
+        $paymentMethods = PaymentMethod::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('PaymentMethods/Index', [
+            'paymentMethods' => $paymentMethods,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     /**

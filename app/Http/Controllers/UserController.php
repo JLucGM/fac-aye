@@ -13,10 +13,23 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return Inertia::render('Users/Index', compact('users'));
+        $search = $request->input('search');
+
+        $users = User::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('identification', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Users/Index', [
+            'users' => $users,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     // Other methods for create, store, show, edit, update, destroy can be added here

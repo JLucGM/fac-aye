@@ -19,10 +19,23 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $doctors = Doctor::all();
-        return Inertia::render('Doctors/Index', compact('doctors'));
+        $search = $request->input('search');
+
+        $doctors = Doctor::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%")
+                      ->orWhere('identification', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Doctors/Index', [
+            'doctors' => $doctors,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     /**

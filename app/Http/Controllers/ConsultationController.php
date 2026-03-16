@@ -13,6 +13,7 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ConsultationController extends Controller
@@ -27,12 +28,44 @@ class ConsultationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $consultations = Consultation::with(['patient', 'user'])
+        $search = $request->input('search');
+        $paymentStatus = $request->input('payment_status', 'all');
+        $consultationType = $request->input('consultation_type', 'all');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $consultations = Consultation::query()
+            ->with(['patient', 'user'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('patient', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%")
+                      ->orWhere('identification', 'like', "%{$search}%");
+                });
+            })
+            ->when($paymentStatus !== 'all', function ($query) use ($paymentStatus) {
+                $query->where('payment_status', $paymentStatus);
+            })
+            ->when($consultationType !== 'all', function ($query) use ($consultationType) {
+                $query->where('consultation_type', $consultationType);
+            })
+            ->when($startDate, function ($query, $startDate) {
+                $query->whereDate('scheduled_at', '>=', $startDate)
+                      ->orWhereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query, $endDate) {
+                $query->whereDate('scheduled_at', '<=', $endDate)
+                      ->orWhereDate('created_at', '<=', $endDate);
+            })
             ->latest()
-            ->get();
-        return Inertia::render('Consultations/Index', compact('consultations'));
+            ->get(); // Volvemos a get() pero filtrado para que tu DataTable local funcione con todos los 18 si así lo deseas, o usa paginate() si quieres optimizar Nginx.
+
+        return Inertia::render('Consultations/Index', [
+            'consultations' => $consultations,
+            'filters' => $request->only(['search', 'payment_status', 'consultation_type', 'start_date', 'end_date'])
+        ]);
     }
 
     /**

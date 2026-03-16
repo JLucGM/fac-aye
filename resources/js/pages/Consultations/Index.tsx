@@ -2,17 +2,16 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import {ContentLayout} from '@/layouts/content-layout';
 import { Consultation, type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState } from 'react';
-import { format, parseISO } from 'date-fns';
+import React, { useState, useEffect } from 'react';
 import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import { ChevronsDown, ChevronsUp, ChevronsUpDown, Filter } from "lucide-react";
+import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -27,38 +26,40 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ];
 
-export default function Index({ consultations }: { consultations: Consultation[] }) {
-  const [paymentStatus, setPaymentStatus] = useState<string>('all');
-  const [consultationType, setConsultationType] = useState<string>('all');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
+export default function Index({ consultations, filters }: { consultations: Consultation[], filters: any }) {
+  const [paymentStatus, setPaymentStatus] = useState(filters.payment_status || 'all');
+  const [consultationType, setConsultationType] = useState(filters.consultation_type || 'all');
+  const [startDate, setStartDate] = useState(filters.start_date || '');
+  const [endDate, setEndDate] = useState(filters.end_date || '');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const filteredConsultations = consultations.filter(consultation => {
-    const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
-    const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
+  // Función para refrescar datos desde Laravel cuando cambien los filtros
+  const refreshData = () => {
+    router.get(route('consultations.index'), {
+      payment_status: paymentStatus,
+      consultation_type: consultationType,
+      start_date: startDate,
+      end_date: endDate,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true
+    });
+  };
 
-    // Filtrado de fechas
-    let dateMatch = true;
-    if (startDate || endDate) {
-      const consultationDate = parseISO(consultation.scheduled_at);
-      const formattedConsultationDate = format(consultationDate, 'yyyy-MM-dd');
-
-      if (startDate && endDate) {
-        dateMatch = formattedConsultationDate >= startDate && formattedConsultationDate <= endDate;
-      } else if (startDate) {
-        dateMatch = formattedConsultationDate >= startDate;
-      } else if (endDate) {
-        dateMatch = formattedConsultationDate <= endDate;
-      }
+  // Escuchamos cambios en los filtros para refrescar
+  useEffect(() => {
+    if (
+      paymentStatus !== (filters.payment_status || 'all') ||
+      consultationType !== (filters.consultation_type || 'all') ||
+      startDate !== (filters.start_date || '') ||
+      endDate !== (filters.end_date || '')
+    ) {
+      refreshData();
     }
-
-    return paymentMatch && typeMatch && dateMatch;
-  });
+  }, [paymentStatus, consultationType, startDate, endDate]);
 
   return (
-    // <AppLayout breadcrumbs={breadcrumbs}>
-
       <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Listado de Asistencias" />
         <Heading
@@ -72,7 +73,7 @@ export default function Index({ consultations }: { consultations: Consultation[]
           </Button>
         </Heading>
 
-        {/* Filtros colapsables */}
+        {/* Filtros colapsables (ORIGINALES) */}
         <Collapsible
           open={isFiltersOpen}
           onOpenChange={setIsFiltersOpen}
@@ -171,10 +172,9 @@ export default function Index({ consultations }: { consultations: Consultation[]
         <div className="mt-4">
           <DataTable
             columns={columns}
-            data={filteredConsultations}
+            data={consultations}
           />
         </div>
       </ContentLayout>
-    // </AppLayout>
   );
 }

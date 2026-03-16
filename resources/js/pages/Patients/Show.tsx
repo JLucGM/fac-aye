@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { subscriptionColumns } from './subscriptionColumns';
-import { pdf } from '@react-pdf/renderer';
 import ConsultationPDF from '@/components/pdf/ConsultationPdf';
 import { MedicalRecordTimeline } from '@/components/MedicalRecordTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -113,6 +112,9 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
   // const totalDebt = consultationsDebt + subscriptionsDebt;
 
   const handleOpenPdf = async () => {
+    // Importación dinámica solo cuando el usuario hace clic (lado del cliente)
+    const { pdf } = await import('@react-pdf/renderer');
+    
     const blob = await pdf(
       <ConsultationPDF
         consultations={filteredConsultations}

@@ -19,10 +19,22 @@ class SubscriptionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $subscriptions = Subscription::with('patients')->get();
-        return Inertia::render('Subscriptions/Index', compact('subscriptions'));
+        $search = $request->input('search');
+
+        $subscriptions = Subscription::query()
+            ->with('patients')
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Subscriptions/Index', [
+            'subscriptions' => $subscriptions,
+            'filters' => $request->only(['search'])
+        ]);
     }
     /**
      * Show the form for creating a new resource.

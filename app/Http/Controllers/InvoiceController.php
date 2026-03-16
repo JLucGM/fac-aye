@@ -30,12 +30,26 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::with('patient')->get();
-        // dd($invoices);
+        $search = $request->input('search');
 
-        return Inertia::render('Invoices/Index', compact('invoices'));
+        $invoices = Invoice::query()
+            ->with('patient')
+            ->when($search, function ($query, $search) {
+                $query->where('invoice_number', 'like', "%{$search}%")
+                      ->orWhereHas('patient', function ($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('lastname', 'like', "%{$search}%");
+                      });
+            })
+            ->latest()
+            ->get();
+
+        return Inertia::render('Invoices/Index', [
+            'invoices' => $invoices,
+            'filters' => $request->only(['search'])
+        ]);
     }
 
     /**

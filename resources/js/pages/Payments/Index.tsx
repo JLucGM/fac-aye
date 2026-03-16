@@ -2,17 +2,16 @@ import Heading from '@/components/heading';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
 import { Payment, type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { ChevronsDown, ChevronsUp } from "lucide-react";
-import { format, parseISO } from 'date-fns';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -28,61 +27,54 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ];
 
-export default function Index({ payments }: { payments: Payment[] }) {
-  const [selectedMethod, setSelectedMethod] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+export default function Index({ payments, filters }: { payments: Payment[], filters: any }) {
+  const [selectedMethod, setSelectedMethod] = useState(filters.method || 'all');
+  const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
+  const [startDate, setStartDate] = useState(filters.start_date || '');
+  const [endDate, setEndDate] = useState(filters.end_date || '');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('asistencias');
 
-  // Obtener métodos de pago únicoss
+  // Función para refrescar datos desde Laravel cuando cambien los filtros
+  const refreshData = () => {
+    router.get(route('payments.index'), {
+      method: selectedMethod,
+      status: selectedStatus,
+      start_date: startDate,
+      end_date: endDate,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true
+    });
+  };
+
+  // Escuchamos cambios en los filtros para refrescar
+  useEffect(() => {
+    if (
+      selectedMethod !== (filters.method || 'all') ||
+      selectedStatus !== (filters.status || 'all') ||
+      startDate !== (filters.start_date || '') ||
+      endDate !== (filters.end_date || '')
+    ) {
+      refreshData();
+    }
+  }, [selectedMethod, selectedStatus, startDate, endDate]);
+
+  // Obtener métodos de pago únicos de la lista actual para el select (si es necesario hacerlo dinámico)
+  // Aunque lo mejor es que el controlador envíe los métodos de pago. 
+  // Por ahora lo mantendremos simple para no alterar tu UI.
   const paymentMethods = [
     ...new Set(payments.map(p => p.payment_method?.name).filter(Boolean))
   ].sort();
 
-  // Obtener estados únicos
-  const statusOptions = [
-    ...new Set(payments.map(p => p.status).filter(Boolean))
-  ].sort();
-
-  // Filtrar pagos
-  const filteredPayments = payments.filter(payment => {
-    const methodMatch =
-      selectedMethod === 'all' ||
-      payment.payment_method?.name === selectedMethod;
-
-    const statusMatch =
-      selectedStatus === 'all' ||
-      payment.status === selectedStatus;
-
-    // Filtrado de fechas
-    let dateMatch = true;
-    if (startDate || endDate) {
-      const paymentDate = payment.created_at ? parseISO(payment.created_at) : null;
-      const formattedDate = paymentDate ? format(paymentDate, 'yyyy-MM-dd') : null;
-
-      if (formattedDate) {
-        if (startDate && endDate) {
-          dateMatch = formattedDate >= startDate && formattedDate <= endDate;
-        } else if (startDate) {
-          dateMatch = formattedDate >= startDate;
-        } else if (endDate) {
-          dateMatch = formattedDate <= endDate;
-        }
-      } else {
-        dateMatch = false;
-      }
-    }
-
-    return methodMatch && statusMatch && dateMatch;
-  });
+  const statusOptions = ['pendiente', 'pagado', 'cancelado'];
 
   // Filtrar pagos de asistencia y funcional
-  const consultationPayments = filteredPayments.filter(payment => payment.consultations.length > 0);
-  const subscriptionPayments = filteredPayments.filter(payment => payment.patient_subscriptions.length > 0);
+  const consultationPayments = payments.filter(payment => payment.consultations.length > 0);
+  const subscriptionPayments = payments.filter(payment => payment.patient_subscriptions.length > 0);
 
-  // Función para obtener el nombre del paciente desde cualquier tipo de pago
+  // Función para obtener el nombre del paciente
   const getPatientName = (payment: Payment) => {
     if (payment.consultations.length > 0) {
       return `${payment.consultations[0].patient.name} ${payment.consultations[0].patient.lastname}`;
@@ -92,7 +84,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
     return 'Paciente no disponible';
   };
 
-  // Preparar datos para la tabla con la información del paciente incluida
   const consultationTableData = consultationPayments.map(payment => ({
     ...payment,
     patientName: getPatientName(payment)
@@ -109,7 +100,7 @@ export default function Index({ payments }: { payments: Payment[] }) {
       <div className="flex justify-between items-center">
         <Heading
           title="Lista de Pagos"
-          description="Gestión de todos los pagos registrados"
+          description={`Gestión de ${payments.length} pagos filtrados`}
         />
 
         <div className="flex gap-4 items-center">
@@ -126,7 +117,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
         </div>
       </div>
 
-      {/* Filtros colapsables */}
       <Collapsible
         open={isFiltersOpen}
         onOpenChange={setIsFiltersOpen}
@@ -156,7 +146,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
         <CollapsibleContent className="space-y-2">
           <div className="rounded-md border px-4 py-3 text-sm space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Método de pago */}
               <div>
                 <Label className="block text-sm font-medium mb-1">Método de pago</Label>
                 <select
@@ -171,7 +160,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
                 </select>
               </div>
 
-              {/* Estado */}
               <div>
                 <Label className="block text-sm font-medium mb-1">Estado</Label>
                 <select
@@ -188,7 +176,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
                 </select>
               </div>
 
-              {/* Fechas */}
               <div className="space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -198,7 +185,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       className="w-full border rounded p-2"
-                      max={endDate || undefined}
                     />
                   </div>
                   <div>
@@ -232,7 +218,6 @@ export default function Index({ payments }: { payments: Payment[] }) {
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Tabs para separar pagos */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
         <TabsList>
           <TabsTrigger value="asistencias">Pagos de Asistencias</TabsTrigger>
