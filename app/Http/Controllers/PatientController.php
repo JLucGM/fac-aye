@@ -119,12 +119,12 @@ class PatientController extends Controller
     {
         // Cargar solo los últimos 10 registros para no saturar el SSR
         $patient->load([
-            'consultations' => function($query) {
+            'consultations' => function ($query) {
                 $query->with(['subscription.subscription', 'payment'])
-                      ->latest()
-                      ->limit(10);
+                    ->latest()
+                    ->limit(10);
             },
-            'medicalRecords' => function($query) {
+            'medicalRecords' => function ($query) {
                 $query->latest()->limit(5);
             }
         ]);
@@ -134,7 +134,7 @@ class PatientController extends Controller
             ->latest()
             ->get();
 
-        $settings = Setting::with('media')->first(); 
+        $settings = Setting::with('media')->first();
 
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
@@ -348,43 +348,49 @@ class PatientController extends Controller
             'credit' => 'required|numeric|min:0|max:999999.99',
             'description' => 'required|string|max:1000',
         ]);
-        // dd($request->all());
 
+        // Usamos DB::transaction para asegurar que todos los registros se creen correctamente
         DB::transaction(function () use ($request, $patient) {
-            // Calcular diferencias
-            $balanceDifference = bcsub($request->balance, $patient->balance, 2);
-            $creditDifference = bcsub($request->credit, $patient->credit, 2);
+
+            /**
+             * OPCIÓN NATIVA:
+             * Restamos los valores convirtiéndolos a float y formateamos a 2 decimales 
+             * para evitar errores de precisión y asegurar compatibilidad total.
+             */
+            $balanceDifference = number_format((float)$request->balance - (float)$patient->balance, 2, '.', '');
+            $creditDifference  = number_format((float)$request->credit - (float)$patient->credit, 2, '.', '');
 
             // Registrar transacción para balance si hay cambio
+            // Comparamos contra 0.00 para detectar cambios reales
             if ($balanceDifference != '0.00') {
                 PatientBalanceTransaction::create([
-                    'patient_id' => $patient->id,
-                    'amount' => $balanceDifference,
-                    'type' => 'balance_adjustment',
+                    'patient_id'  => $patient->id,
+                    'amount'      => $balanceDifference,
+                    'type'        => 'balance_adjustment',
                     'description' => $request->description . ' (Ajuste de balance: ' .
                         ($balanceDifference > 0 ? '+' : '') . $balanceDifference . ')',
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
                 ]);
             }
 
             // Registrar transacción para crédito si hay cambio
             if ($creditDifference != '0.00') {
                 PatientBalanceTransaction::create([
-                    'patient_id' => $patient->id,
-                    'amount' => $creditDifference,
-                    'type' => 'credit_adjustment',
+                    'patient_id'  => $patient->id,
+                    'amount'      => $creditDifference,
+                    'type'        => 'credit_adjustment',
                     'description' => $request->description . ' (Ajuste de crédito: ' .
                         ($creditDifference > 0 ? '+' : '') . $creditDifference . ')',
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
                 ]);
             }
 
-            // Actualizar paciente
+            // Actualizar datos del paciente
             $patient->update([
                 'balance' => $request->balance,
-                'credit' => $request->credit,
+                'credit'  => $request->credit,
             ]);
         });
 
