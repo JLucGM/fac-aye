@@ -26,7 +26,46 @@ class ClosuresController extends Controller
 
     $settings = Setting::with('media')->first();
 
-    $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth'))
+    // Calcular resúmenes
+    $serviceSummary = [];
+    $doctorSummary = [];
+    $suscripciones = [];
+
+    foreach ($consultas as $consulta) {
+        $servicesArray = json_decode($consulta->services, true) ?? [];
+
+        if ($consulta->patient_subscription_id && $consulta->amount == 0) {
+            // Es una consulta de suscripción (funcional)
+            $nombreSuscripcion = optional($consulta->subscription)->subscription->name ?? 'Suscripción sin nombre';
+            $suscripciones[] = [
+                'nombre' => $nombreSuscripcion,
+                'consulta' => $consulta,
+            ];
+        } else {
+            // Consulta individual
+            foreach ($servicesArray as $service) {
+                $name = $service['name'];
+                $price = floatval($service['price']);
+                if (!isset($serviceSummary[$name])) {
+                    $serviceSummary[$name] = ['price' => $price, 'count' => 0, 'total' => 0];
+                }
+                $serviceSummary[$name]['count']++;
+                $serviceSummary[$name]['total'] += $price;
+            }
+        }
+
+        // Resumen por tratante
+        $doctorId = $consulta->user_id;
+        $doctorName = $consulta->user->name . ' ' . $consulta->user->lastname;
+        $amount = $consulta->amount;
+        if (!isset($doctorSummary[$doctorId])) {
+            $doctorSummary[$doctorId] = ['name' => $doctorName, 'count' => 0, 'total' => 0];
+        }
+        $doctorSummary[$doctorId]['count']++;
+        $doctorSummary[$doctorId]['total'] += $amount;
+    }
+
+    $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'fechaHoy', 'settings', 'auth', 'serviceSummary', 'doctorSummary'))
         ->setPaper('a4', 'landscape');
 
     return $pdf->stream($fechaHoy->format('d-m-Y') . '_cierre_dia.pdf', ['Attachment' => 0]);
@@ -55,11 +94,24 @@ class ClosuresController extends Controller
         $totalAmountConsulta = $pagosConsulta->sum('amount');
         $totalAmountSuscripcion = $pagosSuscripcion->sum('amount');
 
+        // Calcular resumen por método de pago
+        $paymentMethodSummary = [];
+        foreach ($pagos as $pago) {
+            $methodId = $pago->payment_method_id;
+            $methodName = $pago->paymentMethod->name ?? 'N/A';
+            $amount = $pago->amount;
+            if (!isset($paymentMethodSummary[$methodId])) {
+                $paymentMethodSummary[$methodId] = ['name' => $methodName, 'count' => 0, 'total' => 0];
+            }
+            $paymentMethodSummary[$methodId]['count']++;
+            $paymentMethodSummary[$methodId]['total'] += $amount;
+        }
+
         // Obtener configuraciones
         $settings = Setting::with('media')->first()->get();
 
         // Cargar la vista del PDF
-        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagosConsulta', 'pagosSuscripcion', 'fechaHoy', 'settings', 'auth', 'totalAmountConsulta', 'totalAmountSuscripcion'))
+        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagosConsulta', 'pagosSuscripcion', 'fechaHoy', 'settings', 'auth', 'totalAmountConsulta', 'totalAmountSuscripcion', 'paymentMethodSummary'))
             ->setPaper('a4', 'landscape');
 
         // Devolver el PDF para abrir en una nueva pestaña
@@ -101,7 +153,46 @@ class ClosuresController extends Controller
 // dd($consultas);
     $settings = Setting::with('media')->first();
 
-    $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'startDate', 'endDate', 'settings', 'auth', 'fechaHoy'))
+    // Calcular resúmenes
+    $serviceSummary = [];
+    $doctorSummary = [];
+    $suscripciones = [];
+
+    foreach ($consultas as $consulta) {
+        $servicesArray = json_decode($consulta->services, true) ?? [];
+
+        if ($consulta->patient_subscription_id && $consulta->amount == 0) {
+            // Es una consulta de suscripción (funcional)
+            $nombreSuscripcion = optional($consulta->subscription)->subscription->name ?? 'Suscripción sin nombre';
+            $suscripciones[] = [
+                'nombre' => $nombreSuscripcion,
+                'consulta' => $consulta,
+            ];
+        } else {
+            // Consulta individual
+            foreach ($servicesArray as $service) {
+                $name = $service['name'];
+                $price = floatval($service['price']);
+                if (!isset($serviceSummary[$name])) {
+                    $serviceSummary[$name] = ['price' => $price, 'count' => 0, 'total' => 0];
+                }
+                $serviceSummary[$name]['count']++;
+                $serviceSummary[$name]['total'] += $price;
+            }
+        }
+
+        // Resumen por tratante
+        $doctorId = $consulta->user_id;
+        $doctorName = $consulta->user->name . ' ' . $consulta->user->lastname;
+        $amount = $consulta->amount;
+        if (!isset($doctorSummary[$doctorId])) {
+            $doctorSummary[$doctorId] = ['name' => $doctorName, 'count' => 0, 'total' => 0];
+        }
+        $doctorSummary[$doctorId]['count']++;
+        $doctorSummary[$doctorId]['total'] += $amount;
+    }
+
+    $pdf = Pdf::loadView('pdf.closurespdf', compact('consultas', 'startDate', 'endDate', 'settings', 'auth', 'fechaHoy', 'serviceSummary', 'doctorSummary'))
         ->setPaper('a4', 'landscape');
 
     return $pdf->stream($startDate . '_to_' . $endDate . '_cierre_rango.pdf', ['Attachment' => 0]);
@@ -135,9 +226,22 @@ class ClosuresController extends Controller
         $totalAmountConsulta = $pagosConsulta->sum('amount');
         $totalAmountSuscripcion = $pagosSuscripcion->sum('amount');
 
+        // Calcular resumen por método de pago
+        $paymentMethodSummary = [];
+        foreach ($pagos as $pago) {
+            $methodId = $pago->payment_method_id;
+            $methodName = $pago->paymentMethod->name ?? 'N/A';
+            $amount = $pago->amount;
+            if (!isset($paymentMethodSummary[$methodId])) {
+                $paymentMethodSummary[$methodId] = ['name' => $methodName, 'count' => 0, 'total' => 0];
+            }
+            $paymentMethodSummary[$methodId]['count']++;
+            $paymentMethodSummary[$methodId]['total'] += $amount;
+        }
+
         $settings = Setting::with('media')->first()->get();
 
-        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagosConsulta', 'pagosSuscripcion', 'startDate', 'endDate', 'settings', 'auth', 'totalAmountConsulta', 'totalAmountSuscripcion', 'fechaHoy'))
+        $pdf = Pdf::loadView('pdf.closurespaymentspdf', compact('pagosConsulta', 'pagosSuscripcion', 'startDate', 'endDate', 'settings', 'auth', 'totalAmountConsulta', 'totalAmountSuscripcion', 'fechaHoy', 'paymentMethodSummary'))
             ->setPaper('a4', 'landscape');
 
         return $pdf->stream($startDate . '_to_' . $endDate . '_pagos_rango.pdf', ['Attachment' => 0]);

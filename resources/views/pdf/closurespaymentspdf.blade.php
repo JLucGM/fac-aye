@@ -122,104 +122,90 @@
         </tbody>
     </table>
 
-    <!-- Tabla de Pagos de Consulta -->
-    <h2>Pagos de Consulta</h2>
+    <!-- Resumen por Método de Pago -->
+    <h2>Resumen por Método de Pago</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Método de Pago</th>
+                <th>Cantidad de Pagos</th>
+                <th>Total Recaudado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($paymentMethodSummary as $data)
+            <tr>
+                <td>{{ $data['name'] }}</td>
+                <td>{{ $data['count'] }}</td>
+                <td>${{ number_format($data['total'], 2) }}</td>
+            </tr>
+            @endforeach
+            <tr class="total-row">
+                <td style="text-align: right;"><strong>Total General:</strong></td>
+                <td><strong>{{ collect($paymentMethodSummary)->sum('count') }}</strong></td>
+                <td><strong>${{ number_format(collect($paymentMethodSummary)->sum('total'), 2) }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    @php
+    $todosPagos = collect($pagosConsulta)->merge($pagosSuscripcion);
+    $pagosAgrupados = $todosPagos->groupBy(function($pago) {
+        return $pago->paymentMethod->name ?? 'N/A';
+    });
+    @endphp
+
+    @foreach($pagosAgrupados as $metodo => $pagos)
+    @php
+    $cantidad = $pagos->count();
+    $totalMetodo = $pagos->sum('amount');
+    @endphp
+    <h3>{{ $metodo }} ({{ $cantidad }} pagos - Total: ${{ number_format($totalMetodo, 2) }})</h3>
     <table>
         <thead>
             <tr>
                 <th>Fecha de Pago</th>
                 <th>Paciente</th>
-                <th>Método de Pago</th>
                 <th>Estado</th>
                 <th>Referencia</th>
-                <th>Servicios</th>
+                <th>Tipo</th>
                 <th>Monto</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($pagosConsulta as $pago)
+            @foreach($pagos as $pago)
             <tr>
                 <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
                 <td>
                     @if ($pago->consultations->isNotEmpty())
                         {{ $pago->consultations->first()->patient->name }} {{ $pago->consultations->first()->patient->lastname }}
-                    @else
-                        Sin paciente
-                    @endif
-                </td>
-                <td>{{ $pago->paymentMethod->name ?? 'N/A' }}</td>
-                <td>{{ $pago->status }}</td>
-                <td>{{ $pago->reference ?? 'Sin referencia' }}</td>
-                <td>
-                    @if ($pago->consultations->isNotEmpty())
-                        @foreach ($pago->consultations as $consulta)
-                            @php
-                                $services = json_decode($consulta->services, true) ?? [];
-                            @endphp
-                            @foreach ($services as $service)
-                                {{ $service['name'] }} (${{ number_format($service['price'], 2) }})<br>
-                            @endforeach
-                        @endforeach
-                    @else
-                        Sin servicios
-                    @endif
-                </td>
-                <td>${{ number_format($pago->amount, 2) }}</td>
-            </tr>
-            @endforeach
-            <tr class="total-row">
-                <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
-                <td><strong>${{ number_format($totalAmountConsulta, 2) }}</strong></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Tabla de Pagos de Suscripción -->
-    <h2>Pagos de Suscripción</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Fecha de Pago</th>
-                <th>Paciente</th>
-                <th>Método de Pago</th>
-                <th>Estado</th>
-                <th>Referencia</th>
-                <th>Suscripción</th>
-                <th>Monto</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($pagosSuscripcion as $pago)
-            <tr>
-                <td>{{ \Carbon\Carbon::parse($pago->created_at)->format('d/m/Y H:i') }}</td>
-                <td>
-                    @if ($pago->patientSubscriptions->isNotEmpty())
+                    @elseif ($pago->patientSubscriptions->isNotEmpty())
                         {{ $pago->patientSubscriptions->first()->patient->name }} {{ $pago->patientSubscriptions->first()->patient->lastname }}
                     @else
                         Sin paciente
                     @endif
                 </td>
-                <td>{{ $pago->paymentMethod->name ?? 'N/A' }}</td>
                 <td>{{ $pago->status }}</td>
                 <td>{{ $pago->reference ?? 'Sin referencia' }}</td>
                 <td>
-                    @if ($pago->patientSubscriptions->isNotEmpty())
-                        @foreach ($pago->patientSubscriptions as $subscription)
-                            {{ $subscription->subscription->name ?? 'N/A' }}<br>
-                        @endforeach
+                    @if ($pago->consultations->isNotEmpty())
+                        Consulta
+                    @elseif ($pago->patientSubscriptions->isNotEmpty())
+                        Suscripción
                     @else
-                        Sin suscripción
+                        N/A
                     @endif
                 </td>
                 <td>${{ number_format($pago->amount, 2) }}</td>
             </tr>
             @endforeach
             <tr class="total-row">
-                <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
-                <td><strong>${{ number_format($totalAmountSuscripcion, 2) }}</strong></td>
+                <td colspan="5" style="text-align: right;"><strong>Total del método:</strong></td>
+                <td><strong>${{ number_format($totalMetodo, 2) }}</strong></td>
             </tr>
         </tbody>
     </table>
+    @endforeach
 
     <!-- Pie de página fijo con datos de la empresa -->
     <div class="footer">

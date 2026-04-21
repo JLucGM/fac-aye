@@ -112,6 +112,59 @@
         </tbody>
     </table>
 
+    <!-- ==================== TABLA DE RESUMEN DE SERVICIOS ==================== -->
+    <h2>Resumen de Servicios</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Servicio</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Total Recaudado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($serviceSummary as $name => $data)
+            <tr>
+                <td>{{ $name }}</td>
+                <td>${{ number_format($data['price'], 2) }}</td>
+                <td>{{ $data['count'] }}</td>
+                <td>${{ number_format($data['total'], 2) }}</td>
+            </tr>
+            @endforeach
+            <tr class="total-row">
+                <td colspan="3" style="text-align: right;"><strong>Total General:</strong></td>
+                <td><strong>${{ number_format(collect($serviceSummary)->sum('total'), 2) }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ==================== TABLA DE RESUMEN POR TRATANTE ==================== -->
+    <h2>Resumen por Tratante</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tratante</th>
+                <th>Cantidad de Consultas</th>
+                <th>Total Recaudado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($doctorSummary as $data)
+            <tr>
+                <td>{{ $data['name'] }}</td>
+                <td>{{ $data['count'] }}</td>
+                <td>${{ number_format($data['total'], 2) }}</td>
+            </tr>
+            @endforeach
+            <tr class="total-row">
+                <td style="text-align: right;"><strong>Total:</strong></td>
+                <td><strong>{{ collect($doctorSummary)->sum('count') }}</strong></td>
+                <td><strong>${{ number_format(collect($doctorSummary)->sum('total'), 2) }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
     @php
     // ==================== PROCESAR DATOS ====================
     $servicios = [];
@@ -180,7 +233,7 @@
             </tr>
             @endforeach
             <tr class="group-total">
-                <td colspan="5" style="text-align: right;"><strong>Total del servicio:</strong></td>
+                <td colspan="6" style="text-align: right;"><strong>Total del servicio:</strong></td>
                 <td><strong>${{ number_format($totalServicio, 2) }}</strong></td>
             </tr>
         </tbody>
