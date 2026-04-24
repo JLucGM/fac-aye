@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
+use App\Http\Resources\ServiceResource;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -30,10 +31,11 @@ class ServiceController extends Controller
                 $query->where('name', 'like', "%{$search}%");
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Services/Index', [
-            'services' => $services,
+            'services' => ServiceResource::collection($services),
             'filters' => $request->only(['search'])
         ]);
     }

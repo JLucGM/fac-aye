@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Trash, Edit, Eye } from "lucide-react";
 import { Link, useForm } from "@inertiajs/react";
-import { Payment } from "@/types"; 
+import { PaymentResource } from "@/types"; 
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import {
@@ -34,12 +34,12 @@ const getStatusColor = (status: string | null | undefined): string => {
   return statusColors[lowerStatus as keyof typeof statusColors] || statusColors.default;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<PaymentResource>[] = [
   {
     accessorKey: "created_at",
     header: "Creado",
     cell: ({ row }) => {
-      return new Date(row.original.created_at).toLocaleString();
+      return row.original.created_at;
     },
   },
   {
@@ -54,7 +54,7 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "payment_method_id",
+    accessorKey: "payment_method.name",
     header: "Método de pago",
     cell: ({ row }) => {
       return (
@@ -65,12 +65,12 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "patientName",
+    accessorKey: "patient.full_name",
     header: "Paciente",
     cell: ({ row }) => {
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.patientName || "Sin paciente"}
+          {row.original.patient?.full_name || "Sin paciente"}
         </p>
       );
     },

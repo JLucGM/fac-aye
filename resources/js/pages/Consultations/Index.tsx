@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import {ContentLayout} from '@/layouts/content-layout';
-import { Consultation, type BreadcrumbItem } from '@/types';
+import { ContentLayout } from '@/layouts/content-layout';
+import { ConsultationResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
@@ -14,6 +14,7 @@ import {
 import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -26,16 +27,29 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ];
 
-export default function Index({ consultations, filters }: { consultations: Consultation[], filters: any }) {
+interface IndexProps {
+    consultations: PaginatedData<ConsultationResource>;
+    filters: {
+        search?: string;
+        payment_status?: string;
+        consultation_type?: string;
+        start_date?: string;
+        end_date?: string;
+    };
+}
+
+export default function Index({ consultations, filters }: IndexProps) {
+  const [search, setSearch] = useState(filters.search || '');
+  const debouncedSearch = useDebounce(search, 500);
   const [paymentStatus, setPaymentStatus] = useState(filters.payment_status || 'all');
   const [consultationType, setConsultationType] = useState(filters.consultation_type || 'all');
   const [startDate, setStartDate] = useState(filters.start_date || '');
   const [endDate, setEndDate] = useState(filters.end_date || '');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  // Función para refrescar datos desde Laravel cuando cambien los filtros
-  const refreshData = () => {
+  const refreshData = (currentSearch: string) => {
     router.get(route('consultations.index'), {
+      search: currentSearch,
       payment_status: paymentStatus,
       consultation_type: consultationType,
       start_date: startDate,
@@ -47,17 +61,17 @@ export default function Index({ consultations, filters }: { consultations: Consu
     });
   };
 
-  // Escuchamos cambios en los filtros para refrescar
   useEffect(() => {
     if (
+      debouncedSearch !== (filters.search || '') ||
       paymentStatus !== (filters.payment_status || 'all') ||
       consultationType !== (filters.consultation_type || 'all') ||
       startDate !== (filters.start_date || '') ||
       endDate !== (filters.end_date || '')
     ) {
-      refreshData();
+      refreshData(debouncedSearch);
     }
-  }, [paymentStatus, consultationType, startDate, endDate]);
+  }, [debouncedSearch, paymentStatus, consultationType, startDate, endDate]);
 
   return (
       <ContentLayout breadcrumbs={breadcrumbs}>
@@ -73,7 +87,6 @@ export default function Index({ consultations, filters }: { consultations: Consu
           </Button>
         </Heading>
 
-        {/* Filtros colapsables (ORIGINALES) */}
         <Collapsible
           open={isFiltersOpen}
           onOpenChange={setIsFiltersOpen}
@@ -108,7 +121,7 @@ export default function Index({ consultations, filters }: { consultations: Consu
                   <select
                     value={paymentStatus}
                     onChange={(e) => setPaymentStatus(e.target.value)}
-                    className="w-full border rounded p-2"
+                    className="w-full border rounded p-2 bg-white"
                   >
                     <option value="all">Todos</option>
                     <option value="pagado">Pagadas</option>
@@ -121,7 +134,7 @@ export default function Index({ consultations, filters }: { consultations: Consu
                   <select
                     value={consultationType}
                     onChange={(e) => setConsultationType(e.target.value)}
-                    className="w-full border rounded p-2"
+                    className="w-full border rounded p-2 bg-white"
                   >
                     <option value="all">Todos</option>
                     <option value="domiciliaria">Domiciliaria</option>
@@ -135,7 +148,7 @@ export default function Index({ consultations, filters }: { consultations: Consu
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full border rounded p-2"
+                    className="w-full"
                   />
                 </div>
 
@@ -146,7 +159,7 @@ export default function Index({ consultations, filters }: { consultations: Consu
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     min={startDate}
-                    className="w-full border rounded p-2"
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -160,6 +173,7 @@ export default function Index({ consultations, filters }: { consultations: Consu
                     setConsultationType('all');
                     setStartDate('');
                     setEndDate('');
+                    setSearch('');
                   }}
                 >
                   Limpiar filtros
@@ -172,7 +186,11 @@ export default function Index({ consultations, filters }: { consultations: Consu
         <div className="mt-4">
           <DataTable
             columns={columns}
-            data={consultations}
+            data={consultations.data}
+            meta={consultations.meta}
+            onSearch={setSearch}
+            initialSearch={search}
+            searchPlaceholder="Buscar por paciente (nombre o cédula)..."
           />
         </div>
       </ContentLayout>

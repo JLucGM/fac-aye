@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Edit, MoreHorizontal, Trash } from "lucide-react"
 import { Link, useForm } from "@inertiajs/react"
-import { Doctor } from "@/types"
+import { DoctorResource } from "@/types"
 import { useState } from "react"
 import {
   Dialog,
@@ -19,18 +19,18 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-export const columns: ColumnDef<Doctor>[] = [
+export const columns: ColumnDef<DoctorResource>[] = [
   {
     accessorKey: "identification",
     header: "Cédula de identidad",
   },
   {
-    accessorKey: "name",
+    accessorKey: "full_name",
     header: "Nombre",
     cell: ({ row }) => {
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.name} {row.original.lastname}
+          {row.original.full_name}
         </p>
       )
     },
@@ -66,8 +66,8 @@ export const columns: ColumnDef<Doctor>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full'} href={route('doctors.edit', [row.original.slug ?? row.original.id])} >
-                  <Edit /> Editar
+                <Link className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start'} href={route('doctors.edit', [row.original.slug ?? row.original.id])} >
+                  <Edit className="mr-2 h-4 w-4" /> Editar
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -77,8 +77,8 @@ export const columns: ColumnDef<Doctor>[] = [
                 }}
                 className="text-red-600 focus:text-red-600 cursor-pointer"
               >
-                <div className={buttonVariants({ variant: 'ghost' }) + ' w-full text-red-600 hover:text-red-600'}>
-                  <Trash /> Eliminar
+                <div className={buttonVariants({ variant: 'ghost' }) + ' w-full justify-start text-red-600 hover:text-red-600'}>
+                  <Trash className="mr-2 h-4 w-4" /> Eliminar
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -89,7 +89,7 @@ export const columns: ColumnDef<Doctor>[] = [
               <DialogHeader>
                 <DialogTitle>¿Confirmar eliminación?</DialogTitle>
                 <DialogDescription>
-                  Esta acción eliminará permanentemente al doctor **{row.original.name} {row.original.lastname}** del sistema.
+                  Esta acción eliminará permanentemente al doctor **{row.original.full_name}** del sistema.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="gap-2">

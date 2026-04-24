@@ -31,6 +31,178 @@ export interface SharedData {
     [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
 }
 
+export interface PaginatedData<T> {
+    data: T[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        path: string;
+        per_page: number;
+        to: number;
+        total: number;
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+}
+
+export interface PatientResource {
+    id: number;
+    name: string;
+    lastname: string;
+    full_name: string;
+    email: string;
+    identification: string;
+    phone?: string;
+    birthdate?: string;
+    slug: string;
+    balance?: string;
+    credit?: string;
+    active_subscription?: {
+        id: number;
+        status: string;
+        consultations_remaining: number;
+        end_date: string | null;
+    };
+    created_at: string;
+}
+
+export interface SubscriptionResource {
+    id: number;
+    name: string;
+    type: string;
+    consultations_allowed: number;
+    price: string;
+    description: string | null;
+    slug: string;
+    created_at: string | null;
+}
+
+export interface PaymentMethodResource {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    active: boolean;
+    created_at: string | null;
+}
+
+export interface UserResource {
+    id: number;
+    name: string;
+    lastname: string;
+    full_name: string;
+    email: string;
+    identification: string;
+    phone: string | null;
+    active: boolean;
+    slug: string;
+    created_at: string | null;
+}
+
+export interface DoctorResource {
+    id: number;
+    name: string;
+    lastname: string;
+    full_name: string;
+    email: string;
+    phone: string | null;
+    identification: string | null;
+    specialty: string | null;
+    slug: string;
+    created_at: string | null;
+}
+
+export interface ServiceResource {
+    id: number;
+    name: string;
+    slug: string;
+    price: string;
+    description: string | null;
+    is_courtesy: boolean;
+    created_at: string | null;
+}
+
+export interface RoleResource {
+    id: number;
+    name: string;
+    slug: string;
+    created_at: string | null;
+}
+
+export interface ConsultationResource {
+    id: number;
+    status: string;
+    payment_status: string;
+    consultation_type: string;
+    amount: number;
+    amount_paid: number;
+    scheduled_at: string | null;
+    scheduled_at_formatted: string | null;
+    created_at: string | null;
+    services: unknown[];
+    notes: string | null;
+    patient: {
+        id: number;
+        full_name: string;
+        identification: string;
+        slug: string;
+    };
+    user: {
+        id: number;
+        name: string;
+        lastname: string;
+    };
+}
+
+export interface PaymentResource {
+    id: number;
+    amount: number;
+    status: string;
+    reference: string;
+    notes: string | null;
+    payment_type: string;
+    created_at: string | null;
+    payment_method: {
+        id: number;
+        name: string;
+    };
+    patient: {
+        id: number;
+        full_name: string;
+        identification: string;
+        slug: string;
+    } | null;
+}
+
+export interface InvoiceResource {
+    id: number;
+    invoice_number: string;
+    invoice_date: string | null;
+    total_amount: number;
+    notes: string | null;
+    created_at: string | null;
+    patient: {
+        id: number;
+        full_name: string;
+        identification: string;
+        slug: string;
+    };
+    payment_method: {
+        id: number;
+        name: string;
+    } | null;
+}
+
 export interface User {
     id: number;
     name: string;
@@ -183,13 +355,12 @@ export interface Consultation {
     payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
     patient_id: number; // FK to Patient
     patient_subscription_id: number;
-    services?: array; // A Consultation can have many Services (many-to-many)
+    services?: Service[]; // A Consultation can have many Services (many-to-many)
     created_at: string;
     updated_at: string;
     // Relationships
     patient?: Patient; // A Consultation belongs to one Patient
     user?: User; // A Consultation belongs to one User
-    services?: Service[]; // A Consultation can have many Services (many-to-many)
     payments?: Payment[]; // A Consultation can have many Payments (many-to-many)
     subscription?: Subscription;
 }

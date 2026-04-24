@@ -4,15 +4,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 import { Link, useForm } from "@inertiajs/react"
-import { Consultation } from "@/types"
-import { format } from 'date-fns'; // Importar la función format
-import { Checkbox } from "@/components/ui/checkbox"
+import { ConsultationResource } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
@@ -24,35 +20,9 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react"
 
-export const columns: ColumnDef<Consultation>[] = [
-  // {
-  //   accessorKey: "id",
-  //   header: "ID",
-  // },
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   // enableSorting: false,
-  //   // enableHiding: false,
-  // },
+export const columns: ColumnDef<ConsultationResource>[] = [
   {
-    accessorKey: "identification",
+    accessorKey: "patient.identification",
     header: "Cédula de identidad",
     cell: ({ row }) => {
       return (
@@ -63,19 +33,18 @@ export const columns: ColumnDef<Consultation>[] = [
     },
   },
   {
-    accessorKey: "patient_id",
+    accessorKey: "patient.full_name",
     header: "Paciente",
     cell: ({ row }) => {
-      const patient = row.original.patient; // Asegúrate de que esto esté cargado
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {patient ? `${patient.name} ${patient.lastname}` : 'No disponible'}
+          {row.original.patient?.full_name || 'No disponible'}
         </p>
       );
     },
   },
   {
-    accessorKey: "user_id",
+    accessorKey: "user.name",
     header: "Tratante",
     cell: ({ row }) => {
       return (
@@ -85,21 +54,15 @@ export const columns: ColumnDef<Consultation>[] = [
       )
     },
   },
-  // {
-  //   accessorKey: "status",
-  //   header: "Estado",
-  // },
-
   {
     accessorKey: "payment_status",
     header: "Estado de pago",
     cell: ({ row }) => {
       const paymentStatus = row.original.payment_status;
 
-      // Mapear estados a variantes válidas
       let variant: "default" | "destructive" | "secondary" | "outline" = "default";
 
-      if (paymentStatus === "pagado") variant = "default";       // o "secondary"
+      if (paymentStatus === "pagado") variant = "default";
       else if (paymentStatus === "pendiente") variant = "outline";
       else if (paymentStatus === "reembolsado" || paymentStatus === "incobrable") variant = "destructive";
 
@@ -114,10 +77,9 @@ export const columns: ColumnDef<Consultation>[] = [
     accessorKey: "created_at",
     header: "Realizado",
     cell: ({ row }) => {
-      const scheduledAt = new Date(row.original.created_at); // Convertir a objeto Date
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {format(scheduledAt, 'dd/MM/yyyy HH:mm')} {/* Formato deseado */}
+          {row.original.created_at}
         </p>
       );
     },
@@ -158,14 +120,11 @@ export const columns: ColumnDef<Consultation>[] = [
               {isPending && (
                 <DropdownMenuItem
                   onSelect={(e) => {
-                    e.preventDefault(); // Evita que el dropdown cause comportamientos extraños
+                    e.preventDefault();
                     setShowDeleteDialog(true);
                   }}
                   className="text-red-600 focus:text-red-600 cursor-pointer"
                 >
-                  {/* Mantenemos el estilo visual de tus otros botones 
-                           pero dentro del ítem del menú 
-                        */}
                   <div className={buttonVariants({ variant: 'ghost' }) + ' w-full text-red-600 hover:text-red-600'}>
                     Eliminar
                   </div>
@@ -183,12 +142,10 @@ export const columns: ColumnDef<Consultation>[] = [
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="gap-2">
-                {/* Mantenemos tus estilos de botones aquí también */}
                 <Button
                   variant="outline"
                   onClick={() => setShowDeleteDialog(false)}
                   disabled={processing}
-                  className={buttonVariants({ variant: 'outline' })}
                 >
                   Cancelar
                 </Button>
@@ -196,7 +153,6 @@ export const columns: ColumnDef<Consultation>[] = [
                   variant="destructive"
                   onClick={handleDelete}
                   disabled={processing}
-                  className={buttonVariants({ variant: 'destructive' })}
                 >
                   {processing ? "Eliminando..." : "Eliminar Consulta"}
                 </Button>

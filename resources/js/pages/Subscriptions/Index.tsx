@@ -1,11 +1,12 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Subscription, type BreadcrumbItem } from '@/types';
+import { SubscriptionResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,44 +14,58 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Funcionales',
+        title: 'Planes funcionales',
         href: '/subscriptions',
     },
 ];
 
-export default function Index({ subscriptions, filters }: { subscriptions: Subscription[], filters: any }) {
+interface IndexProps {
+    subscriptions: PaginatedData<SubscriptionResource>;
+    filters: {
+        search?: string;
+    };
+}
+
+export default function Index({ subscriptions, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(search, 500);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                router.get(route('subscriptions.index'), { search }, {
-                    preserveState: true,
-                    replace: true
-                });
-            }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [search]);
+        if (debouncedSearch !== (filters.search || '')) {
+            router.get(
+                route('subscriptions.index'),
+                { search: debouncedSearch },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [debouncedSearch]);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Funcionales" />
+            <Head title="Planes funcionales" />
             <Heading
-                title="Funcionales"
-                description={`Administra tus Funcionales (${subscriptions.length} encontrados).`}
+                title="Planes funcionales"
+                description="Gestiona tus planes funcionales (suscripciones)."
             >
-                <Button asChild>
-                    <Link className="btn btn-primary" href={route('subscriptions.create')}>
-                        Crear Funcional
-                    </Link>
-                </Button>
+                <div className="flex justify-end gap-4">
+                    <Button asChild>
+                        <Link href={route('subscriptions.create')}>
+                            Crear plan funcional
+                        </Link>
+                    </Button>
+                </div>
             </Heading>
 
-            <DataTable
-                columns={columns}
-                data={subscriptions}
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={subscriptions.data}
+                    meta={subscriptions.meta}
+                    onSearch={setSearch}
+                    initialSearch={search}
+                    searchPlaceholder="Buscar por nombre..."
+                />
+            </div>
         </ContentLayout>
     );
 }

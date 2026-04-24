@@ -17,19 +17,20 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { UserResource } from "@/types";
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<UserResource>[] = [
   {
     accessorKey: "identification",
     header: "Identificación",
   },
   {
-    accessorKey: "name",
+    accessorKey: "full_name",
     header: "Nombre",
     cell: ({ row }) => {
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.name} {row.original.lastname}
+          {row.original.full_name}
         </p>
       )
     },
@@ -91,7 +92,7 @@ export const columns: ColumnDef<any>[] = [
               <DialogHeader>
                 <DialogTitle>¿Confirmar eliminación?</DialogTitle>
                 <DialogDescription>
-                  Esta acción eliminará permanentemente al usuario **{row.original.name} {row.original.lastname}**. Esta acción no se puede deshacer.
+                  Esta acción eliminará permanentemente al usuario **{row.original.full_name}**. Esta acción no se puede deshacer.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="gap-2">

@@ -13,11 +13,11 @@ class Payment extends Model
     protected $fillable = [
         'payment_method_id',
         'patient_id',
+        'payment_type',
         'amount',
         'status',
         'reference',
         'notes',
-        // 'paid_at',
     ];
 
     protected $attributes = [
@@ -27,6 +27,11 @@ class Payment extends Model
     // protected $casts = [
     //     'paid_at' => 'datetime',
     // ];
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
 
     public function consultations()
     {

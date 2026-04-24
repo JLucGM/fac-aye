@@ -1,11 +1,12 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Role, type BreadcrumbItem } from '@/types';
+import { RoleResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,44 +14,58 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Roles',
+        title: 'Roles',
         href: '/roles',
     },
 ];
 
-export default function Index({ roles, filters }: { roles: Role[], filters: any }) {
+interface IndexProps {
+    roles: PaginatedData<RoleResource>;
+    filters: {
+        search?: string;
+    };
+}
+
+export default function Index({ roles, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(search, 500);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                router.get(route('roles.index'), { search }, {
-                    preserveState: true,
-                    replace: true
-                });
-            }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [search]);
+        if (debouncedSearch !== (filters.search || '')) {
+            router.get(
+                route('roles.index'),
+                { search: debouncedSearch },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [debouncedSearch]);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Roles" />
+            <Head title="Roles" />
             <Heading
                 title="Roles"
-                description={`Administra los roles del sistema (${roles.length} encontrados).`}
+                description="Gestiona los roles y permisos del sistema."
             >
-                <Button asChild>
-                    <Link className="btn btn-primary" href={route('roles.create')}>
-                        Crear rol
-                    </Link>
-                </Button>
+                <div className="flex justify-end gap-4">
+                    <Button asChild>
+                        <Link href={route('roles.create')}>
+                            Crear rol
+                        </Link>
+                    </Button>
+                </div>
             </Heading>
 
-            <DataTable
-                columns={columns}
-                data={roles}
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={roles.data}
+                    meta={roles.meta}
+                    onSearch={setSearch}
+                    initialSearch={search}
+                    searchPlaceholder="Buscar por nombre..."
+                />
+            </div>
         </ContentLayout>
     );
 }

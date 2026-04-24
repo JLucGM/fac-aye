@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Models\Role;
+use App\Http\Resources\RoleResource;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -31,10 +32,11 @@ class RoleController extends Controller
                 $query->where('name', 'like', "%{$search}%");
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Roles/Index', [
-            'roles' => $roles,
+            'roles' => RoleResource::collection($roles),
             'filters' => $request->only(['search'])
         ]);
     }

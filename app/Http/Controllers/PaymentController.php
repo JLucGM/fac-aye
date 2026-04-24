@@ -10,6 +10,8 @@ use App\Models\Patient;
 use App\Models\PatientBalanceTransaction;
 use App\Models\PatientSubscription;
 use App\Models\PaymentMethod;
+use App\Http\Resources\PaymentResource;
+use App\Http\Resources\PaymentMethodResource;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -29,13 +31,40 @@ class PaymentController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request->input('search');
         $method = $request->input('method', 'all');
         $status = $request->input('status', 'all');
+        $type = $request->input('type', 'consulta'); // consulta o suscripcion
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
         $payments = Payment::query()
-            ->with(['paymentMethod', 'consultations.patient', 'patientSubscriptions.patient'])
+            ->with(['paymentMethod', 'patient', 'consultations.patient', 'patientSubscriptions.patient'])
+            ->when($type === 'consulta', function ($query) {
+                $query->where('payment_type', 'consulta');
+            })
+            ->when($type === 'suscripcion', function ($query) {
+                $query->where('payment_type', 'suscripcion');
+            })
+            ->when($search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('patient', function ($pq) use ($search) {
+                        $pq->where('name', 'like', "%{$search}%")
+                           ->orWhere('lastname', 'like', "%{$search}%")
+                           ->orWhere('identification', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('consultations.patient', function ($pq) use ($search) {
+                        $pq->where('name', 'like', "%{$search}%")
+                           ->orWhere('lastname', 'like', "%{$search}%")
+                           ->orWhere('identification', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('patientSubscriptions.patient', function ($pq) use ($search) {
+                        $pq->where('name', 'like', "%{$search}%")
+                           ->orWhere('lastname', 'like', "%{$search}%")
+                           ->orWhere('identification', 'like', "%{$search}%");
+                    });
+                });
+            })
             ->when($method !== 'all', function ($query) use ($method) {
                 $query->whereHas('paymentMethod', function ($q) use ($method) {
                     $q->where('name', $method);
@@ -51,11 +80,16 @@ class PaymentController extends Controller
                 $query->whereDate('created_at', '<=', $endDate);
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+
+
+        $paymentMethods = PaymentMethod::where('active', 1)->get();
 
         return Inertia::render('Payments/Index', [
-            'payments' => $payments,
-            'filters' => $request->only(['method', 'status', 'start_date', 'end_date'])
+            'payments' => PaymentResource::collection($payments),
+            'paymentMethods' => PaymentMethodResource::collection($paymentMethods),
+            'filters' => $request->only(['search', 'method', 'status', 'type', 'start_date', 'end_date'])
         ]);
     }
 

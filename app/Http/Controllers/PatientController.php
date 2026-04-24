@@ -10,6 +10,7 @@ use App\Models\PatientBalanceTransaction;
 use App\Models\PatientSubscription;
 use App\Models\Setting;
 use App\Models\Subscription;
+use App\Http\Resources\PatientResource;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -32,17 +33,21 @@ class PatientController extends Controller
         $search = $request->input('search');
 
         $patients = Patient::query()
-            ->with('subscriptions')
+            ->select(['id', 'name', 'lastname', 'identification', 'email', 'phone', 'birthdate', 'slug', 'balance', 'credit', 'created_at'])
+            ->with(['activeSubscription'])
             ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('lastname', 'like', "%{$search}%")
-                      ->orWhere('identification', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('lastname', 'like', "%{$search}%")
+                        ->orWhere('identification', 'like', "%{$search}%");
+                });
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Patients/Index', [
-            'patients' => $patients,
+            'patients' => PatientResource::collection($patients),
             'filters' => $request->only(['search'])
         ]);
     }

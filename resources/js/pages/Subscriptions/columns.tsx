@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Edit } from "lucide-react"
 import { Link, useForm } from "@inertiajs/react"
-import { Subscription } from "@/types"
+import { SubscriptionResource } from "@/types"
 import { useState } from "react"
 
-export const columns: ColumnDef<Subscription>[] = [
+export const columns: ColumnDef<SubscriptionResource>[] = [
   {
     accessorKey: "name",
     header: "Nombre",

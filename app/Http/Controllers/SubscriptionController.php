@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
+use App\Http\Resources\SubscriptionResource;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -24,15 +25,15 @@ class SubscriptionController extends Controller
         $search = $request->input('search');
 
         $subscriptions = Subscription::query()
-            ->with('patients')
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Subscriptions/Index', [
-            'subscriptions' => $subscriptions,
+            'subscriptions' => SubscriptionResource::collection($subscriptions),
             'filters' => $request->only(['search'])
         ]);
     }

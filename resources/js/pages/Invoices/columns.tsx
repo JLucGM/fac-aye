@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download, Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { Link, useForm } from "@inertiajs/react";
-import { Invoice } from "@/types";
+import { InvoiceResource } from "@/types";
 import { useState } from "react";
 import {
   Dialog,
@@ -20,19 +20,19 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-export const columns: ColumnDef<Invoice>[] = [
+export const columns: ColumnDef<InvoiceResource>[] = [
   {
     accessorKey: "invoice_number",
     header: "Número de Factura",
   },
   {
-    accessorKey: "patient.name",
+    accessorKey: "patient.full_name",
     header: "Paciente",
     cell: ({ row }) => {
       const patient = row.original.patient;
       return patient ? (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {patient.name} {patient.lastname}
+          {patient.full_name}
         </p>
       ) : (
         <p className="text-sm text-gray-500">N/A</p>
@@ -43,8 +43,7 @@ export const columns: ColumnDef<Invoice>[] = [
     accessorKey: "invoice_date",
     header: "Fecha de Emisión",
     cell: ({ row }) => {
-      const date = new Date(row.original.invoice_date);
-      return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+      return row.original.invoice_date;
     },
   },
   {

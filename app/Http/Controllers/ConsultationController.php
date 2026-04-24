@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Service;
 use App\Models\User;
+use App\Http\Resources\ConsultationResource;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -52,18 +53,23 @@ class ConsultationController extends Controller
                 $query->where('consultation_type', $consultationType);
             })
             ->when($startDate, function ($query, $startDate) {
-                $query->whereDate('scheduled_at', '>=', $startDate)
+                $query->where(function($q) use ($startDate) {
+                    $q->whereDate('scheduled_at', '>=', $startDate)
                       ->orWhereDate('created_at', '>=', $startDate);
+                });
             })
             ->when($endDate, function ($query, $endDate) {
-                $query->whereDate('scheduled_at', '<=', $endDate)
+                $query->where(function($q) use ($endDate) {
+                    $q->whereDate('scheduled_at', '<=', $endDate)
                       ->orWhereDate('created_at', '<=', $endDate);
+                });
             })
             ->latest()
-            ->get(); // Volvemos a get() pero filtrado para que tu DataTable local funcione con todos los 18 si así lo deseas, o usa paginate() si quieres optimizar Nginx.
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Consultations/Index', [
-            'consultations' => $consultations,
+            'consultations' => ConsultationResource::collection($consultations),
             'filters' => $request->only(['search', 'payment_status', 'consultation_type', 'start_date', 'end_date'])
         ]);
     }

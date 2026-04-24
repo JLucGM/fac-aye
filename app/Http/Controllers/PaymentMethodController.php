@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PaymentMethod;
 use App\Http\Requests\StorePaymentMethodRequest;
 use App\Http\Requests\UpdatePaymentMethodRequest;
+use App\Http\Resources\PaymentMethodResource;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -30,10 +31,11 @@ class PaymentMethodController extends Controller
                 $query->where('name', 'like', "%{$search}%");
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('PaymentMethods/Index', [
-            'paymentMethods' => $paymentMethods,
+            'paymentMethods' => PaymentMethodResource::collection($paymentMethods),
             'filters' => $request->only(['search'])
         ]);
     }

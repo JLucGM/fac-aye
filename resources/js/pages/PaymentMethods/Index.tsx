@@ -1,11 +1,12 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { PaymentMethod, type BreadcrumbItem } from '@/types';
+import { PaymentMethodResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,44 +14,58 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Métodos de Pago',
+        title: 'Métodos de pago',
         href: '/payment-methods',
     },
 ];
 
-export default function Index({ paymentMethods, filters }: { paymentMethods: PaymentMethod[], filters: any }) {
+interface IndexProps {
+    paymentMethods: PaginatedData<PaymentMethodResource>;
+    filters: {
+        search?: string;
+    };
+}
+
+export default function Index({ paymentMethods, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(search, 500);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                router.get(route('payment-methods.index'), { search }, {
-                    preserveState: true,
-                    replace: true
-                });
-            }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [search]);
+        if (debouncedSearch !== (filters.search || '')) {
+            router.get(
+                route('payment-methods.index'),
+                { search: debouncedSearch },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [debouncedSearch]);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Métodos de Pago" />
+            <Head title="Métodos de pago" />
             <Heading
-                title="Métodos de Pago"
-                description={`Administra los métodos de pago (${paymentMethods.length} encontrados).`}
+                title="Métodos de pago"
+                description="Gestiona los métodos de pago aceptados en la clínica."
             >
-                <Button asChild>
-                    <Link className="btn btn-primary" href={route('payment-methods.create')}>
-                        Crear método de pago
-                    </Link>
-                </Button>
+                <div className="flex justify-end gap-4">
+                    <Button asChild>
+                        <Link href={route('payment-methods.create')}>
+                            Crear método
+                        </Link>
+                    </Button>
+                </div>
             </Heading>
 
-            <DataTable
-                columns={columns}
-                data={paymentMethods}
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={paymentMethods.data}
+                    meta={paymentMethods.meta}
+                    onSearch={setSearch}
+                    initialSearch={search}
+                    searchPlaceholder="Buscar por nombre..."
+                />
+            </div>
         </ContentLayout>
     );
 }

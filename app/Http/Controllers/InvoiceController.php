@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Patient;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
+use App\Http\Resources\InvoiceResource;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -35,19 +36,21 @@ class InvoiceController extends Controller
         $search = $request->input('search');
 
         $invoices = Invoice::query()
-            ->with('patient')
+            ->with(['patient', 'paymentMethod'])
             ->when($search, function ($query, $search) {
                 $query->where('invoice_number', 'like', "%{$search}%")
                       ->orWhereHas('patient', function ($q) use ($search) {
                           $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('lastname', 'like', "%{$search}%");
+                            ->orWhere('lastname', 'like', "%{$search}%")
+                            ->orWhere('identification', 'like', "%{$search}%");
                       });
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Invoices/Index', [
-            'invoices' => $invoices,
+            'invoices' => InvoiceResource::collection($invoices),
             'filters' => $request->only(['search'])
         ]);
     }

@@ -1,11 +1,12 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Service, type BreadcrumbItem } from '@/types';
+import { ServiceResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,44 +14,58 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Servicios',
+        title: 'Servicios',
         href: '/services',
     },
 ];
 
-export default function Index({ services, filters }: { services: Service[], filters: any }) {
+interface IndexProps {
+    services: PaginatedData<ServiceResource>;
+    filters: {
+        search?: string;
+    };
+}
+
+export default function Index({ services, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(search, 500);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                router.get(route('services.index'), { search }, {
-                    preserveState: true,
-                    replace: true
-                });
-            }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [search]);
+        if (debouncedSearch !== (filters.search || '')) {
+            router.get(
+                route('services.index'),
+                { search: debouncedSearch },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [debouncedSearch]);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Servicios" />
+            <Head title="Servicios" />
             <Heading
                 title="Servicios"
-                description={`Administra tus servicios (${services.length} encontrados).`}
+                description="Gestiona los servicios y tratamientos ofrecidos."
             >
-                <Button asChild>
-                    <Link className="btn btn-primary" href={route('services.create')}>
-                        Crear servicio
-                    </Link>
-                </Button>
+                <div className="flex justify-end gap-4">
+                    <Button asChild>
+                        <Link href={route('services.create')}>
+                            Crear servicio
+                        </Link>
+                    </Button>
+                </div>
             </Heading>
 
-            <DataTable
-                columns={columns}
-                data={services}
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={services.data}
+                    meta={services.meta}
+                    onSearch={setSearch}
+                    initialSearch={search}
+                    searchPlaceholder="Buscar por nombre..."
+                />
+            </div>
         </ContentLayout>
     );
 }

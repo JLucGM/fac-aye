@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { Link, useForm } from "@inertiajs/react";
-import { Patient } from "@/types";
+import { PatientResource } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import {
@@ -20,20 +20,18 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-type SubscriptionStatus = 'active' | 'inactive' | 'none';
-
-export const columns: ColumnDef<Patient>[] = [
+export const columns: ColumnDef<PatientResource>[] = [
   {
     accessorKey: "identification",
     header: "Cédula de identidad",
   },
   {
-    accessorKey: "name",
+    accessorKey: "full_name",
     header: "Nombre",
     cell: ({ row }) => {
       return (
         <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-          {row.original.name} {row.original.lastname}
+          {row.original.full_name}
         </p>
       );
     },
@@ -46,18 +44,15 @@ export const columns: ColumnDef<Patient>[] = [
     id: "subscriptionStatus",
     header: "Estado de Funcional",
     cell: ({ row }) => {
-      const subscriptions = row.original.subscriptions || [];
-      const status: SubscriptionStatus = subscriptions.length > 0 
-        ? (subscriptions.some(sub => sub.status === 'active') ? 'active' : 'inactive') 
-        : 'none';
-      const variantMap: Record<SubscriptionStatus, "default" | "secondary" | "outline" | "destructive"> = {
+      const activeSub = row.original.active_subscription;
+      const status = activeSub ? 'active' : 'none';
+      
+      const variantMap: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
         active: 'default',
-        inactive: 'secondary',
         none: 'outline'
       };
-      const textMap: Record<SubscriptionStatus, string> = {
+      const textMap: Record<string, string> = {
         active: 'Activa',
-        inactive: 'Inactiva',
         none: 'Sin Funcional'
       };
       return <Badge variant={variantMap[status]}>{textMap[status]}</Badge>;
@@ -115,7 +110,7 @@ export const columns: ColumnDef<Patient>[] = [
               <DialogHeader>
                 <DialogTitle>¿Confirmar eliminación?</DialogTitle>
                 <DialogDescription>
-                  Esta acción eliminará permanentemente al paciente **{row.original.name} {row.original.lastname}** y todos sus registros asociados. Esta acción no se puede deshacer.
+                  Esta acción eliminará permanentemente al paciente **{row.original.full_name}** y todos sus registros asociados. Esta acción no se puede deshacer.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="gap-2">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use App\Http\Resources\DoctorResource;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -25,15 +26,18 @@ class DoctorController extends Controller
 
         $doctors = Doctor::query()
             ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
                       ->orWhere('lastname', 'like', "%{$search}%")
                       ->orWhere('identification', 'like', "%{$search}%");
+                });
             })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Doctors/Index', [
-            'doctors' => $doctors,
+            'doctors' => DoctorResource::collection($doctors),
             'filters' => $request->only(['search'])
         ]);
     }

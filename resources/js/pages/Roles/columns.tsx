@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Trash, Edit } from "lucide-react"
 import { Link, useForm } from "@inertiajs/react"
-import { Role } from "@/types"
+import { RoleResource } from "@/types"
 import { useState } from "react"
 import {
   Dialog,
@@ -19,7 +19,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-export const columns: ColumnDef<Role>[] = [
+export const columns: ColumnDef<RoleResource>[] = [
   {
     accessorKey: "name",
     header: "Nombre",

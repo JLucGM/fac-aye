@@ -1,11 +1,12 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import {ContentLayout} from '@/layouts/content-layout';
-import { type BreadcrumbItem, User } from '@/types';
+import { ContentLayout } from '@/layouts/content-layout';
+import { UserResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,44 +14,58 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Lista de Usuarios',
-        href: '/usuarios',
+        title: 'Listado de Usuarios',
+        href: '/user',
     },
 ];
 
-export default function Index({ users, filters }: { users: User[], filters: any }) {
+interface IndexProps {
+    users: PaginatedData<UserResource>;
+    filters: {
+        search?: string;
+    };
+}
+
+export default function Index({ users, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(search, 500);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                router.get(route('user.index'), { search }, {
-                    preserveState: true,
-                    replace: true
-                });
-            }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [search]);
+        if (debouncedSearch !== (filters.search || '')) {
+            router.get(
+                route('user.index'),
+                { search: debouncedSearch },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [debouncedSearch]);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Lista de Usuarios" />
+            <Head title="Listado de Usuarios" />
             <Heading
-                title="Usuarios"
-                description={`Gestiona tus usuarios (${Array.isArray(users) ? users.length : 0} encontrados).`}
+                title="Listado de Usuarios"
+                description="Gestiona los usuarios que tienen acceso al sistema."
             >
-                <Button asChild>
-                    <Link className="btn btn-primary" href={route('user.create')}>
-                        Crear usuarios
-                    </Link>
-                </Button>
+                <div className="flex justify-end gap-4">
+                    <Button asChild>
+                        <Link href={route('user.create')}>
+                            Crear usuario
+                        </Link>
+                    </Button>
+                </div>
             </Heading>
 
-            <DataTable
-                columns={columns}
-                data={users}
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={users.data}
+                    meta={users.meta}
+                    onSearch={setSearch}
+                    initialSearch={search}
+                    searchPlaceholder="Buscar por nombre, email o identificación..."
+                />
+            </div>
         </ContentLayout>
     );
 }

@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Payment, type BreadcrumbItem } from '@/types';
+import { PaymentResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
@@ -15,6 +15,7 @@ import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -27,19 +28,35 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ];
 
-export default function Index({ payments, filters }: { payments: Payment[], filters: any }) {
+interface IndexProps {
+    payments: PaginatedData<PaymentResource>;
+    paymentMethods: { data: { id: number, name: string }[] };
+    filters: {
+        search?: string;
+        method?: string;
+        status?: string;
+        type?: string;
+        start_date?: string;
+        end_date?: string;
+    };
+}
+
+export default function Index({ payments, paymentMethods, filters }: IndexProps) {
+  const [search, setSearch] = useState(filters.search || '');
+  const debouncedSearch = useDebounce(search, 500);
   const [selectedMethod, setSelectedMethod] = useState(filters.method || 'all');
   const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
   const [startDate, setStartDate] = useState(filters.start_date || '');
   const [endDate, setEndDate] = useState(filters.end_date || '');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('asistencias');
+  const [activeTab, setActiveTab] = useState(filters.type || 'consulta');
 
-  // Función para refrescar datos desde Laravel cuando cambien los filtros
-  const refreshData = () => {
+  const refreshData = (currentSearch: string, currentTab: string) => {
     router.get(route('payments.index'), {
+      search: currentSearch,
       method: selectedMethod,
       status: selectedStatus,
+      type: currentTab,
       start_date: startDate,
       end_date: endDate,
     }, {
@@ -49,61 +66,35 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
     });
   };
 
-  // Escuchamos cambios en los filtros para refrescar
   useEffect(() => {
     if (
+      debouncedSearch !== (filters.search || '') ||
       selectedMethod !== (filters.method || 'all') ||
       selectedStatus !== (filters.status || 'all') ||
       startDate !== (filters.start_date || '') ||
       endDate !== (filters.end_date || '')
     ) {
-      refreshData();
+      refreshData(debouncedSearch, activeTab);
     }
-  }, [selectedMethod, selectedStatus, startDate, endDate]);
+  }, [debouncedSearch, selectedMethod, selectedStatus, startDate, endDate]);
 
-  // Obtener métodos de pago únicos de la lista actual para el select (si es necesario hacerlo dinámico)
-  // Aunque lo mejor es que el controlador envíe los métodos de pago. 
-  // Por ahora lo mantendremos simple para no alterar tu UI.
-  const paymentMethods = [
-    ...new Set(payments.map(p => p.payment_method?.name).filter(Boolean))
-  ].sort();
-
-  const statusOptions = ['pendiente', 'pagado', 'cancelado'];
-
-  // Filtrar pagos de asistencia y funcional
-  const consultationPayments = payments.filter(payment => payment.consultations.length > 0);
-  const subscriptionPayments = payments.filter(payment => payment.patient_subscriptions.length > 0);
-
-  // Función para obtener el nombre del paciente
-  const getPatientName = (payment: Payment) => {
-    if (payment.consultations.length > 0) {
-      return `${payment.consultations[0].patient.name} ${payment.consultations[0].patient.lastname}`;
-    } else if (payment.patient_subscriptions.length > 0) {
-      return `${payment.patient_subscriptions[0].patient.name} ${payment.patient_subscriptions[0].patient.lastname}`;
-    }
-    return 'Paciente no disponible';
+  const handleTabChange = (value: string) => {
+      setActiveTab(value);
+      refreshData(debouncedSearch, value);
   };
 
-  const consultationTableData = consultationPayments.map(payment => ({
-    ...payment,
-    patientName: getPatientName(payment)
-  }));
-
-  const subscriptionTableData = subscriptionPayments.map(payment => ({
-    ...payment,
-    patientName: getPatientName(payment)
-  }));
+  const statusOptions = ['pendiente', 'pagado', 'cancelado'];
 
   return (
     <ContentLayout breadcrumbs={breadcrumbs}>
       <Head title="Lista de Pagos" />
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <Heading
           title="Lista de Pagos"
-          description={`Gestión de ${payments.length} pagos filtrados`}
+          description={`Gestión de pagos filtrados`}
         />
 
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <Link className={buttonVariants({ variant: "outline" })}
             href={route('module-operation.accounts_receivable_index')}>
             Ver Cuentas por Pagar
@@ -144,18 +135,18 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
         </div>
 
         <CollapsibleContent className="space-y-2">
-          <div className="rounded-md border px-4 py-3 text-sm space-y-4">
+          <div className="rounded-md border px-4 py-3 text-sm space-y-4 bg-white">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label className="block text-sm font-medium mb-1">Método de pago</Label>
                 <select
                   value={selectedMethod}
                   onChange={(e) => setSelectedMethod(e.target.value)}
-                  className="w-full border rounded p-2"
+                  className="w-full border rounded p-2 bg-white"
                 >
                   <option value="all">Todos los métodos</option>
-                  {paymentMethods.map(method => (
-                    <option key={method} value={method}>{method}</option>
+                  {paymentMethods?.data?.map(method => (
+                    <option key={method.id} value={method.name}>{method.name}</option>
                   ))}
                 </select>
               </div>
@@ -165,7 +156,7 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full border rounded p-2"
+                  className="w-full border rounded p-2 bg-white"
                 >
                   <option value="all">Todos los estados</option>
                   {statusOptions.map(status => (
@@ -184,7 +175,7 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full border rounded p-2"
+                      className="w-full"
                     />
                   </div>
                   <div>
@@ -194,7 +185,7 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                       min={startDate || undefined}
-                      className="w-full border rounded p-2"
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -209,6 +200,7 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
                   setSelectedStatus('all');
                   setStartDate('');
                   setEndDate('');
+                  setSearch('');
                 }}
               >
                 Limpiar filtros
@@ -218,21 +210,29 @@ export default function Index({ payments, filters }: { payments: Payment[], filt
         </CollapsibleContent>
       </Collapsible>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-4">
         <TabsList>
-          <TabsTrigger value="asistencias">Pagos de Asistencias</TabsTrigger>
-          <TabsTrigger value="funcional">Pagos de funcional</TabsTrigger>
+          <TabsTrigger value="consulta">Pagos de Asistencias</TabsTrigger>
+          <TabsTrigger value="suscripcion">Pagos de funcional</TabsTrigger>
         </TabsList>
-        <TabsContent value="asistencias">
+        <TabsContent value="consulta">
           <DataTable
             columns={columns}
-            data={consultationTableData}
+            data={payments.data}
+            meta={payments.meta}
+            onSearch={setSearch}
+            initialSearch={search}
+            searchPlaceholder="Buscar por paciente..."
           />
         </TabsContent>
-        <TabsContent value="funcional">
+        <TabsContent value="suscripcion">
           <DataTable
             columns={columns}
-            data={subscriptionTableData}
+            data={payments.data}
+            meta={payments.meta}
+            onSearch={setSearch}
+            initialSearch={search}
+            searchPlaceholder="Buscar por paciente..."
           />
         </TabsContent>
       </Tabs>

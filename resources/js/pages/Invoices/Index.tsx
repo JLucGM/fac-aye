@@ -1,11 +1,12 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Invoice, type BreadcrumbItem } from '@/types';
+import { InvoiceResource, PaginatedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columns } from './columns';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,50 +14,58 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Listado de Facturas',
+        title: 'Facturas',
         href: '/invoices',
     },
 ];
 
-export default function Index({ invoices, filters }: { invoices: Invoice[], filters: any }) {
-    const [search, setSearch] = useState(filters.search || '');
+interface IndexProps {
+    invoices: PaginatedData<InvoiceResource>;
+    filters: {
+        search?: string;
+    };
+}
 
-    // Sincronizar búsqueda con el servidor (Debounce 400ms)
+export default function Index({ invoices, filters }: IndexProps) {
+    const [search, setSearch] = useState(filters.search || '');
+    const debouncedSearch = useDebounce(search, 500);
+
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                router.get(route('invoices.index'), { search }, {
-                    preserveState: true,
-                    preserveScroll: true,
-                    replace: true
-                });
-            }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [search]);
+        if (debouncedSearch !== (filters.search || '')) {
+            router.get(
+                route('invoices.index'),
+                { search: debouncedSearch },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [debouncedSearch]);
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
-            <Head title="Listado de Facturas" />
+            <Head title="Facturas" />
             <Heading
-                title="Listado de Facturas"
-                description={`Gestiona tus Facturas (${invoices.length} encontradas).`}
+                title="Facturas"
+                description="Gestiona las facturas de tus pacientes."
             >
-                <div className="flex gap-4">
+                <div className="flex justify-end gap-4">
                     <Button asChild>
-                        <Link className="btn btn-primary" href={route('invoices.create')}>
-                            Crear factura
+                        <Link href={route('invoices.create')}>
+                            Crear Factura
                         </Link>
                     </Button>
                 </div>
             </Heading>
 
-            <DataTable
-                columns={columns}
-                data={invoices}
-                // Si tu DataTable tiene un input de búsqueda, puedes pasarle 'search' y 'setSearch' 
-                // o usar el que ya tiene si logras capturar su evento.
-            />
+            <div className="mt-4">
+                <DataTable
+                    columns={columns}
+                    data={invoices.data}
+                    meta={invoices.meta}
+                    onSearch={setSearch}
+                    initialSearch={search}
+                    searchPlaceholder="Buscar por número o paciente..."
+                />
+            </div>
         </ContentLayout>
     );
 }
