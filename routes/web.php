@@ -48,6 +48,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/patients/subscription', [PatientController::class, 'updateSubscription'])->name('patients.subscription.update');
     Route::get('/balance-transactions/{patient}', [PatientController::class, 'showBalanceTransactions'])->name('patients.showBalanceTransactions');
     Route::post('/patients/{patient}/update-balance', [PatientController::class, 'updateBalance'])->name('patients.updateBalance');
+    Route::post('/patients/{patient}/cancel-subscription', [PatientController::class, 'cancelSubscription'])->name('patients.cancelSubscription');
+    Route::post('/patients/{patient}/reactivate-subscription', [PatientController::class, 'reactivateSubscription'])->name('patients.reactivateSubscription');
 
     Route::get('module-operation', [ModuleOperationController::class, 'index'])->name('module-operation.index');
     Route::get('first-visit', [ModuleOperationController::class, 'first_visit_index'])->name('module-operation.first_visit_index');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
@@ -418,5 +419,151 @@ class PatientController extends Controller
 
         return redirect()->back()
             ->with('success', 'Balance y crédito actualizados exitosamente.');
+    }
+
+    /**
+     * Reversar (cancelar) una suscripción creada por error.
+     * Revierte la deuda asociada, convierte pagos en crédito y recalcula el balance.
+     */
+    public function cancelSubscription(Request $request, Patient $patient)
+    {
+        $request->validate([
+            'patient_subscription_id' => 'required|exists:patient_subscriptions,id',
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $subscription = PatientSubscription::with('subscription')
+            ->where('id', $request->patient_subscription_id)
+            ->where('patient_id', $patient->id)
+            ->firstOrFail();
+
+        if ($subscription->status === 'cancelled') {
+            return back()->withErrors(['error' => 'Esta suscripción ya está cancelada.']);
+        }
+
+        DB::transaction(function () use ($subscription, $patient, $request) {
+            $price = (float) $subscription->subscription->price;
+            $originalAmountPaid = (float) $subscription->amount_paid;
+
+            // 1. Reversar la deuda original de la suscripción
+            PatientBalanceTransaction::create([
+                'patient_id' => $patient->id,
+                'patient_subscription_id' => $subscription->id,
+                'amount' => $price,
+                'type' => 'suscripcion_reversada',
+                'description' => "Reversión de suscripción #{$subscription->id}: {$request->reason}",
+            ]);
+
+            // 2. Si el paciente había pagado algo, convertir en crédito
+            if ($originalAmountPaid > 0) {
+                $patient->credit = ($patient->credit ?? 0) + $originalAmountPaid;
+            }
+
+            // 3. Marcar suscripción como cancelada
+            $subscription->update([
+                'status' => 'cancelled',
+                'end_date' => now(),
+            ]);
+
+            // 4. Recalcular balance total (solo suscripciones no canceladas)
+            $consultationsDebt = Consultation::where('patient_id', $patient->id)
+                ->sum(DB::raw('amount - amount_paid'));
+
+            $subscriptionsDebt = PatientSubscription::where('patient_id', $patient->id)
+                ->where('status', '!=', 'cancelled')
+                ->join('subscriptions', 'patient_subscriptions.subscription_id', '=', 'subscriptions.id')
+                ->sum(DB::raw('GREATEST(subscriptions.price - patient_subscriptions.amount_paid, 0)'));
+
+            $totalDebt = $consultationsDebt + $subscriptionsDebt;
+            $patient->balance = $totalDebt > 0 ? -$totalDebt : 0;
+            $patient->save();
+        });
+
+        return redirect()->back()
+            ->with('success', 'Suscripción reversada exitosamente. Balance y crédito recalculados.');
+    }
+
+    /**
+     * Reactivar una suscripción que fue desactivada/cancelada pero aún tiene consultas restantes.
+     * Si la deuda fue reversada previamente, se genera una nueva deuda.
+     */
+    public function reactivateSubscription(Request $request, Patient $patient)
+    {
+        $request->validate([
+            'patient_subscription_id' => 'required|exists:patient_subscriptions,id',
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $subscription = PatientSubscription::with('subscription')
+            ->where('id', $request->patient_subscription_id)
+            ->where('patient_id', $patient->id)
+            ->firstOrFail();
+
+        if ($subscription->status === 'active') {
+            return back()->withErrors(['error' => 'Esta suscripción ya está activa.']);
+        }
+
+        if ($subscription->consultations_remaining <= 0) {
+            return back()->withErrors(['error' => 'Esta suscripción no tiene consultas restantes para reactivar.']);
+        }
+
+        DB::transaction(function () use ($subscription, $patient, $request) {
+            $price = (float) $subscription->subscription->price;
+
+            // Verificar si la deuda fue reversada previamente
+            $wasReversed = PatientBalanceTransaction::where('patient_subscription_id', $subscription->id)
+                ->where('type', 'suscripcion_reversada')
+                ->exists();
+
+            if ($wasReversed) {
+                $originalPaid = (float) $subscription->amount_paid;
+                $debtAmount = max(0, $price - $originalPaid);
+
+                if ($debtAmount > 0) {
+                    // Generar deuda solo por la porción no pagada
+                    PatientBalanceTransaction::create([
+                        'patient_id' => $patient->id,
+                        'patient_subscription_id' => $subscription->id,
+                        'amount' => -$debtAmount,
+                        'type' => 'funcional_deuda',
+                        'description' => "Deuda por reactivación de suscripción #{$subscription->id}: {$request->reason}",
+                    ]);
+                }
+
+                // Revertir el crédito otorgado durante la reversión
+                $patient->credit = max(0, ($patient->credit ?? 0) - $originalPaid);
+            }
+
+            // Desactivar otras suscripciones activas (solo 1 activa a la vez)
+            $patient->subscriptions()
+                ->where('status', 'active')
+                ->where('id', '!=', $subscription->id)
+                ->update([
+                    'status' => 'inactive',
+                    'end_date' => now(),
+                ]);
+
+            // Reactivar la suscripción
+            $subscription->update([
+                'status' => 'active',
+                'end_date' => $this->calculateEndDate($subscription->subscription->type),
+            ]);
+
+            // Recalcular balance completo
+            $consultationsDebt = Consultation::where('patient_id', $patient->id)
+                ->sum(DB::raw('amount - amount_paid'));
+
+            $subscriptionsDebt = PatientSubscription::where('patient_id', $patient->id)
+                ->where('status', '!=', 'cancelled')
+                ->join('subscriptions', 'patient_subscriptions.subscription_id', '=', 'subscriptions.id')
+                ->sum(DB::raw('GREATEST(subscriptions.price - patient_subscriptions.amount_paid, 0)'));
+
+            $totalDebt = $consultationsDebt + $subscriptionsDebt;
+            $patient->balance = $totalDebt > 0 ? -$totalDebt : 0;
+            $patient->save();
+        });
+
+        return redirect()->back()
+            ->with('success', 'Suscripción reactivada exitosamente. Balance recalculado.');
     }
 }

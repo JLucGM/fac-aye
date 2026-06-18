@@ -17,6 +17,7 @@ class PatientSubscription extends Model
         'consultations_remaining', 
         'status',
         'payment_status',
+        'amount_paid',
     ];
     
     public function patient()

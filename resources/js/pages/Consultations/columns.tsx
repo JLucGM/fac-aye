@@ -7,18 +7,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
-import { Link, useForm } from "@inertiajs/react"
+import { Link } from "@inertiajs/react"
 import { ConsultationResource } from "@/types"
 import { Badge } from "@/components/ui/badge"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 import { useState } from "react"
+import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog"
 
 export const columns: ColumnDef<ConsultationResource>[] = [
   {
@@ -88,15 +81,8 @@ export const columns: ColumnDef<ConsultationResource>[] = [
     id: "actions",
     cell: ({ row }) => {
       const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-      const { delete: destroy, processing } = useForm();
 
       const isPending = row.original.payment_status === "pendiente";
-
-      const handleDelete = () => {
-        destroy(route('consultations.destroy', [row.original.id]), {
-          onSuccess: () => setShowDeleteDialog(false),
-        });
-      };
 
       return (
         <>
@@ -133,32 +119,21 @@ export const columns: ColumnDef<ConsultationResource>[] = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>¿Confirmar eliminación?</DialogTitle>
-                <DialogDescription>
-                  Esta acción eliminará la consulta y descontara **${row.original.amount}** al balance del paciente.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteDialog(false)}
-                  disabled={processing}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={processing}
-                >
-                  {processing ? "Eliminando..." : "Eliminar Consulta"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <ConfirmDeleteDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            routeName="consultations.destroy"
+            routeParams={[row.original.id]}
+            title="¿Confirmar eliminación?"
+          >
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>Se eliminará la consulta de <strong>{row.original.patient?.full_name}</strong>.</p>
+              {isPending && (
+                <p className="text-amber-600 font-medium">Se revertirá la deuda de <strong>${row.original.amount}</strong> del balance del paciente.</p>
+              )}
+              <p className="text-destructive font-medium">Esta acción no se puede deshacer.</p>
+            </div>
+          </ConfirmDeleteDialog>
         </>
       );
     },

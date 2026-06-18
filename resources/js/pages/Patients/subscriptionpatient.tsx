@@ -1,4 +1,4 @@
-import { Doctor, Patient, Subscription, type BreadcrumbItem } from '@/types';
+import { Patient, Subscription, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
@@ -7,7 +7,9 @@ import Select from 'react-select';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import PatientInfo from '@/components/patients-info';
-import { MousePointer, MousePointerClick } from 'lucide-react';
+import { MousePointerClick, AlertTriangle } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -25,32 +27,29 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Create({ patients, subscriptions }: { patients: Patient[], subscriptions: Subscription[] }) {
-    const { data, setData, errors, post } = useForm({
+    const [showConfirm, setShowConfirm] = useState(false);
+
+    const { data, setData, errors, post, processing } = useForm({
         subscription_id: '',
         patient_id: '',
     });
 
+    const selectedPatient = patients.find(patient => patient.id === Number(data.patient_id));
+    const selectedSubscription = subscriptions.find(subscription => subscription.id === Number(data.subscription_id));
+    const hasActiveSub = selectedPatient?.subscriptions?.some(s => s.status === 'active');
+    const price = selectedSubscription ? parseFloat(selectedSubscription.price?.toString() || '0') : 0;
+
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!data.patient_id || !data.subscription_id) {
-            console.error("Se requiere patient_id y subscription_id para actualizar la suscripción.");
-            return;
-        }
-
-        post(route('patients.subscription.update'), {
-            onSuccess: () => {
-                // console.log("Suscripción actualizada exitosamente");
-            },
-            onError: (errors) => {
-                console.error("Error al actualizar la suscripción:", errors);
-            },
-        });
+        if (!data.patient_id || !data.subscription_id) return;
+        setShowConfirm(true);
     };
 
-    // Encuentra el paciente y la suscripción seleccionados
-    const selectedPatient = patients.find(patient => patient.id === Number(data.patient_id));
-const selectedSubscription = subscriptions.find(subscription => subscription.id === Number(data.subscription_id));
-
+    const handleConfirm = () => {
+        post(route('patients.subscription.update'), {
+            onSuccess: () => setShowConfirm(false),
+        });
+    };
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>
@@ -58,6 +57,49 @@ const selectedSubscription = subscriptions.find(subscription => subscription.id 
             <Heading
                 title="Renovar funcional"
                 description="Aquí puedes renovar o crear un nuevo funcional al paciente."
+            />
+
+            <ConfirmDialog
+                open={showConfirm}
+                onOpenChange={setShowConfirm}
+                onConfirm={handleConfirm}
+                title="¿Confirmar asignación de funcional?"
+                description={
+                    <div className="space-y-3">
+                        <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-amber-800 text-sm flex gap-2">
+                            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-medium">Se generará una nueva deuda</p>
+                                <p>Esta acción creará una deuda de <strong>${price.toFixed(2)}</strong> en el balance del paciente.</p>
+                            </div>
+                        </div>
+                        {hasActiveSub && (
+                            <div className="bg-orange-50 border border-orange-200 rounded-md p-3 text-orange-800 text-sm">
+                                El paciente tiene un funcional activo actualmente. Será desactivado y reemplazado por el nuevo.
+                            </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                            <span className="text-muted-foreground">Paciente:</span>
+                            <span className="font-medium">{selectedPatient?.name} {selectedPatient?.lastname}</span>
+                            <span className="text-muted-foreground">Funcional:</span>
+                            <span className="font-medium">{selectedSubscription?.name}</span>
+                            <span className="text-muted-foreground">Tipo:</span>
+                            <span className="font-medium capitalize">{selectedSubscription?.type}</span>
+                            <span className="text-muted-foreground">Costo:</span>
+                            <span className="font-medium">${price.toFixed(2)}</span>
+                            {selectedSubscription?.consultations_allowed && (
+                                <>
+                                    <span className="text-muted-foreground">Consultas incluidas:</span>
+                                    <span className="font-medium">{selectedSubscription.consultations_allowed}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                }
+                confirmButtonText="Sí, asignar funcional"
+                confirmVariant="default"
+                processing={processing}
+                icon="warning"
             />
 
             <div className="grid grid-cols-3 gap-4">
@@ -107,8 +149,8 @@ const selectedSubscription = subscriptions.find(subscription => subscription.id 
                         <InputError message={errors.subscription_id} className="mt-2" />
                     </div>
 
-                    <Button variant={"default"} type="submit">
-                        Renovar
+                    <Button variant={"default"} type="submit" disabled={!data.patient_id || !data.subscription_id}>
+                        Revisar y Confirmar
                     </Button>
                 </form>
 
@@ -130,7 +172,7 @@ const selectedSubscription = subscriptions.find(subscription => subscription.id 
                             <div className="space-y-2">
                                 <p><strong>Nombre:</strong> {selectedSubscription.name}</p>
                                 <p className='capitalize'><strong>Tipo:</strong> {selectedSubscription.type}</p>
-                                <p><strong>Precio:</strong> {selectedSubscription.price}</p>
+                                <p><strong>Precio:</strong> ${price.toFixed(2)}</p>
                             </div>
                         </div>
                     )}

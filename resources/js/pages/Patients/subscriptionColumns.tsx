@@ -1,28 +1,26 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { PatientSubscription } from "@/types"; // Asegúrate de que la ruta sea correcta
+import { PatientSubscription } from "@/types";
+import ReverseSubscriptionDialog from "@/components/patients/ReverseSubscriptionDialog";
+import ReactivateSubscriptionDialog from "@/components/patients/ReactivateSubscriptionDialog";
 
-export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
-    // {
-    //     accessorKey: "id",
-    //     header: "ID",
-    // },
+export const subscriptionColumns = (patientSlug?: string): ColumnDef<PatientSubscription>[] => [
     {
-        id: "subscriptionName", // Cambia el id de la columna
+        id: "subscriptionName",
         header: "Nombre",
         cell: ({ row }) => {
-            const subscription = row.original.subscription; // Accede a la suscripción directamente
-            return subscription && subscription.name // Accede directamente a name
-                ? subscription.name // Mostrar el nombre de la suscripción
+            const subscription = row.original.subscription;
+            return subscription && subscription.name
+                ? subscription.name
                 : 'Sin funcional';
         },
     },
     {
-        id: "subscriptionPrice", // Cambia el id de la columna
+        id: "subscriptionPrice",
         header: "Precio",
         cell: ({ row }) => {
-            const subscription = row.original.subscription; // Accede a la suscripción directamente
-            return subscription && subscription.price // Accede directamente a price
-                ? subscription.price // Mostrar el precio de la suscripción
+            const subscription = row.original.subscription;
+            return subscription && subscription.price
+                ? `$${parseFloat(subscription.price).toFixed(2)}`
                 : 'Sin funcional';
         },
     },
@@ -45,6 +43,14 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
         header: "Asistencias Restantes",
     },
     {
+        accessorKey: "amount_paid",
+        header: "Monto Pagado",
+        cell: ({ row }) => {
+            const amountPaid = parseFloat(row.original.amount_paid?.toString() || '0');
+            return `$${amountPaid.toFixed(2)}`;
+        },
+    },
+    {
         accessorKey: "status",
         header: "Estado",
         cell: ({ row }) => {
@@ -53,6 +59,7 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
                 active: "text-green-500 capitalize",
                 inactive: "text-red-500 capitalize",
                 pending: "text-yellow-500 capitalize",
+                cancelled: "text-gray-500 capitalize",
             };
             return <span className={statusColors[status] || ''}>{status}</span>;
         },
@@ -60,5 +67,42 @@ export const subscriptionColumns: ColumnDef<PatientSubscription>[] = [
     {
         accessorKey: "payment_status",
         header: "Estado de Pago",
+        cell: ({ row }) => {
+            const status = row.original.payment_status;
+            const colors: { [key: string]: string } = {
+                pagado: "text-green-500 capitalize",
+                pendiente: "text-yellow-500 capitalize",
+                parcial: "text-orange-500 capitalize",
+            };
+            return <span className={colors[status] || ''}>{status}</span>;
+        },
+    },
+    {
+        id: "actions",
+        header: "Acciones",
+        cell: ({ row }) => {
+            const sub = row.original;
+            if (!patientSlug) return null;
+
+            const canReverse = sub.status !== 'cancelled';
+            const canReactivate = sub.status !== 'active' && (sub.consultations_remaining ?? 0) > 0;
+
+            return (
+                <div className="flex gap-1">
+                    {canReverse && (
+                        <ReverseSubscriptionDialog
+                            subscription={sub}
+                            patientSlug={patientSlug}
+                        />
+                    )}
+                    {canReactivate && (
+                        <ReactivateSubscriptionDialog
+                            subscription={sub}
+                            patientSlug={patientSlug}
+                        />
+                    )}
+                </div>
+            );
+        },
     },
 ];

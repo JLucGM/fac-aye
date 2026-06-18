@@ -303,7 +303,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
 
             <TabsContent value="password">
               <HeadingSmall title="Funcionales" description="Lista de suscripciones activas y pasadas del paciente" />
-              <DataTable columns={subscriptionColumns} data={subscriptions} />
+              <DataTable columns={subscriptionColumns(patient.slug)} data={subscriptions} />
             </TabsContent>
           </Tabs>
         </div>

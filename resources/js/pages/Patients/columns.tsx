@@ -7,18 +7,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
-import { Link, useForm } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { PatientResource } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
+import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
 
 export const columns: ColumnDef<PatientResource>[] = [
   {
@@ -63,13 +56,6 @@ export const columns: ColumnDef<PatientResource>[] = [
     id: "actions",
     cell: ({ row }) => {
       const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-      const { delete: destroy, processing } = useForm();
-
-      const handleDelete = () => {
-        destroy(route('patients.destroy', [row.original.slug ?? row.original.id]), {
-          onSuccess: () => setShowDeleteDialog(false),
-        });
-      };
 
       return (
         <>
@@ -105,32 +91,18 @@ export const columns: ColumnDef<PatientResource>[] = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>¿Confirmar eliminación?</DialogTitle>
-                <DialogDescription>
-                  Esta acción eliminará permanentemente al paciente **{row.original.full_name}** y todos sus registros asociados. Esta acción no se puede deshacer.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteDialog(false)}
-                  disabled={processing}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={processing}
-                >
-                  {processing ? "Eliminando..." : "Eliminar Paciente"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <ConfirmDeleteDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            routeName="patients.destroy"
+            routeParams={[row.original.slug ?? row.original.id]}
+            title="¿Confirmar eliminación?"
+          >
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>Esta acción eliminará permanentemente al paciente <strong>{row.original.full_name}</strong> y <strong>todos sus registros asociados</strong> (consultas, suscripciones, pagos, transacciones de balance, historial médico).</p>
+              <p className="text-destructive font-medium">Esta acción no se puede deshacer.</p>
+            </div>
+          </ConfirmDeleteDialog>
         </>
       );
     },

@@ -336,10 +336,12 @@ export interface PatientSubscription {
     end_date: string; // ISO date string
     consultations_used: number;
     consultations_remaining: number;
-    payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
-    status: string;
-    subscription: Subscription; // Asegúrate de que esta relación esté definida
-    patient?: Patient; // A PatientSubscription belongs to one Patient
+    amount_paid: number;
+    payment_status: "pendiente" | 'pagado' | 'parcial' | 'reembolsado';
+    status: 'active' | 'inactive' | 'cancelled' | string;
+    subscription: Subscription;
+    patient?: Patient;
+    payment?: Payment;
 }
 
 
