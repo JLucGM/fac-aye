@@ -12,6 +12,7 @@ use App\Models\PatientSubscription;
 use App\Models\Setting;
 use App\Models\Subscription;
 use App\Http\Resources\PatientResource;
+use App\Http\Resources\ConsultationResource;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -135,17 +136,15 @@ class PatientController extends Controller
         };
     }
 
-    public function show(Patient $patient)
+    public function show(Request $request, Patient $patient)
     {
-        // Cargar solo los últimos 10 registros para no saturar el SSR
+        // Consultas completas para el PDF y conteos del paciente
         $patient->load([
             'consultations' => function ($query) {
-                $query->with(['subscription.subscription', 'payment'])
-                    ->latest()
-                    ->limit(10);
+                $query->latest();
             },
             'medicalRecords' => function ($query) {
-                $query->latest()->limit(5);
+                $query->latest();
             }
         ]);
 
@@ -156,11 +155,69 @@ class PatientController extends Controller
 
         $settings = Setting::with('media')->first();
 
+        // Primera página de consultas para la tabla con paginación de servidor
+        $consultations = $this->paginatedConsultations($request, $patient);
+
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
             'subscriptions' => $subscriptions,
-            'settings' => $settings
+            'settings' => $settings,
+            'consultations' => $consultations,
+            'filters' => $request->only(['payment_status', 'consultation_type', 'filter_subscription', 'start_date', 'end_date'])
         ]);
+    }
+
+    /**
+     * Consultas paginadas del paciente con filtros (paginación de servidor).
+     */
+    public function consultations(Request $request, Patient $patient)
+    {
+        $consultations = $this->paginatedConsultations($request, $patient);
+
+        return Inertia::render('Patients/Show', [
+            'consultations' => $consultations,
+            'filters' => $request->only(['payment_status', 'consultation_type', 'filter_subscription', 'start_date', 'end_date'])
+        ]);
+    }
+
+    /**
+     * Query compartida de consultas del paciente con filtros y paginación.
+     */
+    protected function paginatedConsultations(Request $request, Patient $patient)
+    {
+        $paymentStatus = $request->input('payment_status', 'all');
+        $consultationType = $request->input('consultation_type', 'all');
+        $filterSubscription = $request->boolean('filter_subscription');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        return ConsultationResource::collection(
+            $patient->consultations()
+                ->when($paymentStatus !== 'all', function ($query, $paymentStatus) {
+                    $query->where('payment_status', $paymentStatus);
+                })
+                ->when($consultationType !== 'all', function ($query, $consultationType) {
+                    $query->where('consultation_type', $consultationType);
+                })
+                ->when($filterSubscription, function ($query) {
+                    $query->whereNotNull('patient_subscription_id');
+                })
+                ->when($startDate, function ($query, $startDate) {
+                    $query->where(function ($q) use ($startDate) {
+                        $q->whereDate('scheduled_at', '>=', $startDate)
+                          ->orWhereDate('created_at', '>=', $startDate);
+                    });
+                })
+                ->when($endDate, function ($query, $endDate) {
+                    $query->where(function ($q) use ($endDate) {
+                        $q->whereDate('scheduled_at', '<=', $endDate)
+                          ->orWhereDate('created_at', '<=', $endDate);
+                    });
+                })
+                ->latest()
+                ->paginate(10)
+                ->withQueryString()
+        );
     }
 
 

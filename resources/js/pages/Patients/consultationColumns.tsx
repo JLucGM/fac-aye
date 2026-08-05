@@ -1,14 +1,15 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Consultation, Service } from "@/types"; // Asegúrate de que la ruta sea correcta
+import { ConsultationResource, Service } from "@/types"; // Asegúrate de que la ruta sea correcta
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "@inertiajs/react";
 import { Edit, MoreHorizontal } from "lucide-react";
 
-export const consultationColumns: ColumnDef<Consultation>[] = [
+export const consultationColumns: ColumnDef<ConsultationResource>[] = [
   {
     accessorKey: "created_at",
     header: "Creado",
+    enableGlobalFilter: false,
     cell: ({ row }) => {
       return new Date(row.original.created_at).toLocaleString();
     },
@@ -20,14 +21,17 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
   {
     accessorKey: "consultation_type",
     header: "Tipo de asistencia",
+    enableGlobalFilter: false,
   },
   {
     accessorKey: "payment_status",
     header: "Estado de Pago",
+    enableGlobalFilter: false,
   },
   {
     id: "services",
     header: "Servicios",
+    enableGlobalFilter: false,
     cell: ({ row }) => {
       const servicesData = row.original.services;
 
@@ -50,6 +54,7 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
   {
     accessorKey: "amount",
     header: "Monto",
+    enableGlobalFilter: false,
   },
   // {
   //   id: "subscriptionInfo",
@@ -63,6 +68,7 @@ export const consultationColumns: ColumnDef<Consultation>[] = [
   // },
   {
     id: "actions",
+    enableGlobalFilter: false,
     cell: ({ row }) => {
       return (
         <DropdownMenu>

@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/patients/subscription', [PatientController::class, 'updateSubscription'])->name('patients.subscription.update');
     Route::get('/balance-transactions/{patient}', [PatientController::class, 'showBalanceTransactions'])->name('patients.showBalanceTransactions');
     Route::post('/patients/{patient}/update-balance', [PatientController::class, 'updateBalance'])->name('patients.updateBalance');
+    Route::get('/patients/{patient}/consultations', [PatientController::class, 'consultations'])->name('patients.consultations');
     Route::post('/patients/{patient}/cancel-subscription', [PatientController::class, 'cancelSubscription'])->name('patients.cancelSubscription');
     Route::post('/patients/{patient}/reactivate-subscription', [PatientController::class, 'reactivateSubscription'])->name('patients.reactivateSubscription');
 

@@ -2,8 +2,8 @@ import { DataTable } from '@/components/data-table';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Patient, type BreadcrumbItem, Consultation, PatientSubscription } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Patient, type BreadcrumbItem, Consultation, PatientSubscription, PaginatedData, ConsultationResource } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
 import { consultationColumns } from './consultationColumns';
 import { ChevronsDown, ChevronsUp, EllipsisVertical, List, PenBox } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
@@ -44,7 +44,21 @@ const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number
     .reduce((total, s) => total + parseFloat(s.subscription?.price || '0'), 0);
 };
 
-export default function Show({ patient, subscriptions, settings }: { patient: Patient, subscriptions: PatientSubscription[], settings: any }) {
+interface ShowFilters {
+  payment_status?: string;
+  consultation_type?: string;
+  filter_subscription?: boolean;
+  start_date?: string;
+  end_date?: string;
+}
+
+export default function Show({ patient, subscriptions, settings, consultations, filters }: {
+  patient: Patient,
+  subscriptions: PatientSubscription[],
+  settings: any,
+  consultations: PaginatedData<ConsultationResource>,
+  filters: ShowFilters,
+}) {
   // Evitar errores de SSR si settings o media no existen
   const logoUrl = settings?.media?.find((media: any) => media.collection_name === 'logo')?.original_url || null;
   const signatureUrl = settings?.media?.find((media: any) => media.collection_name === 'signature')?.original_url || null;
@@ -56,17 +70,32 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
     setIsClient(true);
   }, []);
 
-  const [paymentStatus, setPaymentStatus] = useState<string>('all');
-  const [consultationType, setConsultationType] = useState<string>('all');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
+  const [paymentStatus, setPaymentStatus] = useState<string>(filters.payment_status || 'all');
+  const [consultationType, setConsultationType] = useState<string>(filters.consultation_type || 'all');
+  const [startDate, setStartDate] = useState<string>(filters.start_date || '');
+  const [endDate, setEndDate] = useState<string>(filters.end_date || '');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [filterBySubscription, setFilterBySubscription] = useState<boolean>(false);
+  const [filterBySubscription, setFilterBySubscription] = useState<boolean>(filters.filter_subscription || false);
 
-  const consultations = patient.consultations || [];
+  const fetchConsultations = (overrides: Partial<ShowFilters> = {}) => {
+    router.get(route('patients.consultations', [patient]), {
+      payment_status: overrides.payment_status ?? paymentStatus,
+      consultation_type: overrides.consultation_type ?? consultationType,
+      filter_subscription: overrides.filter_subscription ?? filterBySubscription,
+      start_date: overrides.start_date ?? startDate,
+      end_date: overrides.end_date ?? endDate,
+    }, {
+      only: ['consultations', 'filters'],
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    });
+  };
+
+  const allConsultations = patient.consultations || [];
 
   const filteredConsultations = useMemo(() => {
-    return consultations.filter(consultation => {
+    return allConsultations.filter(consultation => {
       const paymentMatch = paymentStatus === 'all' || consultation.payment_status === paymentStatus;
       const typeMatch = consultationType === 'all' || consultation.consultation_type === consultationType;
 
@@ -98,7 +127,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
 
       return paymentMatch && typeMatch && subscriptionMatch && dateMatch;
     });
-  }, [consultations, paymentStatus, consultationType, filterBySubscription, startDate, endDate]);
+  }, [allConsultations, paymentStatus, consultationType, filterBySubscription, startDate, endDate]);
 
   const pdfKey = JSON.stringify(filteredConsultations.map(c => c.id));
 
@@ -107,7 +136,7 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
   const pendingConsultations = filteredConsultations.filter(c => c.payment_status === 'pendiente').length;
 
   // Suma deuda consultas + deuda suscripciones pendientes
-  const consultationsDebt = calculateTotalDebt(consultations);
+  const consultationsDebt = calculateTotalDebt(allConsultations);
   const subscriptionsDebt = calculateSubscriptionDebt(subscriptions);
   // const totalDebt = consultationsDebt + subscriptionsDebt;
 
@@ -219,7 +248,10 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                       <select
                         id="paymentStatus"
                         value={paymentStatus}
-                        onChange={(e) => setPaymentStatus(e.target.value)}
+                        onChange={(e) => {
+                          setPaymentStatus(e.target.value);
+                          fetchConsultations({ payment_status: e.target.value });
+                        }}
                         className="border rounded p-2"
                       >
                         <option value="all">Todos</option>
@@ -233,7 +265,10 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                       <select
                         id="consultationType"
                         value={consultationType}
-                        onChange={(e) => setConsultationType(e.target.value)}
+                        onChange={(e) => {
+                          setConsultationType(e.target.value);
+                          fetchConsultations({ consultation_type: e.target.value });
+                        }}
                         className="border rounded p-2"
                       >
                         <option value="all">Todos</option>
@@ -248,7 +283,10 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                         type="checkbox"
                         id="filterBySubscription"
                         checked={filterBySubscription}
-                        onChange={(e) => setFilterBySubscription(e.target.checked)}
+                        onChange={(e) => {
+                          setFilterBySubscription(e.target.checked);
+                          fetchConsultations({ filter_subscription: e.target.checked });
+                        }}
                       />
                     </div>
 
@@ -258,7 +296,10 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                         id="startDate"
                         type="date"
                         value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
+                        onChange={(e) => {
+                          setStartDate(e.target.value);
+                          fetchConsultations({ start_date: e.target.value });
+                        }}
                       />
                     </div>
 
@@ -268,7 +309,10 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                         id="endDate"
                         type="date"
                         value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
+                        onChange={(e) => {
+                          setEndDate(e.target.value);
+                          fetchConsultations({ end_date: e.target.value });
+                        }}
                         min={startDate}
                       />
                     </div>
@@ -280,6 +324,13 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                         setStartDate('');
                         setEndDate('');
                         setFilterBySubscription(false);
+                        fetchConsultations({
+                          payment_status: 'all',
+                          consultation_type: 'all',
+                          start_date: '',
+                          end_date: '',
+                          filter_subscription: false,
+                        });
                       }}
                       variant={'outline'}
                     >
@@ -298,7 +349,11 @@ export default function Show({ patient, subscriptions, settings }: { patient: Pa
                 )}
               </div>
 
-              <DataTable columns={consultationColumns} data={filteredConsultations} />
+              <DataTable
+                columns={consultationColumns}
+                data={consultations.data}
+                meta={consultations.meta}
+              />
             </TabsContent>
 
             <TabsContent value="password">
