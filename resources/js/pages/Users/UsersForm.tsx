@@ -15,6 +15,7 @@ type UsersFormProps = {
         active?: string; // Cambia esto a string
         phone?: string;
         password?: string;
+        password_confirmation?: string;
         permissions?: string[];
         identification?: string; // Asegúrate de que sea string
     };
@@ -89,6 +90,19 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
                     onChange={(e) => setData('password', e.target.value)}
                 />
                 <InputError message={errors.password} className="mt-2" />
+            </div>
+
+            <div>
+                <Label htmlFor="password_confirmation">Confirmar Contraseña</Label>
+                <Input
+                    id="password_confirmation"
+                    type="password"
+                    name="password_confirmation"
+                    value={data.password_confirmation || ''}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                />
+                <InputError message={errors.password_confirmation} className="mt-2" />
             </div>
 
             <div className="">

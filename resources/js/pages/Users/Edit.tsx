@@ -18,9 +18,10 @@ export default function Edit({ user }: { user: any; }) {
         lastname: user.lastname || '',
         email: user.email || '',
         phone: user.phone || '',
-        active: user.active || false,
+        active: Boolean(user.active),
         identification: user.identification || '', // Asegúrate de que sea string
         password: '',
+        password_confirmation: '',
     });
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {

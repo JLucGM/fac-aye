@@ -533,6 +533,7 @@ export interface CreateUserFormData {
     identification: string; // Asegúrate de que sea string
     phone?: string;
     password: string;
+    password_confirmation?: string;
     permissions?: string[];
     [key: string]: any;
 }
