@@ -26,7 +26,7 @@ export default function FixCourtesyButton({ consultation, services }: FixCourtes
   // 3. Buscar en la base de datos (prop services) si alguno de estos servicios tiene is_courtesy = true
   const courtesyServicesInDb = services.filter(service => 
     consultationServiceIds.includes(service.id) && 
-    (service.is_courtesy === true || service.is_courtesy === 1)
+    service.is_courtesy === true
   );
 
   // ¿Es candidata para corrección?
@@ -61,7 +61,7 @@ Detalles:
 - Monto: $${consultation.amount}
 
 Se cambiará el estado a "pagado". ${
-  consultation.amount > 0 
+  Number(consultation.amount) > 0 
     ? 'Además, se ajustará el balance del paciente para eliminar la deuda.' 
     : ''
 }
@@ -105,7 +105,7 @@ Se cambiará el estado a "pagado". ${
               {courtesyServicesInDb.map((service, index) => (
                 <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
                   <CheckCircle className="h-3 w-3 mr-1" />
-                  {service.name} - ${parseFloat(service.price || '0').toFixed(2)}
+                  {service.name} - ${Number(service.price ?? 0).toFixed(2)}
                 </Badge>
               ))}
             </div>

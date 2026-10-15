@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Http\Resources\SubscriptionResource;
+use App\Http\Requests\StoreSubscriptionRequest;
+use App\Http\Requests\UpdateSubscriptionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -48,15 +50,9 @@ class SubscriptionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSubscriptionRequest $request)
     {
-        Subscription::create($request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
-            'consultations_allowed' => 'required|integer',
-            'price' => 'required|numeric',
-        ]));
+        Subscription::create($request->validated());
 
         return redirect()->route('subscriptions.index');
     }
@@ -80,14 +76,9 @@ class SubscriptionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Subscription $subscription)
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
-        $subscription->update($request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'consultations_allowed' => 'required|integer',
-            'price' => 'required|numeric',
-        ]));
+        $subscription->update($request->validated());
 
         return redirect()->route('subscriptions.index');
     }

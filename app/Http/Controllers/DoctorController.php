@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Doctor;
 use App\Http\Resources\DoctorResource;
+use App\Http\Requests\StoreDoctorRequest;
+use App\Http\Requests\UpdateDoctorRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -53,18 +55,9 @@ class DoctorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDoctorRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|unique:doctors,email',
-            'phone' => 'nullable|string|max:20',
-            'specialty' => 'nullable|string|max:255',
-            'identification' => 'nullable|string|max:50',
-        ]);
-
-        Doctor::create($request->all());
+        Doctor::create($request->validated());
 
         return redirect()->route('doctors.index');
     }
@@ -90,18 +83,9 @@ class DoctorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Doctor $doctor)
+    public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|unique:doctors,email,' . $doctor->id,
-            'phone' => 'nullable|string|max:20',
-            'specialty' => 'nullable|string|max:255',
-            'identification' => 'nullable|string|max:50',
-        ]);
-
-        $doctor->update($request->all());
+        $doctor->update($request->validated());
 
         return redirect()->route('doctors.index');
     }

@@ -23,7 +23,7 @@ class StoreServiceRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
             'is_courtesy' => 'nullable|boolean',
             // 'duration' => 'required|integer|min:1',
@@ -40,6 +40,7 @@ class StoreServiceRequest extends FormRequest
             'name.max' => 'El nombre no puede exceder los 255 caracteres.',
 
             'description.string' => 'La descripción debe ser un texto.',
+            'description.max' => 'La descripción no puede exceder los 1000 caracteres.',
 
             'price.required' => 'El campo precio es obligatorio.',
             'price.numeric' => 'El precio debe ser un número.',

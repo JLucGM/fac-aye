@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { PatientSubscription, Payment, type BreadcrumbItem, Patient } from '@/types';
+import { Consultation, PatientSubscription, type BreadcrumbItem, Patient } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { DataTable } from '../../components/data-table';
 import { columnsAccountsReceivable } from './columnsAccount';
@@ -37,17 +37,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 type PatientDebt = {
   patient: Patient;
   totalDebt: number;
-  payments: Payment[];
+  payments: Consultation[];
   subscriptions: PatientSubscription[];
 };
 
-// Función auxiliar para extraer el paciente de un pago (puede venir en payment.patient o en payment.consultations[0].patient)
-const getPatientFromPayment = (payment: Payment): Patient | undefined => {
-  if (payment.patient) return payment.patient;
-  if (payment.consultations && payment.consultations.length > 0) {
-    return payment.consultations[0].patient;
-  }
-  return undefined;
+// Función auxiliar para extraer el paciente de una consulta pendiente
+const getPatientFromPayment = (payment: Consultation): Patient | undefined => {
+  return payment.patient;
 };
 
 // Componente de diálogo que muestra los detalles de las deudas de un paciente usando Tabs
@@ -58,14 +54,14 @@ function PatientDebtDialog({
   children 
 }: { 
   patient: Patient; 
-  payments: Payment[]; 
+  payments: Consultation[]; 
   subscriptions: PatientSubscription[]; 
   children: React.ReactNode;
 }) {
   // Calcular total para mostrarlo en el título
   const totalInDialog = useMemo(() => {
-    const paymentsTotal = payments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
-    const subsTotal = subscriptions.reduce((acc, s) => acc + parseFloat(s.subscription?.price || '0'), 0);
+    const paymentsTotal = payments.reduce((acc, p) => acc + Number(p.amount), 0);
+    const subsTotal = subscriptions.reduce((acc, s) => acc + Number(s.subscription?.price ?? 0), 0);
     return paymentsTotal + subsTotal;
   }, [payments, subscriptions]);
 
@@ -165,7 +161,7 @@ const consolidatedColumns: ColumnDef<PatientDebt>[] = [
   },
 ];
 
-export default function AccountsReceivable({ payments, subscriptions }: { payments: Payment[], subscriptions: PatientSubscription[] }) {
+export default function AccountsReceivable({ payments, subscriptions }: { payments: Consultation[], subscriptions: PatientSubscription[] }) {
   // Calcular deuda total por paciente (solo pendientes)
   const patientDebts = useMemo(() => {
     const debtMap = new Map<number, PatientDebt>();
@@ -185,7 +181,7 @@ export default function AccountsReceivable({ payments, subscriptions }: { paymen
         subscriptions: [] 
       };
       
-      current.totalDebt += parseFloat(payment.amount);
+      current.totalDebt += Number(payment.amount);
       current.payments.push(payment);
       debtMap.set(patientId, current);
     });
@@ -203,7 +199,7 @@ export default function AccountsReceivable({ payments, subscriptions }: { paymen
         subscriptions: [] 
       };
       
-      current.totalDebt += parseFloat(sub.subscription?.price || '0');
+      current.totalDebt += Number(sub.subscription?.price ?? 0);
       current.subscriptions.push(sub);
       debtMap.set(patientId, current);
     });

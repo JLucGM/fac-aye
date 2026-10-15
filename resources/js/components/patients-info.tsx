@@ -33,7 +33,7 @@ export default function PatientInfo({ patient }: { patient: Patient }) {
         <p>C.I: {patient.identification}</p>
         <p>Teléfono: {patient.phone}</p>
         <p>Email: {patient.email}</p>
-        <p className='capitalize'>Fecha de Nacimiento: {new Date(patient.birthdate).toLocaleDateString()}</p>
+        <p className='capitalize'>Fecha de Nacimiento: {patient.birthdate ? new Date(patient.birthdate).toLocaleDateString() : 'No disponible'}</p>
         <p>Edad: {calculateAge(patient.birthdate)}</p>
         <p>Dirección: {patient.address || 'No disponible'}</p>
         <p>Balance: {patient.balance || 'No disponible'}</p>

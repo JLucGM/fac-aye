@@ -29,6 +29,7 @@ export default function Create() {
         active: false, // Asegúrate de que sea booleano
         phone: '',
         password: '',
+        password_confirmation: '',
         identification: '', // Asegúrate de que sea string
     });
 

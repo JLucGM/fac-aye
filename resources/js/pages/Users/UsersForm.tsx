@@ -8,6 +8,7 @@ import { CreateUserFormData } from '@/types';
 type UsersFormProps = {
     data: CreateUserFormData;
     setData: (key: string, value: any) => void;
+    editing?: boolean;
     errors: {
         name?: string;
         lastname?: string;
@@ -22,16 +23,17 @@ type UsersFormProps = {
 };
 
 
-export default function UsersForm({ data, setData, errors }: UsersFormProps) {
+export default function UsersForm({ data, setData, editing = false, errors }: UsersFormProps) {
 
     return (
         <>
             <div>
-                <Label htmlFor="name">Nombre</Label>
+                <Label htmlFor="name">Nombre *</Label>
                 <Input
                     id="name"
                     type="text"
                     name="name"
+                    required
                     value={data.name || ''}
                     className="mt-1 block w-full"
                     onChange={(e) => setData('name', e.target.value)}
@@ -40,7 +42,7 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
             </div>
 
             <div>
-                <Label htmlFor="lastname">Apellido</Label>
+                <Label htmlFor="lastname">Apellido (Opcional)</Label>
                 <Input
                     id="lastname"
                     type="text"
@@ -53,11 +55,12 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
             </div>
 
             <div>
-                <Label htmlFor="identification">Identificación</Label>
+                <Label htmlFor="identification">Identificación *</Label>
                 <Input
                     id="identification"
                     type="text"
                     name="identification"
+                    required
                     value={data.identification || ''}
                     className="mt-1 block w-full"
                     onChange={(e) => setData('identification', e.target.value)} // Asegúrate de que se esté configurando correctamente
@@ -67,11 +70,12 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
 
 
             <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                     id="email"
                     type="email"
                     name="email"
+                    required
                     value={data.email || ''}
                     className="mt-1 block w-full"
                     onChange={(e) => setData('email', e.target.value)}
@@ -80,11 +84,12 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
             </div>
 
             <div>
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">{editing ? 'Contraseña (Opcional)' : 'Contraseña *'}</Label>
                 <Input
                     id="password"
                     type="password"
                     name="password"
+                    required={!editing}
                     value={data.password || ''}
                     className="mt-1 block w-full"
                     onChange={(e) => setData('password', e.target.value)}
@@ -93,11 +98,12 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
             </div>
 
             <div>
-                <Label htmlFor="password_confirmation">Confirmar Contraseña</Label>
+                <Label htmlFor="password_confirmation">{editing ? 'Confirmar Contraseña (Opcional)' : 'Confirmar Contraseña *'}</Label>
                 <Input
                     id="password_confirmation"
                     type="password"
                     name="password_confirmation"
+                    required={!editing}
                     value={data.password_confirmation || ''}
                     className="mt-1 block w-full"
                     onChange={(e) => setData('password_confirmation', e.target.value)}
@@ -106,7 +112,7 @@ export default function UsersForm({ data, setData, errors }: UsersFormProps) {
             </div>
 
             <div className="">
-                <Label htmlFor="phone">Teléfono</Label>
+                <Label htmlFor="phone">Teléfono (Opcional)</Label>
                 <Input
                     id="phone"
                     type="text"

@@ -1,6 +1,8 @@
 import { LucideIcon } from 'lucide-react';
 import type { Config } from 'ziggy-js';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface Auth {
     user: User;
 }
@@ -28,7 +30,7 @@ export interface SharedData {
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
-    [key: string]: unknown; // Consider removing this if you don't need arbitrary properties
+    [key: string]: any; // Consider removing this if you don't need arbitrary properties
 }
 
 export interface PaginatedData<T> {
@@ -144,8 +146,8 @@ export interface ConsultationResource {
     status: string;
     payment_status: string;
     consultation_type: string;
-    amount: number;
-    amount_paid: number;
+    amount: number | string;
+    amount_paid: number | string;
     scheduled_at: string | null;
     scheduled_at_formatted: string | null;
     created_at: string | null;
@@ -166,9 +168,9 @@ export interface ConsultationResource {
 
 export interface PaymentResource {
     id: number;
-    amount: number;
+    amount: number | string;
     status: string;
-    reference: string;
+    reference: string | null;
     notes: string | null;
     payment_type: string;
     created_at: string | null;
@@ -188,7 +190,7 @@ export interface InvoiceResource {
     id: number;
     invoice_number: string;
     invoice_date: string | null;
-    total_amount: number;
+    total_amount: number | string;
     notes: string | null;
     created_at: string | null;
     patient: {
@@ -214,6 +216,7 @@ export interface User {
     password: string;
     phone?: string;
     active: boolean;
+    avatar?: string;
     remember_token?: string;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
@@ -275,7 +278,7 @@ export interface Service {
     id: number;
     name: string;
     slug: string;
-    price: number; // decimal e.g. 10.50
+    price: number | string; // decimal (string en modelos crudos de Laravel) e.g. "10.50"
     description?: string;
     is_courtesy: boolean;
     created_at: string;
@@ -298,14 +301,16 @@ export interface PaymentMethod {
 
 export interface Payment {
     id: number;
-    patient_id: number | null; // FK to Patient, can be null if not associated
+    patient_id: number; // FK to Patient
     consultation_ids: number[]; // Array of Consultation IDs (many-to-many relationship)
-    amount: number; // decimal amount
+    amount: number | string; // decimal amount (string en modelos crudos de Laravel)
     status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado';
-    reference: string; // transaction id or reference
-    notes: string;
+    reference: string | null; // transaction id or reference
+    notes: string | null;
     // paid_at: string; // ISO date string or null
     payment_method_id: number; // FK to PaymentMethod
+    payment_type: string; // consulta o suscripcion
+    subscription_ids?: number[]; // Array of PatientSubscription IDs (many-to-many relationship)
     created_at: string;
     updated_at: string;
     // Relationships
@@ -320,7 +325,7 @@ export interface Subscription {
     name: string;
     slug: string;
     description?: string;
-    price: number;
+    price: number | string; // decimal (string en modelos crudos de Laravel)
     type: string;
     status: 'active' | 'inactive',
     consultations_allowed: number;
@@ -336,10 +341,10 @@ export interface PatientSubscription {
     end_date: string; // ISO date string
     consultations_used: number;
     consultations_remaining: number;
-    amount_paid: number;
-    payment_status: "pendiente" | 'pagado' | 'parcial' | 'reembolsado';
+    amount_paid: number | string; // decimal (string en modelos crudos de Laravel)
+    payment_status: "pendiente" | 'pagado' | 'parcial' | 'reembolsado' | 'incobrable';
     status: 'active' | 'inactive' | 'cancelled' | string;
-    subscription: Subscription;
+    subscription?: Subscription;
     patient?: Patient;
     payment?: Payment;
 }
@@ -351,13 +356,13 @@ export interface Consultation {
     status: 'programado' | 'confirmado' | 'completado' | 'cancelado'; // Allow empty string for form initial state
     scheduled_at: string; // ISO date string
     consultation_type: 'domiciliaria' | 'consultorio';
-    amount: number;
-    amount_paid: number;
+    amount: number | string; // decimal (string en modelos crudos de Laravel)
+    amount_paid: number | string; // decimal (string en modelos crudos de Laravel)
     notes?: string;
-    payment_status: "pendiente" | 'pagado' | 'incobrable' | 'reembolsado';
+    payment_status: "pendiente" | 'parcial' | 'pagado' | 'incobrable' | 'reembolsado';
     patient_id: number; // FK to Patient
-    patient_subscription_id: number;
-    services?: Service[]; // A Consultation can have many Services (many-to-many)
+    patient_subscription_id: number | null;
+    services?: unknown; // TEXT JSON (string en modelos crudos, array en ConsultationResource)
     created_at: string;
     updated_at: string;
     // Relationships
@@ -378,14 +383,11 @@ export type Invoice = {
     id: number;
     invoice_number: string;
     patient_id: number;
-    payment_method_id: number | null;
+    payment_method_id: number;
     patient?: Patient; // Opcional, si precargas el paciente
     invoice_date: string; // YYYY-MM-DD
-    due_date: string; // YYYY-MM-DD
-    subtotal: number;
-    tax_amount: number;
-    total_amount: number;
-    notes: string;
+    total_amount: number | string; // decimal (string en modelos crudos de Laravel)
+    notes: string | null;
     created_at: string;
     updated_at: string;
     // Si precargas los ítems de la factura
@@ -398,8 +400,8 @@ export type InvoiceItem = {
     invoice_id: number;
     service_name: string;
     quantity: number;
-    unit_price: number;
-    line_total: number;
+    unit_price: number | string; // decimal (string en modelos crudos de Laravel)
+    line_total: number | string; // decimal (string en modelos crudos de Laravel)
 };
 
 
@@ -453,9 +455,10 @@ export interface CreateConsultationFormData {
     // scheduled_at: string;
     completed_at?: string; // Optional as it might not be provided on creation
     notes: string;
-    payment_status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado'; // Allow empty string for form initial state
+    payment_status: 'pendiente' | 'parcial' | 'pagado' | 'incobrable' | 'reembolsado'; // Allow empty string for form initial state
     amount: number;
     consultation_type: 'domiciliaria' | 'consultorio' | ''; // Allow empty string for form initial state
+    subscription_use?: string; // 'si' | 'no' - uso de funcional en la consulta
     [key: string]: any; // Add this index signature
 }
 
@@ -487,6 +490,8 @@ export interface CreateDoctorFormData {
 export interface CreatePaymentFormData {
     patient_id: number | null;
     consultation_ids: number[]; // Assuming this will store an array of consultation IDs
+    subscription_ids: number[]; // Array of PatientSubscription IDs
+    payment_type: 'consulta' | 'suscripcion';
     payment_method_id: number | null;
     amount: number;
     status: 'pendiente' | 'pagado' | 'incobrable' | 'reembolsado'; // Correcting status values, including 'reembolsado'

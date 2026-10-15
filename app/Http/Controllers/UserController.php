@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -44,17 +46,9 @@ class UserController extends Controller
         return Inertia::render('Users/Create');
     }
 
-   public function store(Request $request)
+   public function store(StoreUserRequest $request)
 {
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'lastname' => 'nullable|string|max:255',
-        'identification' => 'required|string|max:255|unique:users',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8',
-        'active' => 'boolean',
-        'phone' => 'nullable|string|max:15',
-    ]);
+    $validated = $request->validated();
 
     // Hashear la contraseña antes de crear el usuario
     $validated['password'] = bcrypt($validated['password']);
@@ -78,17 +72,9 @@ class UserController extends Controller
         return Inertia::render('Users/Edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'lastname' => 'nullable|string|max:255',
-            'identification' => 'required|string|max:255|unique:users,identification,' . $user->id,
-            'active' => 'boolean',
-            'phone' => 'nullable|string|max:15',
-        ]);
+        $validated = $request->validated();
 
         // Solo actualiza el campo password si se proporciona
         if (!empty($validated['password'])) {

@@ -35,7 +35,7 @@ class StoreConsultationRequest extends FormRequest
             'subscription_use' => 'nullable|in:yes,no',
             'notes' => 'nullable|string|max:1000',
             'status' => 'required|in:programado,completado,cancelado',
-            'payment_status' => 'required|in:pendiente,pagado,reembolsado,incobrable',
+            'payment_status' => 'required|in:pendiente,parcial,pagado,reembolsado,incobrable',
             'scheduled_at' => 'nullable|date',
             'amount' => 'nullable|numeric|min:0',
             'consultation_type' => 'required|in:domiciliaria,consultorio',
@@ -66,7 +66,7 @@ class StoreConsultationRequest extends FormRequest
             'status.in' => 'El estado debe ser uno de los siguientes: programado, completado, cancelado.',
 
             'payment_status.required' => 'El campo estado de pago es obligatorio.',
-            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, pagado, reembolsado, incobrable.',
+            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, parcial, pagado, reembolsado, incobrable.',
 
             'scheduled_at.date' => 'La fecha programada debe ser una fecha válida.',
 

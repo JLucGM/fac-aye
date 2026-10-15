@@ -22,7 +22,7 @@ class StorePaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            'patient_id' => 'required|exists:patients,id',  // <-- agregar esta línea
+            'patient_id' => 'required|exists:patients,id',
 
             'payment_type' => 'required|string|in:consulta,suscripcion',
 
@@ -37,7 +37,6 @@ class StorePaymentRequest extends FormRequest
             'status' => 'required|string|in:pendiente,parcial,pagado,incobrable,reembolsado',
             'reference' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:255',
-            'paid_at' => 'nullable|date',
         ];
     }
 
@@ -66,8 +65,6 @@ class StorePaymentRequest extends FormRequest
 
             'notes.string' => 'Las notas deben ser un texto.',
             'notes.max' => 'Las notas no pueden exceder los 255 caracteres.',
-
-            'paid_at.date' => 'La fecha de pago debe ser una fecha válida.',
 
             'subscription_ids.required_if' => 'El campo de suscripciones es obligatorio cuando el tipo de pago es suscripción.',
             'subscription_ids.array' => 'El campo de suscripciones debe ser un array.',

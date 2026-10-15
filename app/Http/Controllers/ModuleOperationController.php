@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFirstVisitRequest;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -13,7 +14,6 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ModuleOperationController extends Controller
@@ -42,34 +42,9 @@ class ModuleOperationController extends Controller
         return Inertia::render('ModuleOperation/FirstVisit', compact('users', 'services', 'paymentMethods', 'doctors', 'subscriptions'));
     }
 
-    public function first_visit_store(Request $request)
+    public function first_visit_store(StoreFirstVisitRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:15',
-            'birthdate' => 'required|date',
-            'identification' => 'required|string|max:20',
-            'user_id' => 'required|integer|exists:users,id',
-            'service_id' => [
-                'array',
-                Rule::exists('services', 'id'),
-                Rule::requiredIf(function () use ($request) {
-                    return ($request->input('subscription_use') ?? 'no') !== 'yes';
-                }),
-            ],
-            'status' => 'required|string',
-            'scheduled_at' => 'nullable|date',
-            'consultation_type' => 'required|string',
-            'notes' => 'nullable|string',
-            'payment_status' => 'required|string',
-            'amount' => 'required|numeric',
-            'address' => 'nullable|string|max:255',
-            'doctor_id' => 'nullable|integer|exists:doctors,id',
-            'subscription_id' => 'nullable|integer|exists:subscriptions,id',
-            'subscription_use' => 'nullable|string|in:yes,no',
-        ]);
+        $validatedData = $request->validated();
 
         $useSubscription = ($validatedData['subscription_use'] ?? 'no') === 'yes';
 

@@ -1,20 +1,17 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 import { Link } from "@inertiajs/react"
-import { Payment } from "@/types"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Consultation } from "@/types"
 import { Badge } from "@/components/ui/badge"
 
-export const columnsAccountsReceivable: ColumnDef<Payment>[] = [
+export const columnsAccountsReceivable: ColumnDef<Consultation>[] = [
   // {
   //     id: "select",
   //     header: ({ table }) => (

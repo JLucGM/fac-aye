@@ -26,9 +26,9 @@ export default function Show({ payment }: { payment: Payment }) {
     // Determinar si el pago es por consultas o por suscripciones
     const isSubscriptionPayment = payment.patient_subscriptions && payment.patient_subscriptions.length > 0;
     const patient = isSubscriptionPayment 
-        ? payment.patient_subscriptions[0].patient 
-        : payment.consultations.length > 0 
-            ? payment.consultations[0].patient 
+        ? payment.patient_subscriptions?.[0]?.patient 
+        : payment.consultations && payment.consultations.length > 0 
+            ? payment.consultations[0]?.patient 
             : null;
 
     return (
@@ -76,7 +76,7 @@ export default function Show({ payment }: { payment: Payment }) {
                         <TableBody>
                             {payment.patient_subscriptions?.map((subscription) => (
                                 <TableRow key={subscription.id}>
-                                    <TableCell>{subscription.subscription.name}</TableCell>
+                                    <TableCell>{subscription.subscription?.name}</TableCell>
                                     <TableCell>
                                         Comienzo: <p>{new Date(subscription.start_date).toLocaleDateString()}</p>
                                         Fin: <p>{new Date(subscription.end_date).toLocaleDateString()}</p>
@@ -84,7 +84,7 @@ export default function Show({ payment }: { payment: Payment }) {
                                     {/* <TableCell>{new Date(subscription.end_date).toLocaleDateString()}</TableCell> */}
                                     <TableCell>{subscription.consultations_used}</TableCell>
                                     <TableCell>{subscription.consultations_remaining}</TableCell>
-                                    <TableCell>{subscription.subscription.price}</TableCell>
+                                    <TableCell>{subscription.subscription?.price}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

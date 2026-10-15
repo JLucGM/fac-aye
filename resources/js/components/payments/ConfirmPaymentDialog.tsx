@@ -7,7 +7,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Patient, PaymentMethod, Consultation, Subscription } from '@/types';
+import { Patient, PatientSubscription, PaymentMethod, Consultation } from '@/types';
 
 interface ConfirmPaymentDialogProps {
     open: boolean;
@@ -33,8 +33,8 @@ interface ConfirmPaymentDialogProps {
     patients: Patient[];
     paymentMethods: PaymentMethod[];
     consultations: Consultation[];
-    subscriptions: Subscription[];
-    selectedItems: (Consultation | Subscription)[];
+    subscriptions: PatientSubscription[];
+    selectedItems: (Consultation | PatientSubscription)[];
 }
 
 export function ConfirmPaymentDialog({
@@ -46,13 +46,11 @@ export function ConfirmPaymentDialog({
     confirmButtonText,
     cancelButtonText = 'Cancelar',
     processing = false,
-    type,
     data,
     patients,
     paymentMethods,
     consultations,
     subscriptions,
-    selectedItems,
 }: ConfirmPaymentDialogProps) {
     
     // Función para obtener el nombre del paciente
@@ -116,7 +114,7 @@ export function ConfirmPaymentDialog({
     // Calcular el monto total de las suscripciones seleccionadas
     const calculateSubscriptionsTotal = () => {
         return subscriptionDetails.reduce((total, subscription) => {
-            return total + (subscription.subscription?.price ?? 0);
+            return total + Number(subscription.subscription?.price ?? 0);
         }, 0);
     };
 
@@ -183,7 +181,7 @@ export function ConfirmPaymentDialog({
                                                             ? consultation.amount 
                                                             : parseFloat(String(consultation.amount)))}
                                                     </div>
-                                                    {consultation.amount_paid > 0 && (
+                                                    {Number(consultation.amount_paid) > 0 && (
                                                         <div className="text-sm text-gray-500">
                                                             Pagado: ${consultation.amount_paid}
                                                         </div>

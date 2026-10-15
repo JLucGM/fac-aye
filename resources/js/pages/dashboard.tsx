@@ -115,7 +115,7 @@ export default function Dashboard() {
                         </Link> */}
                     {/* <Link
                             className={buttonVariants({ variant: "default" })}
-                            href={route('users.index')}
+                            href={route('user.index')}
                         >
                             Usuarios
                         </Link>

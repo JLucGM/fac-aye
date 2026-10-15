@@ -62,17 +62,6 @@ export default function ConsultationsForm({
         }
     }, [hasCourtesyService, data.subscription_use]);
 
-    // Opciones de estado de pago (modificadas)
-    const paymentStatusOptions = data.subscription_use === 'yes'
-        ? [{ value: 'pagado', label: 'Pagado' }]
-        : hasCourtesyService
-            ? [{ value: 'pagado', label: 'Pagado (Cortesía)' }]
-            : [
-                { value: 'pendiente', label: 'Pendiente' },
-                { value: 'pagado', label: 'Pagado' },
-                { value: 'reembolsado', label: 'Reembolsado' },
-            ];
-
     const consultationTypeOptions = [
         { value: 'consultorio', label: 'Consultorio' },
         { value: 'domiciliaria', label: 'Domiciliaria' },
@@ -98,7 +87,7 @@ export default function ConsultationsForm({
     return (
         <>
             <div>
-                <Label htmlFor="user_id" className="my-2 block font-semibold text-gray-700">Fisioterapeuta</Label>
+                <Label htmlFor="user_id" className="my-2 block font-semibold text-gray-700">Fisioterapeuta *</Label>
                 <Select
                     id="user_id"
                     options={userOptions}
@@ -115,7 +104,7 @@ export default function ConsultationsForm({
 
             {patientOptions.length > 0 && (
                 <div>
-                    <Label htmlFor="patient_id" className="my-2 block font-semibold text-gray-700">Paciente</Label>
+                    <Label htmlFor="patient_id" className="my-2 block font-semibold text-gray-700">Paciente *</Label>
                     <Select
                         id="patient_id"
                         options={patientOptions}
@@ -132,7 +121,7 @@ export default function ConsultationsForm({
             )}
 
             <div>
-                <Label htmlFor="consultation_type" className="my-2 block font-semibold text-gray-700">Tipo de asistencia</Label>
+                <Label htmlFor="consultation_type" className="my-2 block font-semibold text-gray-700">Tipo de asistencia *</Label>
                 <Select
                     id="consultation_type"
                     options={consultationTypeOptions}
@@ -237,7 +226,8 @@ export default function ConsultationsForm({
                         : data.service_id.map(id => {
                             const service = services.find(s => s.id === id);
                             return {
-                                ...service,
+                                id: service?.id ?? id,
+                                name: service?.name ?? 'Servicio eliminado',
                                 price: service ? service.price : 0,
                             };
                         })

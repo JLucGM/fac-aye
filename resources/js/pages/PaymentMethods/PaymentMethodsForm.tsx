@@ -19,11 +19,12 @@ export default function PaymentMethodsForm({ data, setData, errors }: PaymentMet
     return (
         <>
             <div>
-                <Label htmlFor="name">Nombre</Label>
+                <Label htmlFor="name">Nombre *</Label>
                 <Input
                     id="name"
                     type="text"
                     name="name"
+                    required
                     value={data.name || ''} // Asegúrate de que sea una cadena
                     className="mt-1 block w-full"
                     onChange={(e) => setData('name', e.target.value)}
@@ -32,7 +33,7 @@ export default function PaymentMethodsForm({ data, setData, errors }: PaymentMet
             </div>
 
             <div>
-                <Label htmlFor="description">Descripción</Label>
+                <Label htmlFor="description">Descripción (Opcional)</Label>
                 <Input
                     id="description"
                     type="text"

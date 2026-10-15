@@ -2,6 +2,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { usePage } from '@inertiajs/react';
+import { SharedData } from '@/types';
 
 const styles = StyleSheet.create({
   page: {
@@ -15,9 +16,15 @@ const styles = StyleSheet.create({
   }
 });
 
+type ClosuresConsulta = {
+  id: number;
+  created_at: string;
+  [key: string]: unknown;
+};
+
 export default function ClosuresPDF() {
     // Obtenemos datos directamente del servidor
-    const { consultas } = usePage().props;
+    const { consultas } = usePage<SharedData & { consultas: ClosuresConsulta[] }>().props;
 
     return (
         <Document>

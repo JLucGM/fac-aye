@@ -1,7 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
-import { Doctor, Service, Subscription, User, type BreadcrumbItem } from '@/types';
+import { Doctor, Service, Subscription, User, CreateConsultationFormData, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import PatientsForm from '../Patients/PatientsForm';
 import ConsultationsForm from '../Consultations/ConsultationsForm';
@@ -25,7 +25,18 @@ export default function Index({ users, services, doctors, subscriptions }: {
     doctors: Doctor[],
     subscriptions: Subscription[],
 }) {
-    const { data, setData, errors, post, processing } = useForm({
+    const { data, setData, errors, post, processing } = useForm<CreateConsultationFormData & {
+        name: string;
+        lastname: string;
+        email: string;
+        phone: string;
+        birthdate: string;
+        identification: string;
+        address: string;
+        doctor_id: number | null;
+        subscription_id: string;
+        subscription_use: string;
+    }>({
         // Datos del nuevo usuario
         name: '',
         lastname: '',
@@ -71,7 +82,7 @@ export default function Index({ users, services, doctors, subscriptions }: {
         });
     };
 
-    const selectedSubscription = subscriptions.find(s => s.id === data.subscription_id) || null;
+    const selectedSubscription = subscriptions.find(s => s.id === Number(data.subscription_id)) || null;
 
     return (
         <ContentLayout breadcrumbs={breadcrumbs}>

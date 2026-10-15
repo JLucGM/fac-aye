@@ -7,7 +7,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Consultation, Patient, Service, User } from '@/types';
+import { Patient, Service, User } from '@/types';
 
 interface ConfirmConsultationDialogProps {
     open: boolean;
@@ -21,12 +21,12 @@ interface ConfirmConsultationDialogProps {
     type: 'create' | 'update';
     data: {
         user_id: number;
-        patient_id: number;
+        patient_id?: number;
         consultation_type: string;
         payment_status: string;
         service_id: number[];
         amount: number;
-        subscription_use: string;
+        subscription_use?: string;
         notes?: string;
     };
     patients: Patient[];
@@ -145,7 +145,7 @@ export function ConfirmConsultationDialog({
                                                     <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                                                     <span className="text-base">{service.name}</span>
                                                 </div>
-                                                {data.subscription_use !== 'yes' && service.price > 0 && (
+                                                {data.subscription_use !== 'yes' && Number(service.price) > 0 && (
                                                     <span className="font-medium text-gray-700">
                                                         ${service.price}
                                                     </span>

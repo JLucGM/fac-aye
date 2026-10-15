@@ -1,9 +1,9 @@
 import React from 'react';
-import { CreatePaymentFormData, Subscription } from "@/types";
+import { CreatePaymentFormData, PatientSubscription } from "@/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type SubscriptionsTableProps = {
-    pendingSubscriptions: Subscription[];
+    pendingSubscriptions: PatientSubscription[];
     data: CreatePaymentFormData;
     toggleSubscriptionSelection: (id: number) => void;
 };
@@ -27,8 +27,8 @@ export default function SubscriptionsTable({ pendingSubscriptions, data, toggleS
             </TableHeader>
             <TableBody>
                 {pendingSubscriptions.map(subscription => {
-                    const price = subscription.subscription?.price ? parseFloat(String(subscription.subscription.price)) : 0;
-                    const amountPaid = subscription.amount_paid ? parseFloat(String(subscription.amount_paid)) : 0;
+                    const price = subscription.subscription?.price ? Number(subscription.subscription.price) : 0;
+                    const amountPaid = subscription.amount_paid ? Number(subscription.amount_paid) : 0;
                     const safePrice = isNaN(price) || price < 0 ? 0 : price;
                     const safeAmountPaid = isNaN(amountPaid) || amountPaid < 0 ? 0 : amountPaid;
                     const pendingAmount = safePrice - safeAmountPaid;

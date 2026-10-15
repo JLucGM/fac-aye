@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { PatientSubscription } from "@/types"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 
 export const columnsAccountsReceivableSubscription: ColumnDef<PatientSubscription>[] = [
@@ -79,7 +78,7 @@ export const columnsAccountsReceivableSubscription: ColumnDef<PatientSubscriptio
       // style: 'currency',
       // currency: 'VES', // o 'USD' según corresponda
       minimumFractionDigits: 2
-    }).format(parseFloat(price || '0'));
+    }).format(Number(price ?? 0));
     
     return <span className="text-sm font-medium">{formattedPrice}</span>;
   },

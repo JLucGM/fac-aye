@@ -1,5 +1,5 @@
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, Patient, Payment, PaymentMethod, Subscription, type BreadcrumbItem } from '@/types';
+import { Consultation, Patient, Payment, PatientSubscription, PaymentMethod, CreatePaymentFormData, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PaymentsForm from './PaymentsForm';
@@ -36,26 +36,26 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
         (payment.consultations?.[0]?.patient_id) ||
         null;
 
-    const { data, setData, errors, put, processing } = useForm({
+    const { data, setData, errors, put, processing } = useForm<CreatePaymentFormData>({
         patient_id: initialPatientId,
         consultation_ids: initialConsultationIds,
         subscription_ids: payment.subscription_ids || [],
         payment_method_id: payment.payment_method_id,
-        amount: payment.amount,
+        amount: Number(payment.amount) || 0,
         status: payment.status,
-        reference: payment.reference,
-        notes: payment.notes,
-        payment_type: payment.payment_type || 'consulta',
+        reference: payment.reference || '',
+        notes: payment.notes || '',
+        payment_type: payment.payment_type === 'suscripcion' ? 'suscripcion' : 'consulta',
     });
 
     // Estados para el diálogo de confirmación
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-    const [pendingItems, setPendingItems] = useState<(Consultation | Subscription)[]>([]);
-    const [allSubscriptions, setAllSubscriptions] = useState<Subscription[]>([]);
+    const [pendingItems, setPendingItems] = useState<(Consultation | PatientSubscription)[]>([]);
+    const [, setAllSubscriptions] = useState<PatientSubscription[]>([]);
 
     // Obtener todas las suscripciones de los pacientes
     const getAllSubscriptions = () => {
-        const allSubs: Subscription[] = [];
+        const allSubs: PatientSubscription[] = [];
         patients.forEach(patient => {
             if (patient.subscriptions) {
                 allSubs.push(...patient.subscriptions);
@@ -117,7 +117,7 @@ export default function Edit({ payment, paymentMethods, patients, consultations 
                 </form>
 
                 <div className="mt-4">
-                    <PatientInfo patient={selectedPatient} />
+                    {selectedPatient && <PatientInfo patient={selectedPatient} />}
                 </div>
             </div>
 

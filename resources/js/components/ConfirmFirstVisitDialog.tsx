@@ -77,9 +77,9 @@ export function ConfirmFirstVisitDialog({
 
     // Obtener la suscripción seleccionada y su precio
     const selectedSubscription = patientData.subscription_id
-        ? subscriptions.find(s => s.id === patientData.subscription_id)
+        ? subscriptions.find(s => s.id === Number(patientData.subscription_id))
         : null;
-    const subscriptionPrice = selectedSubscription?.price || 0;
+    const subscriptionPrice = Number(selectedSubscription?.price ?? 0);
 
     // Detalles de los servicios de la consulta
     const getServiceDetails = () => {

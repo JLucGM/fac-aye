@@ -38,8 +38,8 @@ class UpdateConsultationRequest extends FormRequest
             'notes' => 'nullable|string|max:1000',
             'amount' => 'nullable|numeric|min:0',
             'consultation_type' => 'required|in:domiciliaria,consultorio',
-            'payment_status' => 'required|in:pendiente,pagado,reembolsado,incobrable',
-            'subscription_use' => 'required|string|in:yes,no',
+            'payment_status' => 'required|in:pendiente,parcial,pagado,reembolsado,incobrable',
+            'subscription_use' => 'nullable|in:yes,no',
         ];
     }
 
@@ -62,7 +62,7 @@ class UpdateConsultationRequest extends FormRequest
             'consultation_type.required' => 'El campo tipo de consulta es obligatorio.',
             'consultation_type.in' => 'El tipo de consulta debe ser uno de los siguientes: domiciliaria, consultorio.',
             'payment_status.required' => 'El campo estado de pago es obligatorio.',
-            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, pagado, reembolsado, incobrable.',
+            'payment_status.in' => 'El estado de pago debe ser uno de los siguientes: pendiente, parcial, pagado, reembolsado, incobrable.',
         ];
     }
 }

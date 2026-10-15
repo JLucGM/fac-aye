@@ -23,7 +23,7 @@ class StoreInvoiceRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patients,id',
-            'invoice_number' => 'required|string|max:255',
+            'invoice_number' => 'required|string|max:255|unique:invoices',
             'invoice_date' => 'required|date',
             'notes' => 'nullable|string|max:1000',
             'payment_method_id' => 'required|exists:payment_methods,id', // Validación para el método de pago
@@ -43,6 +43,7 @@ class StoreInvoiceRequest extends FormRequest
             'invoice_number.required' => 'El campo número de factura es obligatorio.',
             'invoice_number.string' => 'El número de factura debe ser una cadena de texto.',
             'invoice_number.max' => 'El número de factura no debe exceder los 255 caracteres.',
+            'invoice_number.unique' => 'El número de factura ya está en uso.',
             'invoice_date.required' => 'El campo fecha de factura es obligatorio.',
             'invoice_date.date' => 'El campo fecha de factura debe ser una fecha válida.',
             'notes.string' => 'Las notas deben ser una cadena de texto.',

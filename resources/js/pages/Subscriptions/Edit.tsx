@@ -29,7 +29,7 @@ export default function Edit({ subscription }: { subscription: Subscription }) {
     const { data, setData, errors, put, processing } = useForm<SuscriptionFormData>({
         name: subscription.name,
         description: subscription.description ?? '',
-        price: subscription.price,
+        price: Number(subscription.price),
         type: subscription.type as 'semanal' | 'mensual' | 'anual',
         consultations_allowed: subscription.consultations_allowed ?? 0,
     });

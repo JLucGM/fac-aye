@@ -40,7 +40,7 @@ export default function UpdateBalanceDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post(route('patients.updateBalance', patient), {
+    post(route('patients.updateBalance', { patient: patient.id }), {
       onSuccess: () => {
         reset();
         setIsOpen(false);

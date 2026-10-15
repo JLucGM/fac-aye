@@ -23,13 +23,20 @@ class UpdatePaymentRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patients,id',
-            'consultation_id' => 'nullable|exists:consultations,id',
+
+            'payment_type' => 'required|string|in:consulta,suscripcion',
+
+            'consultation_ids' => 'required_if:payment_type,consulta|array',
+            'consultation_ids.*' => 'exists:consultations,id',
+
+            'subscription_ids' => 'required_if:payment_type,suscripcion|array',
+            'subscription_ids.*' => 'exists:patient_subscriptions,id',
+
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',
-            'status' => 'in:pendiente,parcial,pagado,incobrable,reembolsado',
+            'status' => 'required|string|in:pendiente,parcial,pagado,incobrable,reembolsado',
             'reference' => 'nullable|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            'paid_at' => 'nullable|date',
+            'notes' => 'nullable|string|max:255',
         ];
     }
 
@@ -39,7 +46,16 @@ class UpdatePaymentRequest extends FormRequest
             'patient_id.required' => 'El campo paciente es obligatorio.',
             'patient_id.exists' => 'El paciente seleccionado no existe.',
 
-            'consultation_id.exists' => 'La consulta seleccionada no existe.',
+            'payment_type.required' => 'El tipo de pago es obligatorio.',
+            'payment_type.in' => 'El tipo de pago debe ser "consulta" o "suscripcion".',
+
+            'consultation_ids.required' => 'El campo de consultas es obligatorio.',
+            'consultation_ids.array' => 'El campo de consultas debe ser un array.',
+            'consultation_ids.*.exists' => 'Una o más consultas seleccionadas no existen.',
+
+            'subscription_ids.required_if' => 'El campo de suscripciones es obligatorio cuando el tipo de pago es suscripción.',
+            'subscription_ids.array' => 'El campo de suscripciones debe ser un array.',
+            'subscription_ids.*.exists' => 'Una o más suscripciones seleccionadas no existen.',
 
             'payment_method_id.required' => 'El campo método de pago es obligatorio.',
             'payment_method_id.exists' => 'El método de pago seleccionado no existe.',
@@ -48,15 +64,14 @@ class UpdatePaymentRequest extends FormRequest
             'amount.numeric' => 'El monto debe ser un número.',
             'amount.min' => 'El monto no puede ser menor que 0.',
 
-            'status.in' => 'El estado debe ser uno de los siguientes: pendiente, completado, fallido.',
+            'status.required' => 'El campo estado es obligatorio.',
+            'status.string' => 'El estado debe ser un texto.',
 
             'reference.string' => 'La referencia debe ser un texto.',
             'reference.max' => 'La referencia no puede exceder los 255 caracteres.',
 
             'notes.string' => 'Las notas deben ser un texto.',
-            'notes.max' => 'Las notas no pueden exceder los 1000 caracteres.',
-
-            'paid_at.date' => 'La fecha de pago debe ser una fecha válida.',
+            'notes.max' => 'Las notas no pueden exceder los 255 caracteres.',
         ];
     }
 }

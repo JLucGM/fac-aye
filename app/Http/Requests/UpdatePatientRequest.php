@@ -27,9 +27,10 @@ class UpdatePatientRequest extends FormRequest
             'email' => 'required|email|max:255|unique:patients,email,' . $this->route('patient')->id,
             'phone' => 'nullable|string|max:15',
             'birthdate' => 'nullable|date',
-            'identification' => 'required|string|max:255',
+            'identification' => 'required|string|max:255|unique:patients,identification,' . $this->route('patient')->id,
             'doctor_id' => 'nullable|exists:doctors,id',
             'address' => 'nullable|string|max:255',
+            'subscription_id' => 'nullable|exists:subscriptions,id',
         ];
     }
 
@@ -57,11 +58,14 @@ class UpdatePatientRequest extends FormRequest
             'identification.required' => 'El campo identificación es obligatorio.',
             'identification.string' => 'La identificación debe ser un texto.',
             'identification.max' => 'La identificación no puede exceder los 255 caracteres.',
+            'identification.unique' => 'La identificación ya está en uso.',
 
             'address.string' => 'La dirección debe ser un texto.',
             'address.max' => 'La dirección no puede exceder los 255 caracteres.',
 
             'doctor_id.exists' => 'El doctor seleccionado no existe.',
+
+            'subscription_id.exists' => 'La suscripción seleccionada no existe.',
         ];
     }
 }

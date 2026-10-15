@@ -41,7 +41,7 @@ const calculateTotalDebt = (consultations: Consultation[]): number => {
 const calculateSubscriptionDebt = (subscriptions: PatientSubscription[]): number => {
   return subscriptions
     .filter(s => s.payment_status === 'pendiente')
-    .reduce((total, s) => total + parseFloat(s.subscription?.price || '0'), 0);
+    .reduce((total, s) => total + Number(s.subscription?.price ?? 0), 0);
 };
 
 interface ShowFilters {

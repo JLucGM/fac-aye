@@ -27,7 +27,7 @@ export default function Edit({ service }: { service: Service }) {
         name: service.name,
         // Provide an empty string if description is undefined to match ServiceFormData's string type
         description: service.description ?? '',
-        price: service.price,
+        price: Number(service.price),
         is_courtesy: service.is_courtesy ?? false,
     });
 

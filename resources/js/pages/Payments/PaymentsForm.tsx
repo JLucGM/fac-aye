@@ -2,7 +2,7 @@ import InputError from "@/components/input-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Select from 'react-select';
-import { Consultation, CreatePaymentFormData, Patient, PaymentMethod, Subscription } from "@/types";
+import { Consultation, CreatePaymentFormData, Patient, PatientSubscription, PaymentMethod } from "@/types";
 import { useEffect, useState } from 'react';
 import ConsultationsTable from "./ConsultationsTable";
 import SubscriptionsTable from "./SubscriptionsTable";
@@ -14,6 +14,7 @@ type PaymentsFormProps = {
   consultations: Consultation[]; 
   initialSelectedConsultationIds?: number[];
   setData: (key: string, value: any) => void;
+  onPendingItemsChange?: (items: (Consultation | PatientSubscription)[]) => void;
   errors: {
     patient_id?: string;
     consultation_ids?: string;
@@ -26,7 +27,7 @@ type PaymentsFormProps = {
   };
 };
 
-export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], initialSelectedConsultationIds = [], setData, errors }: PaymentsFormProps) {
+export default function PaymentsForm({ data, patients = [], paymentMethods, consultations = [], initialSelectedConsultationIds = [], setData, onPendingItemsChange, errors }: PaymentsFormProps) {
 
   // --- 1. Inicialización de Estados ---
   
@@ -34,7 +35,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
     ? 'consulta' 
     : ((data.subscription_ids?.length || 0) > 0 ? 'suscripcion' : 'consulta');
 
-  const [pendingItems, setPendingItems] = useState<(Consultation | Subscription)[]>([]);
+  const [pendingItems, setPendingItems] = useState<(Consultation | PatientSubscription)[]>([]);
   const [paymentType, setPaymentType] = useState<'consulta' | 'suscripcion'>(initialPaymentType);
 
   // --- 2. Opciones de Select ---
@@ -87,11 +88,12 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
       let amount = 0;
 
       if (paymentType === 'consulta') {
-        const amountNum = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
-        const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid || 0));
+        const consultation = item as Consultation;
+        const amountNum = typeof consultation.amount === 'number' ? consultation.amount : parseFloat(String(consultation.amount));
+        const amountPaidNum = typeof consultation.amount_paid === 'number' ? consultation.amount_paid : parseFloat(String(consultation.amount_paid || 0));
         amount = (amountNum - (amountPaidNum || 0)) || 0;
       } else {
-        const subscription = item as Subscription;
+        const subscription = item as PatientSubscription;
         if (subscription.subscription && subscription.subscription.price !== undefined) {
           amount = typeof subscription.subscription.price === 'number'
             ? subscription.subscription.price
@@ -133,7 +135,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
     if (currentPatientId) {
       const patient = patients.find(p => p.id === currentPatientId);
-      let filteredItems: (Consultation | Subscription)[] = [];
+      let filteredItems: (Consultation | PatientSubscription)[] = [];
 
       if (paymentType === 'consulta') {
         
@@ -164,6 +166,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
       }
       
       setPendingItems(filteredItems);
+      onPendingItemsChange?.(filteredItems);
 
     } else {
       setPendingItems([]);
@@ -186,7 +189,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="payment_method_id">Método de Pago</Label>
+          <Label htmlFor="payment_method_id">Método de Pago *</Label>
           <Select
             id="payment_method_id"
             options={paymentMethodOptions}
@@ -200,7 +203,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
         </div>
 
         <div>
-          <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado del pago</Label>
+          <Label htmlFor="status" className="mb-2 block font-semibold text-gray-700">Estado del pago *</Label>
           <Select
             id="status"
             options={statusOptions}
@@ -231,7 +234,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
       <div className="grid grid-cols-2 gap-4">
         {patientOptions.length > 0 && (
           <div>
-            <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente</Label>
+            <Label htmlFor="patient_id" className="mb-2 block font-semibold text-gray-700">Paciente *</Label>
             <Select
               id="patient_id"
               options={patientOptions}
@@ -245,7 +248,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           </div>
         )}
         <div>
-          <Label htmlFor="payment_type" className="mb-2 block font-semibold text-gray-700">Tipo de Pago</Label>
+          <Label htmlFor="payment_type" className="mb-2 block font-semibold text-gray-700">Tipo de Pago *</Label>
           <Select
             id="payment_type"
             options={[
@@ -296,7 +299,7 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           </Label>
           {pendingItems.length > 0 ? (
             <SubscriptionsTable
-              pendingSubscriptions={pendingItems as Subscription[]}
+              pendingSubscriptions={pendingItems as PatientSubscription[]}
               data={data}
               toggleSubscriptionSelection={handleItemSelection}
             />
@@ -320,21 +323,23 @@ export default function PaymentsForm({ data, patients = [], paymentMethods, cons
           })
           .reduce((sum, item) => {
             if (paymentType === 'consulta') {
-              const amountNum = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
-              const amountPaidNum = typeof item.amount_paid === 'number' ? item.amount_paid : parseFloat(String(item.amount_paid || 0));
+              const consultation = item as Consultation;
+              const amountNum = typeof consultation.amount === 'number' ? consultation.amount : parseFloat(String(consultation.amount));
+              const amountPaidNum = typeof consultation.amount_paid === 'number' ? consultation.amount_paid : parseFloat(String(consultation.amount_paid || 0));
               return sum + ((amountNum - (amountPaidNum || 0)) || 0);
             } else {
-              return sum + ((item as Subscription).subscription?.price ?? 0);
+              return sum + Number((item as PatientSubscription).subscription?.price ?? 0);
             }
           }, 0)}
       </div>
 
       <div>
-        <Label htmlFor="amount">Monto a pagar</Label>
+        <Label htmlFor="amount">Monto a pagar *</Label>
         <Input
           id="amount"
           type="number"
           name="amount"
+          required
           value={data.amount}
           min={0}
           step="0.01"

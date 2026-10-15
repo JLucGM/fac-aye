@@ -30,8 +30,7 @@ class StorePatientRequest extends FormRequest
             'identification' => 'required|string|max:255|unique:patients,identification',
             'address' => 'nullable|string|max:255',
             'doctor_id' => 'nullable|exists:doctors,id',
-                    'subscription_id' => 'nullable|exists:subscriptions,id'
-
+            'subscription_id' => 'nullable|exists:subscriptions,id',
         ];
     }
 

@@ -49,7 +49,18 @@ export default function ConsultationsTable({ pendingConsultations, data, toggleC
                 {/* Opcional: Mostrar un ícono si está bloqueado para mejor UX */}
                 {isLocked && <span className="ml-2 text-red-500" title="Consulta bloqueada por ser parte de este pago"></span>}
               </TableCell>
-              <TableCell>{consultation.services ? JSON.parse(consultation.services).map((s: any) => s.name).join(', ') : `Asistencia #${consultation.id}`}</TableCell>
+              <TableCell>
+                {(() => {
+                  const servicesRaw = consultation.services;
+                  if (Array.isArray(servicesRaw)) {
+                    return servicesRaw.map((s: { name?: string }) => s.name ?? '').join(', ');
+                  }
+                  if (typeof servicesRaw === 'string' && servicesRaw) {
+                    return JSON.parse(servicesRaw).map((s: { name?: string }) => s.name ?? '').join(', ');
+                  }
+                  return `Asistencia #${consultation.id}`;
+                })()}
+              </TableCell>
               <TableCell>{amount.toFixed(2)}</TableCell>
               <TableCell>{amountPaid.toFixed(2)}</TableCell>
               <TableCell>{pendingAmount.toFixed(2)}</TableCell>

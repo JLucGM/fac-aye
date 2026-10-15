@@ -1,4 +1,4 @@
-import { Consultation, CreatePaymentFormData, Patient, PaymentMethod, Subscription, type BreadcrumbItem } from '@/types';
+import { Consultation, CreatePaymentFormData, Patient, PatientSubscription, PaymentMethod, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/layouts/content-layout';
@@ -42,12 +42,12 @@ export default function Create({ paymentMethods, patients, consultations }: {
     
     // Estados para el diálogo de confirmación
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-    const [pendingItems, setPendingItems] = useState<(Consultation | Subscription)[]>([]);
-    const [allSubscriptions, setAllSubscriptions] = useState<Subscription[]>([]);
+    const [pendingItems, setPendingItems] = useState<(Consultation | PatientSubscription)[]>([]);
+    const [, setAllSubscriptions] = useState<PatientSubscription[]>([]);
 
     // Obtener todas las suscripciones de los pacientes
     const getAllSubscriptions = () => {
-        const allSubs: Subscription[] = [];
+        const allSubs: PatientSubscription[] = [];
         patients.forEach(patient => {
             if (patient.subscriptions) {
                 allSubs.push(...patient.subscriptions);
@@ -109,7 +109,7 @@ export default function Create({ paymentMethods, patients, consultations }: {
                 </form>
 
                 <div className="mt-4">
-                    <PatientInfo patient={selectedPatient} />
+                    {selectedPatient && <PatientInfo patient={selectedPatient} />}
                 </div>
             </div>
 

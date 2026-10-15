@@ -77,7 +77,7 @@ export default function InvoicesForm({ data, setData, errors, patients, paymentM
 
     // Calcular el total de la factura
     const calculateTotal = () => {
-    return data.items.reduce((total, item) => total + parseFloat(item.line_total), 0);
+    return data.items.reduce((total, item) => total + Number(item.line_total), 0);
 };
 
 const truncateToTwoDecimals = (num: number) => {
@@ -109,11 +109,12 @@ const truncateToTwoDecimals = (num: number) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <Label htmlFor="invoice_number">Número de Factura</Label>
+                    <Label htmlFor="invoice_number">Número de Factura *</Label>
                     <Input
                         id="invoice_number"
                         type="text"
                         name="invoice_number"
+                        required
                         value={data.invoice_number}
                         className="block w-full"
                         onChange={(e) => setData('invoice_number', e.target.value)}
@@ -123,11 +124,12 @@ const truncateToTwoDecimals = (num: number) => {
                 </div>
 
                 <div>
-                    <Label htmlFor="invoice_date">Fecha de Factura</Label>
+                    <Label htmlFor="invoice_date">Fecha de Factura *</Label>
                     <Input
                         id="invoice_date"
                         type="date"
                         name="invoice_date"
+                        required
                         value={data.invoice_date}
                         className="block w-full"
                         onChange={(e) => setData('invoice_date', e.target.value)}
@@ -136,7 +138,7 @@ const truncateToTwoDecimals = (num: number) => {
                 </div>
 
                 <div>
-                    <Label htmlFor="patient_id">Paciente</Label>
+                    <Label htmlFor="patient_id">Paciente *</Label>
                     <Select
                         id="patient_id"
                         options={patientOptions}
@@ -152,7 +154,7 @@ const truncateToTwoDecimals = (num: number) => {
                 </div>
 
                 <div>
-                    <Label htmlFor="payment_method_id">Método de Pago</Label>
+                    <Label htmlFor="payment_method_id">Método de Pago *</Label>
                     <Select
                         id="payment_method_id"
                         options={paymentMethodOptions}
@@ -181,7 +183,7 @@ const truncateToTwoDecimals = (num: number) => {
                 <InputError message={errors.notes} className="mt-2" />
             </div>
 
-            <h3 className="text-lg font-semibold mt-6 mb-3">Ítems de la Factura</h3>
+            <h3 className="text-lg font-semibold mt-6 mb-3">Ítems de la Factura *</h3>
             <div className="overflow-x-auto rounded-md border">
                 <Table>
                     <TableHeader>

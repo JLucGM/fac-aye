@@ -7,6 +7,10 @@ use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Http\Requests\UpdatePatientSubscriptionRequest;
+use App\Http\Requests\UpdateBalanceRequest;
+use App\Http\Requests\CancelSubscriptionRequest;
+use App\Http\Requests\ReactivateSubscriptionRequest;
 use App\Models\PatientBalanceTransaction;
 use App\Models\PatientSubscription;
 use App\Models\Setting;
@@ -79,10 +83,6 @@ class PatientController extends Controller
         $patientSubscription = null;
 
         if ($request->filled('subscription_id')) {
-            $request->validate([
-                'subscription_id' => 'exists:subscriptions,id'
-            ]);
-
             $subscription = Subscription::find($request->subscription_id);
             $validatedSubscriptionData = [
                 'start_date' => now(),
@@ -335,13 +335,8 @@ class PatientController extends Controller
      * Verifica que no existan múltiples activas y crea una nueva suscripción,
      * desactivando la anterior si existía.
      */
-    public function updateSubscription(Request $request)
+    public function updateSubscription(UpdatePatientSubscriptionRequest $request)
     {
-        $request->validate([
-            'subscription_id' => 'required|exists:subscriptions,id',
-            'patient_id' => 'required|exists:patients,id',
-        ]);
-
         // Buscar la suscripción seleccionada
         $newSubscription = Subscription::findOrFail($request->subscription_id);
         $patient = Patient::findOrFail($request->patient_id);
@@ -421,13 +416,8 @@ class PatientController extends Controller
     /**
      * Update patient balance and credit.
      */
-    public function updateBalance(Request $request, Patient $patient)
+    public function updateBalance(UpdateBalanceRequest $request, Patient $patient)
     {
-        $request->validate([
-            'balance' => 'required|numeric|min:-999999.99|max:999999.99',
-            'credit' => 'required|numeric|min:0|max:999999.99',
-            'description' => 'required|string|max:1000',
-        ]);
 
         // Usamos DB::transaction para asegurar que todos los registros se creen correctamente
         DB::transaction(function () use ($request, $patient) {
@@ -482,12 +472,8 @@ class PatientController extends Controller
      * Reversar (cancelar) una suscripción creada por error.
      * Revierte la deuda asociada, convierte pagos en crédito y recalcula el balance.
      */
-    public function cancelSubscription(Request $request, Patient $patient)
+    public function cancelSubscription(CancelSubscriptionRequest $request, Patient $patient)
     {
-        $request->validate([
-            'patient_subscription_id' => 'required|exists:patient_subscriptions,id',
-            'reason' => 'required|string|max:1000',
-        ]);
 
         $subscription = PatientSubscription::with('subscription')
             ->where('id', $request->patient_subscription_id)
@@ -544,12 +530,8 @@ class PatientController extends Controller
      * Reactivar una suscripción que fue desactivada/cancelada pero aún tiene consultas restantes.
      * Si la deuda fue reversada previamente, se genera una nueva deuda.
      */
-    public function reactivateSubscription(Request $request, Patient $patient)
+    public function reactivateSubscription(ReactivateSubscriptionRequest $request, Patient $patient)
     {
-        $request->validate([
-            'patient_subscription_id' => 'required|exists:patient_subscriptions,id',
-            'reason' => 'required|string|max:1000',
-        ]);
 
         $subscription = PatientSubscription::with('subscription')
             ->where('id', $request->patient_subscription_id)

@@ -1,5 +1,5 @@
 import { ContentLayout } from '@/layouts/content-layout';
-import { Consultation, Patient, PaymentMethod, Service, User, MedicalRecord, type BreadcrumbItem } from '@/types';
+import { Consultation, Patient, Service, User, MedicalRecord, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import ConsultationsForm from './ConsultationsForm';
@@ -29,7 +29,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Editar asistencia', href: '#' },
 ];
 
-export default function Edit({ consultation, patients, users, services, paymentMethods }: {
+export default function Edit({ consultation, patients, users, services }: {
     
     consultation: Consultation & {
         payment?: Array<{
@@ -43,7 +43,6 @@ export default function Edit({ consultation, patients, users, services, paymentM
     patients: Patient[],
     users: User[],
     services: Service[],
-    paymentMethods: PaymentMethod[]
 }) {
     // console.log(consultation)
     // Estado para controlar la apertura/cierre del Dialog
@@ -55,13 +54,15 @@ export default function Edit({ consultation, patients, users, services, paymentM
     const { data, setData, errors, put, processing  } = useForm({
         user_id: consultation.user_id,
         patient_id: consultation.patient_id,
-        service_id: consultation.services?.map((service: Service) => service.id) ?? [],
+        service_id: Array.isArray(consultation.services)
+            ? consultation.services.map((service) => (service as Service).id)
+            : [],
         status: consultation.status,
         // scheduled_at: consultation.scheduled_at ? new Date(consultation.scheduled_at).toISOString().slice(0, 16) : '',
         notes: consultation.notes || '',
         payment_status: consultation.payment_status || '',
         consultation_type: consultation.consultation_type || '',
-        amount: consultation.amount || 0,
+        amount: Number(consultation.amount) || 0,
         subscription_use: consultation.patient_subscription_id ? 'yes' : 'no', // Determina si se usa la suscripción
     });
 
@@ -76,7 +77,7 @@ export default function Edit({ consultation, patients, users, services, paymentM
                 toast.success('asistencia actualizada con éxito');
                 setIsConfirmUpdateDialogOpen(false);
             },
-            onError: (errors: any) => {
+            onError: (errors) => {
                 console.error("Error al actualizar la asistencia:", errors);
                 setIsConfirmUpdateDialogOpen(false);
             }

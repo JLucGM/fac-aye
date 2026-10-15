@@ -30,7 +30,7 @@ export default function Create() {
         name: '',
         description: '',
         price: 0,
-        type: 'semanal' as 'semanal',
+        type: 'semanal' as const,
         consultations_allowed: 0,
     });
 

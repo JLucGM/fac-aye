@@ -20,7 +20,7 @@ export const subscriptionColumns = (patientSlug?: string): ColumnDef<PatientSubs
         cell: ({ row }) => {
             const subscription = row.original.subscription;
             return subscription && subscription.price
-                ? `$${parseFloat(subscription.price).toFixed(2)}`
+                ? `$${Number(subscription.price).toFixed(2)}`
                 : 'Sin funcional';
         },
     },

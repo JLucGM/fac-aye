@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInvoiceRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
 use App\Models\Consultation;
 use App\Models\Invoice;
 use App\Models\Patient;
@@ -154,24 +155,9 @@ class InvoiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Invoice $invoice)
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        // dd($request->all());
-        // Validar todos los campos, incluyendo los ítems y la imagen
-        $validatedData = $request->validate([
-            'patient_id' => 'nullable|exists:patients,id',
-            'invoice_number' => 'nullable|string|max:255',
-            'invoice_date' => 'nullable|date',
-            'notes' => 'nullable|string|max:1000',
-            'payment_method_id' => 'nullable|exists:payment_methods,id',
-            'items' => 'nullable|array|min:1',
-            'items.*.id' => 'nullable|exists:invoice_items,id',
-            'items.*.service_name' => 'nullable|string|max:255',
-            'items.*.quantity' => 'nullable|integer|min:1',
-            'items.*.unit_price' => 'nullable|numeric|min:0',
-            'items.*.line_total' => 'nullable|numeric|min:0',
-            // 'invoice_img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validatedData = $request->validated();
 
         // Actualizar datos principales de la factura
         $invoice->update([

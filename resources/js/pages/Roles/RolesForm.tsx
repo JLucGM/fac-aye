@@ -31,11 +31,12 @@ export default function RolesForm({ data, permissions, setData, errors }: RolesF
     return (
         <>
             <div>
-                <Label htmlFor="name">Nombre</Label>
+                <Label htmlFor="name">Nombre *</Label>
                 <Input
                     id="name"
                     type="text"
                     name="name"
+                    required
                     value={data.name || ''}
                     className="mt-1 block w-full"
                     onChange={(e) => setData('name', e.target.value)}
@@ -44,7 +45,7 @@ export default function RolesForm({ data, permissions, setData, errors }: RolesF
             </div>
 
             <div className="mt-4">
-                <Label>Lista de Permisos</Label>
+                <Label>Lista de Permisos (Opcional)</Label>
                 {permissions.map((permission) => (
                     <div key={permission.name} className="flex items-center mt-2">
                         <Checkbox

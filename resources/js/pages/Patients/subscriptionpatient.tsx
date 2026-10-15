@@ -111,15 +111,15 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
                             options={[
                                 { value: '', label: 'Sin paciente' },
                                 ...patients.map(patient => ({
-                                    value: patient.id,
+                                    value: String(patient.id),
                                     label: `${patient.name} ${patient.lastname} ( C.I: ${patient.identification} )`
                                 }))
                             ]}
                             value={data.patient_id
-                                ? { value: data.patient_id, label: patients.find(s => s.id === data.patient_id)?.name || '' }
+                                ? { value: data.patient_id, label: patients.find(s => s.id === Number(data.patient_id))?.name || '' }
                                 : { value: '', label: 'Sin paciente' }
                             }
-                            onChange={(selected) => setData('patient_id', selected?.value || null)}
+                            onChange={(selected) => setData('patient_id', selected?.value ?? '')}
                             isClearable={false}
                             className="mt-1"
                         />
@@ -134,15 +134,15 @@ export default function Create({ patients, subscriptions }: { patients: Patient[
                             options={[
                                 { value: '', label: 'Sin Funcionales' },
                                 ...subscriptions.map(subscription => ({
-                                    value: subscription.id,
+                                    value: String(subscription.id),
                                     label: `${subscription.name} (${subscription.type})`
                                 }))
                             ]}
                             value={data.subscription_id
-                                ? { value: data.subscription_id, label: subscriptions.find(s => s.id === data.subscription_id)?.name || '' }
+                                ? { value: data.subscription_id, label: subscriptions.find(s => s.id === Number(data.subscription_id))?.name || '' }
                                 : { value: '', label: 'Sin Funcionales' }
                             }
-                            onChange={(selected) => setData('subscription_id', selected?.value || null)}
+                            onChange={(selected) => setData('subscription_id', selected?.value ?? '')}
                             isClearable={false}
                             className="mt-1"
                         />

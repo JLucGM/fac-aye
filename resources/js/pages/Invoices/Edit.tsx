@@ -42,8 +42,8 @@ export default function Edit({ invoice, patients, paymentMethods }: EditInvoiceP
             id: item.id,
             service_name: item.service_name, // agregar service_name
             quantity: item.quantity,
-            unit_price: item.unit_price,
-            line_total: item.line_total,
+            unit_price: Number(item.unit_price),
+            line_total: Number(item.line_total),
         })),
     });
 

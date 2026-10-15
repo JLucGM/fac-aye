@@ -50,6 +50,7 @@ export default function Edit({ user }: { user: any; }) {
                 <UsersForm
                     data={data}
                     setData={setData}
+                    editing
                     errors={errors}
                 />
 

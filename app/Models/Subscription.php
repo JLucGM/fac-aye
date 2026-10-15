@@ -32,7 +32,7 @@ class Subscription extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom(['name', 'lastname'])
+            ->generateSlugsFrom(['name'])
             ->saveSlugsTo('slug');
     }
 

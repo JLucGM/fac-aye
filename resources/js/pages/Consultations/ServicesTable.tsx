@@ -1,7 +1,12 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Service } from "@/types";
 
-export default function ServicesTable({ services, className }: { services: Service[]; className?: string }) {
+export type ServiceTableItem = {
+    id: number | string;
+    name: string;
+    price: number | string;
+};
+
+export default function ServicesTable({ services, className }: { services: ServiceTableItem[]; className?: string }) {
     return (
         <div className={`overflow-x-auto ${className}`}>
             <Table className="min-w-full border-collapse border border-gray-200">

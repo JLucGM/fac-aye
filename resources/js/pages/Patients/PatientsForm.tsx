@@ -43,7 +43,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
     return (
         <>
             <div className="col-span-full">
-                <Label htmlFor="identification">Cédula de identidad</Label>
+                <Label htmlFor="identification">Cédula de identidad *</Label>
                 <Input
                     id="identification"
                     type="text"
@@ -56,7 +56,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label htmlFor="name">Nombre</Label>
+                <Label htmlFor="name">Nombre *</Label>
                 <Input
                     id="name"
                     type="text"
@@ -69,7 +69,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label htmlFor="lastname">Apellido</Label>
+                <Label htmlFor="lastname">Apellido *</Label>
                 <Input
                     id="lastname"
                     type="text"
@@ -82,7 +82,7 @@ export default function PatientsForm({ data, setData, errors, doctors, subscript
             </div>
 
             <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                     id="email"
                     type="email"

@@ -35,10 +35,11 @@ export default function MedicalRecordForm({ data, setData, errors }: MedicalReco
             <Input type="hidden" value={data.consultation_id || ''} />
 
             <div className="col-span-full">
-                <Label htmlFor="mr_title">Título</Label>
+                <Label htmlFor="mr_title">Título *</Label>
                 <Input
                     id="mr_title"
                     type="text"
+                    required
                     value={data.title}
                     onChange={(e) => setData('title', e.target.value)}
                     className={errors.title ? 'border-red-500' : ''}
@@ -59,7 +60,7 @@ export default function MedicalRecordForm({ data, setData, errors }: MedicalReco
             </div> */}
 
             <div className="col-span-full">
-                <Label htmlFor="mr_anamnesis">Anamnesis</Label>
+                <Label htmlFor="mr_anamnesis">Anamnesis (Opcional)</Label>
                 <Textarea
                     id="mr_anamnesis"
                     value={data.anamnesis}
@@ -69,7 +70,7 @@ export default function MedicalRecordForm({ data, setData, errors }: MedicalReco
                 {errors.anamnesis && <p className="text-red-500 text-sm mt-1">{errors.anamnesis}</p>}
             </div>
             <div className="col-span-full">
-                <Label htmlFor="mr_pain_behavior">Comportamiento del dolor</Label>
+                <Label htmlFor="mr_pain_behavior">Comportamiento del dolor (Opcional)</Label>
                 <Textarea
                     id="mr_pain_behavior"
                     value={data.pain_behavior}
@@ -79,7 +80,7 @@ export default function MedicalRecordForm({ data, setData, errors }: MedicalReco
                 {errors.pain_behavior && <p className="text-red-500 text-sm mt-1">{errors.pain_behavior}</p>}
             </div>
             <div className="col-span-full">
-                <Label htmlFor="mr_description">Descripción</Label>
+                <Label htmlFor="mr_description">Descripción (Opcional)</Label>
                 <Textarea
                     id="mr_description"
                     value={data.description}
@@ -90,7 +91,7 @@ export default function MedicalRecordForm({ data, setData, errors }: MedicalReco
             </div>
 
             <div>
-                <Label htmlFor="mr_type">Tipo de Registro</Label>
+                <Label htmlFor="mr_type">Tipo de Registro *</Label>
                 <Select
                     value={data.type}
                     onValueChange={(value) => setData('type', value)}

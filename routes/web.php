@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ClosuresController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DoctorController;
@@ -34,7 +33,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'payment-methods' => PaymentMethodController::class,
         'consultations' => ConsultationController::class,
         'patients' => PatientController::class,
-        'users' => RegisteredUserController::class,
         'services' => ServiceController::class,
         'roles' => RoleController::class,
         'user' => UserController::class,

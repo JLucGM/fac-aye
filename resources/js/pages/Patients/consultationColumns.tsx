@@ -1,17 +1,17 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ConsultationResource, Service } from "@/types"; // Asegúrate de que la ruta sea correcta
+import { Consultation, ConsultationResource, Service } from "@/types"; // Asegúrate de que la ruta sea correcta
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "@inertiajs/react";
 import { Edit, MoreHorizontal } from "lucide-react";
 
-export const consultationColumns: ColumnDef<ConsultationResource>[] = [
+export const consultationColumns: ColumnDef<Consultation | ConsultationResource>[] = [
   {
     accessorKey: "created_at",
     header: "Creado",
     enableGlobalFilter: false,
     cell: ({ row }) => {
-      return new Date(row.original.created_at).toLocaleString();
+      return row.original.created_at ? new Date(row.original.created_at).toLocaleString() : '';
     },
   },
   // {
@@ -35,10 +35,12 @@ export const consultationColumns: ColumnDef<ConsultationResource>[] = [
     cell: ({ row }) => {
       const servicesData = row.original.services;
 
-      // Verifica si servicesData es un arreglo o una cadena
+      // Verifica si servicesData es un arreglo o una cadena JSON
       const services = Array.isArray(servicesData)
         ? servicesData
-        : JSON.parse(servicesData || '[]');
+        : typeof servicesData === 'string'
+          ? JSON.parse(servicesData || '[]')
+          : [];
 
       return (
         <ul>
